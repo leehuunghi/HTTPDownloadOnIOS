@@ -7,6 +7,7 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "DownloadPriority.h"
 
 @protocol DownloadItemDelegate <NSObject>
 
@@ -31,6 +32,8 @@
 @property (nonatomic, strong) NSProgress *progress;
 
 @property (nonatomic, strong) NSString *filePath;
+
+@property (nonatomic) DownloadPriority downloadPriority;
 
 @property (nonatomic, retain) id<DownloadItemDelegate> delegate;
 

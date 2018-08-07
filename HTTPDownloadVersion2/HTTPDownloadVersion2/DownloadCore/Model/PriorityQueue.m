@@ -28,28 +28,36 @@
     return self;
 }
 
+- (void)addObject:(id)object {
+    [self addObject:object withPriority:DownloadPriorityMedium];
+}
+
 - (void)addObject:(id)object withPriority:(DownloadPriority)priority {
     if(object && priority) {
         __weak typeof (self) weakSelf = self;
-        dispatch_barrier_async(self.concurrentQueue, ^{
             switch (priority) {
                 case DownloadPriorityHigh: {
-                    [weakSelf.arrayHigh addObject:object];
+                    dispatch_barrier_async(self.concurrentQueue, ^{
+                        [weakSelf.arrayHigh addObject:object];
+                    });
                     break;
                 }
                 case DownloadPriorityMedium: {
-                    [weakSelf.arrayMedium addObject:object];
+                    dispatch_barrier_async(self.concurrentQueue, ^{
+                        [weakSelf.arrayMedium addObject:object];
+                    });
                     break;
                 }
                 case DownloadPriorityLow: {
-                    [weakSelf.arrayLow addObject:object];
+                    dispatch_barrier_async(self.concurrentQueue, ^{
+                        [weakSelf.arrayLow addObject:object];
+                    });
                     break;
                 }
                 default:
                     NSLog(@"No priority");
                     break;
             }
-        });
     }
 }
 
