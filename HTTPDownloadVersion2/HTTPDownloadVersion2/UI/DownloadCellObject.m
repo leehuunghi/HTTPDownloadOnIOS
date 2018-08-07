@@ -83,10 +83,10 @@
         switch (state) {
             case DownloadStatePause:
                 self.progressString = @"Pause";
-                [_downloadManager pause];
+//                [_downloadManager pause];
                 break;
             case DownloadStateDownloading:
-                [_downloadManager resume];
+//                [_downloadManager resume];
                 break;
             case DownloadStateComplete:
                 self.progress = 1.0;
@@ -158,7 +158,7 @@
 }
 
 - (void)cancel {
-    [_downloadManager cancel];
+//    [_downloadManager cancel];
 }
 
 - (void)upPriority {

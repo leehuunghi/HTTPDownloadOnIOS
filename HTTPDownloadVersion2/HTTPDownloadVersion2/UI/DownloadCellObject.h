@@ -32,7 +32,7 @@ typedef NS_ENUM(NSUInteger, DownloadState) {
 
 @property (readwrite, nonatomic, weak) DownloadTableViewCell *cell;
 
-@property (readwrite, nonatomic, strong) DownloadObjectModel *downloadManager;
+//@property (readwrite, nonatomic, strong) DownloadObjectModel *downloadManager;
 
 @property (readwrite, nonatomic, strong) NSString *filePath;
 

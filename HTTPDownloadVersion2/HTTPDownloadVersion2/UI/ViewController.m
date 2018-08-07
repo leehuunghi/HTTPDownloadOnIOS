@@ -8,11 +8,9 @@
 
 #import "ViewController.h"
 #import "DownloadCellObject.h"
-#import "DownloadManager.h"
 
 @interface ViewController ()
 
-@property (strong, nonatomic) DownloadManager *downloadManager;
 @property (nonatomic) NSArray* staticArr;
 @property (nonatomic) int count;
 @end
@@ -45,7 +43,7 @@
 }
 
 - (void)loadCore {
-    _downloadManager = [DownloadManager new];
+//    _downloadManager = [DownloadManager new];
 }
 
 - (void)loadData {
@@ -68,23 +66,23 @@
         cellObject.progressString = @"Pending...";
         [_downloadTableView addCell:cellObject];
         __weak typeof(self) weakSelf = self;
-        [_downloadManager checkURL:url completion:^(NSError *error) {
-            if(error) {
-                cellObject.state = DownloadStateError;
-            } else {
-                [weakSelf.downloadManager createDownloadWithURLString:url completion:^(DownloadObjectModel *downloadObject, NSError *error) {
-                    [downloadObject addUpdateBlock:^(NSNumber * totalWrite, NSNumber * totalExpected) {
-                        [cellObject progressDidUpdate:[totalWrite intValue] total:[totalExpected intValue]];
-                    }];
-                    [downloadObject addCompletionBlock:^(NSURL *fileURL) {
-                        [cellObject downloadFinish:fileURL.absoluteString];
-                    }];
-                    
-                    cellObject.downloadManager = downloadObject;
-                    [downloadObject resume];
-                }];
-            }
-        }];
+//        [_downloadManager checkURL:url completion:^(NSError *error) {
+//            if(error) {
+//                cellObject.state = DownloadStateError;
+//            } else {
+//                [weakSelf.downloadManager createDownloadWithURLString:url completion:^(DownloadObjectModel *downloadObject, NSError *error) {
+//                    [downloadObject addUpdateBlock:^(NSNumber * totalWrite, NSNumber * totalExpected) {
+//                        [cellObject progressDidUpdate:[totalWrite intValue] total:[totalExpected intValue]];
+//                    }];
+//                    [downloadObject addCompletionBlock:^(NSURL *fileURL) {
+//                        [cellObject downloadFinish:fileURL.absoluteString];
+//                    }];
+//
+//                    cellObject.downloadManager = downloadObject;
+//                    [downloadObject resume];
+//                }];
+//            }
+//        }];
     }
 }
 

@@ -24,4 +24,6 @@
 
 - (void)cancel;
 
+- (instancetype)initWithUrlAndFileName:(NSString *)url fileName:(NSString *)fileName session:(NSURLSession *)session;
+
 @end

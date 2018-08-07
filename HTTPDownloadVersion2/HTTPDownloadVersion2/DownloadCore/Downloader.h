@@ -7,7 +7,12 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "DownloadItem.h"
 
 @interface Downloader : NSObject
+
+- (void)downloadTaskWithUrl:(NSString *)url success:(void (^)(DownloadItem* downloadItem))completionSuccess failure:(void (^)(NSError *))completionFailure;
+
+- (DownloadItem *)createDownloadItemWithUrl:(NSString *)url andFileName:(NSString *)fileName;
 
 @end
