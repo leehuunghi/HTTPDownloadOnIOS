@@ -7,25 +7,42 @@
 //
 
 #import "Downloader.h"
-#import "PriorityQueue.h"
 
 @interface Downloader()
 
-@property (nonatomic, strong) PriorityQueue *priorityQueue;
 @property (nonatomic, strong) NSURLSessionConfiguration *configuration;
+
 @property (nonatomic, strong) NSURLSession *session;
+
+@property (nonatomic, strong) PriorityQueue *priorityQueue;         //Pending
+
+@property (nonatomic, strong) NSOperation *downloadingOperation;    //Downloading
+
+@property (nonatomic, strong) NSMutableArray *downloadedItems;      //Downloaded
 
 @end
 
 @implementation Downloader
 
-- (void)downloadTaskWithUrl:(NSString *)url success:(void (^)(DownloadItem* downloadItem))completionSuccess failure:(void (^)(NSError *))completionFailure{
+- (void)createDownloadItemWithUrl:(NSString *)urlString filePath:(NSString *)filePath priority:(DownloadPriority)priority completion:(void (^)(DownloadItemModel *, NSError *))completion {
+    //check params
+    
+    NSURL *url = [NSURL URLWithString:urlString];
+    
+    DownloadItem *item = [DownloadItem new];
+    
+    completion(item, nil);
+    
+    item.downloadTask = [_session downloadTaskWithURL:url completionHandler:^(NSURL * _Nullable location, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+        
+    }];
+    
+    item.downloaderDelegate = self;
+}
+
+- (void)itemWillFinishDownload {
     
 }
 
-- (DownloadItem *)createDownloadItemWithUrl:(NSString *)url andFileName:(NSString *)fileName {
-    DownloadItem *downloadItem = [[DownloadItem alloc] initWithUrlAndFileName:url fileName:fileName session:self.session];
-    return downloadItem;
-}
 
 @end

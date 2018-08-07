@@ -9,14 +9,14 @@
 #import <Foundation/Foundation.h>
 
 typedef enum {
-    High,
-    Medium,
-    Low,
-} Priority;
+    DownloadPriorityHigh,
+    DownloadPriorityMedium,
+    DownloadPriorityLow
+} DownloadPriority;
 
 @interface PriorityQueue : NSObject
 
-- (void)addObject:(id)object withPriority:(Priority)priority;
+- (void)addObject:(id)object withPriority:(DownloadPriority)priority;
 
 - (id)getObjectFromQueue;
 

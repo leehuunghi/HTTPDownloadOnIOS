@@ -28,29 +28,30 @@
     return self;
 }
 
-- (void)addObject:(id)object withPriority:(Priority)priority {
+- (void)addObject:(id)object withPriority:(DownloadPriority)priority {
     if(object && priority) {
         __weak typeof (self) weakSelf = self;
         switch (priority) {
-            case High: {
+            case DownloadPriorityHigh: {
                 dispatch_barrier_async(self.concurrentQueue, ^{
                     [weakSelf.arrayHigh addObject:object];
                 });
                 break;
             }
-            case Medium: {
+            case DownloadPriorityMedium: {
                 dispatch_barrier_async(self.concurrentQueue, ^{
                     [weakSelf.arrayMedium addObject:object];
                 });
                 break;
             }
-            case Low: {
+            case DownloadPriorityLow: {
                 dispatch_barrier_async(self.concurrentQueue, ^{
                     [weakSelf.arrayLow addObject:object];
                 });
                 break;
             }
             default:
+                
                 break;
         }
     }
@@ -58,21 +59,17 @@
 
 - (void)removeObject {
     __weak typeof(self)weakSelf = self;
-    if ([_arrayHigh count]) {
-        dispatch_barrier_async(self.concurrentQueue, ^{
+    dispatch_barrier_async(self.concurrentQueue, ^{
+        if ([weakSelf.arrayHigh count]) {
             [weakSelf.arrayHigh removeLastObject];
-        });
-    } else if ([_arrayMedium count]) {
-        dispatch_barrier_async(self.concurrentQueue, ^{
+        } else if ([weakSelf.arrayMedium count]) {
             [weakSelf.arrayMedium removeLastObject];
-        });
-    } else if ([_arrayLow count]) {
-        dispatch_barrier_async(self.concurrentQueue, ^{
+        } else if ([weakSelf.arrayLow count]) {
             [weakSelf.arrayLow removeLastObject];
-        });
-    } else {
-        NSLog(@"Nothing in queue for remove!");
-    }
+        } else {
+            NSLog(@"Nothing in queue for remove!");
+        }
+    });
 }
 
 - (id)getObjectFromQueue {

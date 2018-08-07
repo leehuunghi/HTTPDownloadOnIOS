@@ -6,13 +6,11 @@
 //  Copyright © 2018 CPU11360. All rights reserved.
 //
 
-#import <Foundation/Foundation.h>
+#import "DownloaderModel.h"
 #import "DownloadItem.h"
 
-@interface Downloader : NSObject
 
-- (void)downloadTaskWithUrl:(NSString *)url success:(void (^)(DownloadItem* downloadItem))completionSuccess failure:(void (^)(NSError *))completionFailure;
+@interface Downloader : DownloaderModel <DownloaderDelegate>
 
-- (DownloadItem *)createDownloadItemWithUrl:(NSString *)url andFileName:(NSString *)fileName;
 
 @end

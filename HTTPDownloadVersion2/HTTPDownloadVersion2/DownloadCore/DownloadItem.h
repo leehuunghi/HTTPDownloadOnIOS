@@ -7,23 +7,36 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "DownloadItemModel.h"
 
-@interface DownloadItem : NSObject
+@protocol DownloaderDelegate <NSObject>
 
-@property (nonatomic, strong) NSString* url;
+@optional
 
-@property (nonatomic, strong) NSProgress* progress;
+- (void)itemWillStartDownload;
 
-@property (nonatomic, strong) NSString* filePath;
+- (void)itemWillFinishDownload;
 
-- (void)suppend;
+- (void)itemWillPauseDownload;
 
-- (void)resume;
+- (void)itemWillCancelDownload;
 
-- (void)pause;
+@end
 
-- (void)cancel;
+typedef NS_ENUM(NSUInteger, DownloadState) {
+    DownloadStatePending = 0,
+    DownloadStateDownloading,
+    DownloadStatePause,
+    DownloadStateComplete,
+    DownloadStateError
+};
 
-- (instancetype)initWithUrlAndFileName:(NSString *)url fileName:(NSString *)fileName session:(NSURLSession *)session;
+@interface DownloadItem : DownloadItemModel
+
+@property (nonatomic) DownloadState downloadState;
+
+@property (nonatomic, strong) NSURLSessionDownloadTask* downloadTask;
+
+@property (nonatomic, retain) id<DownloaderDelegate> downloaderDelegate;
 
 @end
