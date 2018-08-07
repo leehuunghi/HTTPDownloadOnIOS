@@ -31,29 +31,25 @@
 - (void)addObject:(id)object withPriority:(DownloadPriority)priority {
     if(object && priority) {
         __weak typeof (self) weakSelf = self;
-        switch (priority) {
-            case DownloadPriorityHigh: {
-                dispatch_barrier_async(self.concurrentQueue, ^{
+        dispatch_barrier_async(self.concurrentQueue, ^{
+            switch (priority) {
+                case DownloadPriorityHigh: {
                     [weakSelf.arrayHigh addObject:object];
-                });
-                break;
-            }
-            case DownloadPriorityMedium: {
-                dispatch_barrier_async(self.concurrentQueue, ^{
+                    break;
+                }
+                case DownloadPriorityMedium: {
                     [weakSelf.arrayMedium addObject:object];
-                });
-                break;
-            }
-            case DownloadPriorityLow: {
-                dispatch_barrier_async(self.concurrentQueue, ^{
+                    break;
+                }
+                case DownloadPriorityLow: {
                     [weakSelf.arrayLow addObject:object];
-                });
-                break;
+                    break;
+                }
+                default:
+                    NSLog(@"No priority");
+                    break;
             }
-            default:
-                
-                break;
-        }
+        });
     }
 }
 
@@ -75,21 +71,17 @@
 - (id)getObjectFromQueue {
     __weak typeof(self)weakSelf = self;
     __block id object = nil;
-    if ([_arrayHigh count]) {
-        dispatch_barrier_sync(self.concurrentQueue, ^{
+    dispatch_barrier_sync(self.concurrentQueue, ^{
+        if ([weakSelf.arrayHigh count]) {
             object = [weakSelf.arrayHigh lastObject];
-        });
-    } else if ([_arrayMedium count]) {
-        dispatch_barrier_sync(self.concurrentQueue, ^{
+        } else if ([weakSelf.arrayMedium count]) {
             object = [weakSelf.arrayMedium lastObject];
-        });
-    } else if ([_arrayLow count]) {
-        dispatch_barrier_sync(self.concurrentQueue, ^{
+        } else if ([weakSelf.arrayLow count]) {
             object = [weakSelf.arrayLow lastObject];
-        });
-    } else {
-        NSLog(@"Nothing in queue for get!");
-    }
+        } else {
+            NSLog(@"Nothing in queue for get!");
+        }
+    });
     return object;
 }
 
