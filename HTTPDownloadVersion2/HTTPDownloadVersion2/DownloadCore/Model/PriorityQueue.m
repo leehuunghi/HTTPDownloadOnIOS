@@ -33,7 +33,7 @@
 }
 
 - (void)addObject:(id)object withPriority:(DownloadPriority)priority {
-    if(object && priority) {
+    if(object) {
         __weak typeof (self) weakSelf = self;
             switch (priority) {
                 case DownloadPriorityHigh: {
