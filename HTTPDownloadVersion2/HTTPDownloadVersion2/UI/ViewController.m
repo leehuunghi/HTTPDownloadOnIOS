@@ -15,9 +15,9 @@
 
 @property (nonatomic, strong) DownloaderModel *downloader;
 
-@property (nonatomic) NSArray* staticArr;
+@property (nonatomic) NSArray *staticArr;
 @property (nonatomic) int count;
-@property (nonatomic) Downloader* downloader;
+
 @end
 
 @implementation ViewController

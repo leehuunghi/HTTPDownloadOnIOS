@@ -19,7 +19,7 @@
 }
 
 - (void)pause {
-    
+
 }
 
 - (void)cancel {
