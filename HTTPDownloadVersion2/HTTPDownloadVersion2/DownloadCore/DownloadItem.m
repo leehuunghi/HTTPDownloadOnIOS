@@ -24,7 +24,7 @@
 }
 
 - (void)resume {
-    
+    [self.downloaderDelegate itemWillStartDownload:self];
 }
 
 @end

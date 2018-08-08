@@ -33,6 +33,7 @@
         _downloadedItems = [[NSMutableArray alloc] init];
         _downloadingOperation = [[NSOperationQueue alloc] init];
         _downloadingOperation.maxConcurrentOperationCount = 8;
+        _session = [NSURLSession sessionWithConfiguration:self.configuration];
     }
     return self;
 }
@@ -43,18 +44,18 @@
     NSURL *url = [NSURL URLWithString:urlString];
     
     DownloadItem *item = [DownloadItem new];
-    
+    item.downloadState = DownloadItemStatePending;
+    item.downloaderDelegate = self;
     completion(item, nil);
-    
+    [_arrayDownloadTaskPending addObject:item];
+
     item.downloadTask = [_session downloadTaskWithURL:url completionHandler:^(NSURL * _Nullable location, NSURLResponse * _Nullable response, NSError * _Nullable error) {
         //task finish
         NSLog(@"Location: %@", location);
         NSLog(@"Path: %@", response.URL.filePathURL);
     }];
-    item.downloadState = DownloadItemStatePending;
-    item.downloaderDelegate = self;
-    
-    [_arrayDownloadTaskPending addObject:item];
+        
+    [item.downloadTask resume];
 }
 
 - (void)itemWillStartDownload:(DownloadItem *)downloadItem {

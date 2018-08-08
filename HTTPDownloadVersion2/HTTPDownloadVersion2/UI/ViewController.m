@@ -8,12 +8,9 @@
 
 #import "ViewController.h"
 #import "DownloadCellObject.h"
-#import "DownloaderModel.h"
 #import "Downloader.h"
 
 @interface ViewController ()
-
-@property (nonatomic, strong) DownloaderModel *downloader;
 
 @property (nonatomic) NSArray* staticArr;
 @property (nonatomic) int count;
