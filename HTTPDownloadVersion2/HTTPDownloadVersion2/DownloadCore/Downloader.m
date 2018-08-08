@@ -18,9 +18,9 @@
 
 @property (nonatomic, strong) PriorityQueue *priorityQueue;
 
-@property (nonatomic, strong) NSOperationQueue *downloadingOperation;    //Downloading
+@property (nonatomic, strong) NSOperationQueue *downloadingOperation;    //Downloadings
 
-@property (nonatomic, strong) NSMutableArray *downloadedItems;      //Downloaded
+@property (nonatomic, strong) NSMutableArray *downloadedItems;
 
 @end
 
@@ -51,7 +51,7 @@
         NSLog(@"Location: %@", location);
         NSLog(@"Path: %@", response.URL.filePathURL);
     }];
-    item.downloadState = DownloadStatePending;
+    item.downloadState = DownloadItemStatePending;
     item.downloaderDelegate = self;
     
     [_arrayDownloadTaskPending addObject:item];

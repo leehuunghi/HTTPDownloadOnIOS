@@ -8,9 +8,12 @@
 
 #import "ViewController.h"
 #import "DownloadCellObject.h"
+#import "DownloaderModel.h"
 #import "Downloader.h"
 
 @interface ViewController ()
+
+@property (nonatomic, strong) DownloaderModel *downloader;
 
 @property (nonatomic) NSArray* staticArr;
 @property (nonatomic) int count;
@@ -23,6 +26,25 @@
     [super viewDidLoad];
     _downloader = [[Downloader alloc] init];
     self.navigationItem.title = @"Download";
+    
+    [self loadCore];
+    [self loadData];
+    [self loadUI];
+}
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+- (void)loadCore {
+    _downloader = [Downloader new];
+}
+
+- (void)loadData {
+    NSMutableArray *historyDownload = [NSMutableArray new];
+    _downloadTableView.cellObjects = historyDownload;
+    
     self.staticArr = @[
                        @"http://www.vietnamvisaonentry.com/file/2014/06/coconut-tree.jpg",
                        @"http://ipv4.download.thinkbroadband.com/200MB.zip",
@@ -35,23 +57,6 @@
                        @"https://speed.hetzner.de/10GB.bin"
                        ];
     _count = 0;
-    [self loadCore];
-    [self loadData];
-    [self loadUI];
-}
-
-- (void)didReceiveMemoryWarning {
-    [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
-}
-
-- (void)loadCore {
-//    _downloadManager = [DownloadManager new];
-}
-
-- (void)loadData {
-    NSMutableArray *historyDownload = [NSMutableArray new];
-    _downloadTableView.cellObjects = historyDownload;
 }
 
 - (void)loadUI {
@@ -66,30 +71,16 @@
     if (url.length > 0) {
         DownloadCellObject *cellObject = [DownloadCellObject new];
         cellObject.title = [ViewController getNameInURL:url];
-        cellObject.progressString = @"Pending...";
         [_downloadTableView addCell:cellObject];
-        __weak typeof(self) weakSelf = self;
         
         [_downloader createDownloadItemWithUrl:url completion:^(DownloadItemModel *downloadItem, NSError *error) {
-            
+            if (error) {
+                cellObject.state = DownloadStateError;
+            } else {
+                cellObject.downloadItem = downloadItem;
+                downloadItem.delegate = cellObject;
+            }
         }];
-//        [_downloadManager checkURL:url completion:^(NSError *error) {
-//            if(error) {
-//                cellObject.state = DownloadStateError;
-//            } else {
-//                [weakSelf.downloadManager createDownloadWithURLString:url completion:^(DownloadObjectModel *downloadObject, NSError *error) {
-//                    [downloadObject addUpdateBlock:^(NSNumber * totalWrite, NSNumber * totalExpected) {
-//                        [cellObject progressDidUpdate:[totalWrite intValue] total:[totalExpected intValue]];
-//                    }];
-//                    [downloadObject addCompletionBlock:^(NSURL *fileURL) {
-//                        [cellObject downloadFinish:fileURL.absoluteString];
-//                    }];
-//
-//                    cellObject.downloadManager = downloadObject;
-//                    [downloadObject resume];
-//                }];
-//            }
-//        }];
     }
 }
 

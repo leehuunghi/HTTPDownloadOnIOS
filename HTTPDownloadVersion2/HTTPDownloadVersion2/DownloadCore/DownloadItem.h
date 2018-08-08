@@ -25,18 +25,17 @@
 
 @end
 
-
-typedef NS_ENUM(NSUInteger, DownloadState) {
-    DownloadStatePending = 0,
-    DownloadStateDownloading,
-    DownloadStatePause,
-    DownloadStateComplete,
-    DownloadStateError
+typedef NS_ENUM(NSUInteger, DownloadItemState) {
+    DownloadItemStatePending = 0,
+    DownloadItemStateDownloading,
+    DownloadItemStatePause,
+    DownloadItemStateComplete,
+    DownloadItemStateError
 };
 
 @interface DownloadItem : DownloadItemModel
 
-@property (nonatomic) DownloadState downloadState;
+@property (nonatomic) DownloadItemState downloadState;
 
 @property (nonatomic, strong) NSURLSessionDownloadTask* downloadTask;
 
