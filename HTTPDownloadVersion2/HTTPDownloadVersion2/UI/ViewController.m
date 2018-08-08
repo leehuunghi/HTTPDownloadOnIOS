@@ -8,17 +8,20 @@
 
 #import "ViewController.h"
 #import "DownloadCellObject.h"
+#import "Downloader.h"
 
 @interface ViewController ()
 
 @property (nonatomic) NSArray* staticArr;
 @property (nonatomic) int count;
+@property (nonatomic) Downloader* downloader;
 @end
 
 @implementation ViewController
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    _downloader = [[Downloader alloc] init];
     self.navigationItem.title = @"Download";
     self.staticArr = @[
                        @"http://www.vietnamvisaonentry.com/file/2014/06/coconut-tree.jpg",
@@ -66,6 +69,10 @@
         cellObject.progressString = @"Pending...";
         [_downloadTableView addCell:cellObject];
         __weak typeof(self) weakSelf = self;
+        
+        [_downloader createDownloadItemWithUrl:url completion:^(DownloadItemModel *downloadItem, NSError *error) {
+            
+        }];
 //        [_downloadManager checkURL:url completion:^(NSError *error) {
 //            if(error) {
 //                cellObject.state = DownloadStateError;
