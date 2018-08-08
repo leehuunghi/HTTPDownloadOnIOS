@@ -7,6 +7,7 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "DownloadPriority.h"
 
 @protocol DownloadItemDelegate <NSObject>
 
@@ -61,6 +62,9 @@
  Position and  to save file after downloaded
  */
 @property (nonatomic, strong) NSString *filePath;
+
+
+@property (nonatomic) DownloadPriority downloadPriority;
 
 /**
  Delegate to do something with every state of download file

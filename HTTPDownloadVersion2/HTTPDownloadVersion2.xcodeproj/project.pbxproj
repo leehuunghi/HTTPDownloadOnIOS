@@ -65,6 +65,7 @@
 		933AA29D2119897600CE94A0 /* DownloadItemModel.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DownloadItemModel.m; sourceTree = "<group>"; };
 		A35C824721193986002D42B5 /* HTTPDownloadVersion2.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HTTPDownloadVersion2.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A35C825821193989002D42B5 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		A35C82972119AECF002D42B5 /* DownloadPriority.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DownloadPriority.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -145,6 +146,7 @@
 				933AA29D2119897600CE94A0 /* DownloadItemModel.m */,
 				933AA27A2119836600CE94A0 /* PriorityQueue.h */,
 				933AA27B2119836600CE94A0 /* PriorityQueue.m */,
+				A35C82972119AECF002D42B5 /* DownloadPriority.h */,
 			);
 			path = Model;
 			sourceTree = "<group>";

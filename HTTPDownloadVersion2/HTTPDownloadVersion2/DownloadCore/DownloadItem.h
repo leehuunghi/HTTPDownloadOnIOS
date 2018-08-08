@@ -9,13 +9,15 @@
 #import <Foundation/Foundation.h>
 #import "DownloadItemModel.h"
 
+@class DownloadItem;
+
 @protocol DownloaderDelegate <NSObject>
 
 @optional
 
-- (void)itemWillStartDownload;
+- (void)itemWillStartDownload:(DownloadItem *)downloadItem;
 
-- (void)itemWillFinishDownload;
+- (void)itemWillFinishDownload:(DownloadItem *)downloadItem;
 
 - (void)itemWillPauseDownload;
 
@@ -23,11 +25,22 @@
 
 @end
 
+typedef NS_ENUM(NSUInteger, DownloadItemState) {
+    DownloadItemStatePending = 0,
+    DownloadItemStateDownloading,
+    DownloadItemStatePause,
+    DownloadItemStateComplete,
+    DownloadItemStateError
+};
 
 @interface DownloadItem : DownloadItemModel
+
+@property (nonatomic) DownloadItemState downloadState;
 
 @property (nonatomic, strong) NSURLSessionDownloadTask* downloadTask;
 
 @property (nonatomic, retain) id<DownloaderDelegate> downloaderDelegate;
 
 @end
+
+

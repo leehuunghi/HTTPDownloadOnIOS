@@ -28,32 +28,36 @@
     return self;
 }
 
+- (void)addObject:(id)object {
+    [self addObject:object withPriority:DownloadPriorityMedium];
+}
+
 - (void)addObject:(id)object withPriority:(DownloadPriority)priority {
     if(object && priority) {
         __weak typeof (self) weakSelf = self;
-        switch (priority) {
-            case DownloadPriorityHigh: {
-                dispatch_barrier_async(self.concurrentQueue, ^{
-                    [weakSelf.arrayHigh addObject:object];
-                });
-                break;
+            switch (priority) {
+                case DownloadPriorityHigh: {
+                    dispatch_barrier_async(self.concurrentQueue, ^{
+                        [weakSelf.arrayHigh addObject:object];
+                    });
+                    break;
+                }
+                case DownloadPriorityMedium: {
+                    dispatch_barrier_async(self.concurrentQueue, ^{
+                        [weakSelf.arrayMedium addObject:object];
+                    });
+                    break;
+                }
+                case DownloadPriorityLow: {
+                    dispatch_barrier_async(self.concurrentQueue, ^{
+                        [weakSelf.arrayLow addObject:object];
+                    });
+                    break;
+                }
+                default:
+                    NSLog(@"No priority");
+                    break;
             }
-            case DownloadPriorityMedium: {
-                dispatch_barrier_async(self.concurrentQueue, ^{
-                    [weakSelf.arrayMedium addObject:object];
-                });
-                break;
-            }
-            case DownloadPriorityLow: {
-                dispatch_barrier_async(self.concurrentQueue, ^{
-                    [weakSelf.arrayLow addObject:object];
-                });
-                break;
-            }
-            default:
-                
-                break;
-        }
     }
 }
 
@@ -75,21 +79,17 @@
 - (id)getObjectFromQueue {
     __weak typeof(self)weakSelf = self;
     __block id object = nil;
-    if ([_arrayHigh count]) {
-        dispatch_barrier_sync(self.concurrentQueue, ^{
+    dispatch_barrier_sync(self.concurrentQueue, ^{
+        if ([weakSelf.arrayHigh count]) {
             object = [weakSelf.arrayHigh lastObject];
-        });
-    } else if ([_arrayMedium count]) {
-        dispatch_barrier_sync(self.concurrentQueue, ^{
+        } else if ([weakSelf.arrayMedium count]) {
             object = [weakSelf.arrayMedium lastObject];
-        });
-    } else if ([_arrayLow count]) {
-        dispatch_barrier_sync(self.concurrentQueue, ^{
+        } else if ([weakSelf.arrayLow count]) {
             object = [weakSelf.arrayLow lastObject];
-        });
-    } else {
-        NSLog(@"Nothing in queue for get!");
-    }
+        } else {
+            NSLog(@"Nothing in queue for get!");
+        }
+    });
     return object;
 }
 
