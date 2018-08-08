@@ -15,8 +15,6 @@
 
 @implementation DownloadCellObject
 
-
-
 - (Class)cellClass {
     return [DownloadTableViewCell class];
 }
@@ -65,28 +63,16 @@
     }
 }
 
-- (void)progressDidUpdate:(NSUInteger)currentSize total:(NSUInteger)totalSize {
-
-    if (totalSize > 0) {	
-        self.progressString = [NSString stringWithFormat:@"%ld/%ld B", currentSize, totalSize];
-        self.progress = (float)currentSize / totalSize;
-    } else {
-        self.progressString = [NSString stringWithFormat:@"%ld B", currentSize];
-    }
-    
-
-}
-
 - (void)setState:(DownloadState)state {
     if (_state != state) {
         _state = state;
         switch (state) {
             case DownloadStatePause:
                 self.progressString = @"Pause";
-//                [_downloadManager pause];
+                [_downloadItem pause];
                 break;
             case DownloadStateDownloading:
-//                [_downloadManager resume];
+                [_downloadItem resume];
                 break;
             case DownloadStateComplete:
                 self.progress = 1.0;
@@ -136,29 +122,16 @@
     return backgroudColor;
 }
 
-- (void)downloadFinish:(NSString *)filePath {
-    _filePath = filePath;
-    if (filePath) {
-        self.state = DownloadStateComplete;
-    } else {
-        self.state = DownloadStateError;
-    }
-}
-
-- (void)taskWillStartDownload {
-    self.state = DownloadStateDownloading;
-}
-
 - (void)pause {
-    self.state = DownloadStatePause;
+    [_downloadItem pause];
 }
 
 - (void)resume {
-    self.state = DownloadStateDownloading;
+    [_downloadItem resume];
 }
 
 - (void)cancel {
-//    [_downloadManager cancel];
+    [_downloadItem cancel];
 }
 
 - (void)upPriority {
@@ -187,6 +160,41 @@
     }
 }
 //filePath    __NSCFString *    @"file: ///Us ers/c pu113 67/Li brary /Deve loper /Core Simul ator/ Devic es/B1 692B0 8-2CD 0-4E5 3-9A9 2-18A E9C26 C97C/ data/ Conta iners /Data /Application/B4C3E093-776D-4992-9DB7-8A9EAD644FE1/Documents/coconut-tree.jpg"    0x00006040005a7c40
+
+# pragma delegate
+
+- (void)itemDidFinishDownload:(BOOL)success withError:(NSError *)error {
+    if (success) {
+        self.state = DownloadStateComplete;
+    } else {
+        self.state = DownloadStateError;
+    }
+}
+
+- (void)itemWillPauseDownload {
+    self.state = DownloadStatePause;
+}
+
+- (void)itemWillStartDownload {
+    self.state = DownloadStateDownloading;
+}
+
+- (void)itemWillCancelDownload {
+    
+}
+
+- (void)itemDidUpdateProgress:(NSProgress *)progress {
+    [self progressDidUpdate:progress.completedUnitCount total:progress.totalUnitCount];
+}
+
+- (void)progressDidUpdate:(NSUInteger)currentSize total:(NSUInteger)totalSize {
+    if (totalSize > 0) {
+        self.progressString = [NSString stringWithFormat:@"%ld/%ld B", currentSize, totalSize];
+        self.progress = (float)currentSize / totalSize;
+    } else {
+        self.progressString = [NSString stringWithFormat:@"%ld B", currentSize];
+    }
+}
 
 # pragma constant
 

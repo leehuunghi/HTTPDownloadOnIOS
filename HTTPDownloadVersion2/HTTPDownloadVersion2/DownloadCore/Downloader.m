@@ -14,11 +14,11 @@
 
 @property (nonatomic, strong) NSURLSession *session;
 
-@property (nonatomic, strong) PriorityQueue *priorityQueue;         //Pending
+@property (nonatomic, strong) PriorityQueue *priorityQueue;
 
-@property (nonatomic, strong) NSOperation *downloadingOperation;    //Downloading
+@property (nonatomic, strong) NSOperation *downloadingOperation;
 
-@property (nonatomic, strong) NSMutableArray *downloadedItems;      //Downloaded
+@property (nonatomic, strong) NSMutableArray *downloadedItems;
 
 @end
 

@@ -119,16 +119,8 @@
 				933AA2762119836600CE94A0 /* Downloader.m */,
 				933AA2772119836600CE94A0 /* DownloadItem.h */,
 				933AA2782119836600CE94A0 /* DownloadItem.m */,
-				933AA2792119836600CE94A0 /* PriorityQueue */,
 			);
 			path = DownloadCore;
-			sourceTree = "<group>";
-		};
-		933AA2792119836600CE94A0 /* PriorityQueue */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = PriorityQueue;
 			sourceTree = "<group>";
 		};
 		933AA27C2119836600CE94A0 /* Default */ = {

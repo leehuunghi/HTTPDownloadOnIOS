@@ -7,6 +7,7 @@
 //
 
 #import "CellObjectModel.h"
+#import "DownloadItemModel.h"
 
 typedef NS_ENUM(NSUInteger, DownloadState) {
     DownloadStatePending = 0,
@@ -18,7 +19,7 @@ typedef NS_ENUM(NSUInteger, DownloadState) {
 
 @class DownloadTableViewCell;
 
-@interface DownloadCellObject : CellObjectModel
+@interface DownloadCellObject : CellObjectModel <DownloadItemDelegate>
 
 @property (readwrite, nonatomic, strong) NSString *title;
 
@@ -32,7 +33,7 @@ typedef NS_ENUM(NSUInteger, DownloadState) {
 
 @property (readwrite, nonatomic, weak) DownloadTableViewCell *cell;
 
-//@property (readwrite, nonatomic, strong) DownloadObjectModel *downloadManager;
+@property (readwrite, nonatomic, strong) DownloadItemModel *downloadItem;
 
 @property (readwrite, nonatomic, strong) NSString *filePath;
 

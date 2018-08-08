@@ -11,11 +11,32 @@
 
 @interface DownloaderModel : NSObject
 
-- (void)createDownloadItemWithUrl:(NSString *)url completion:(void (^)(DownloadItemModel *downloadItem, NSError *error))completion;
+/**
+ Create a Download Item Model
 
-- (void)createDownloadItemWithUrl:(NSString *)url priority:(DownloadPriority)priority completion:(void (^)(DownloadItemModel *downloadItem, NSError *error))completion;
+ @param urlString url link to file will download
+ @param filePath position and name of file to save when downloaded
+ @param priority priority to set oder in download item
+ @param completion callback block to return Download Item Model and error
+ */
+- (void)createDownloadItemWithUrl:(NSString *)urlString filePath:(NSString *)filePath priority:(DownloadPriority)priority completion:(void (^)(DownloadItemModel *downloadItem, NSError *error))completion;
 
-- (void)createDownloadItemWithUrl:(NSString *)url filePath:(NSString *)filePath priority:(DownloadPriority)priority completion:(void (^)(DownloadItemModel *downloadItem, NSError *error))completion;
+/**
+ Create a Download Item Model with default file path
+
+ @param urlString url link to file will download
+ @param priority priority to set oder in download item
+ @param completion callback block to return Download Item Model and error
+ */
+- (void)createDownloadItemWithUrl:(NSString *)urlString priority:(DownloadPriority)priority completion:(void (^)(DownloadItemModel *downloadItem, NSError *error))completion;
+
+/**
+ Create a Download Item Model with default file path and medium priority
+
+ @param urlString url link to file will download
+ @param completion callback block to return Download Item Model and error
+ */
+- (void)createDownloadItemWithUrl:(NSString *)urlString completion:(void (^)(DownloadItemModel *downloadItem, NSError *error))completion;
 
 - (void)cancelAll;
 
