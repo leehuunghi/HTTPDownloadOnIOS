@@ -63,7 +63,6 @@
         NSLog(@"%lu %ld",(unsigned long)weakSelf.countDownloading, (long)[weakSelf.priorityQueue count]);
         if (weakSelf.countDownloading > 0 && [weakSelf.priorityQueue count] > 0) {
             weakSelf.countDownloading--;
-            NSLog(@"giam");
             [weakSelf.downloadingOperation addOperationWithBlock:^{
                 DownloadItem *item = (DownloadItem *)[weakSelf.priorityQueue getObjectFromQueue];
                 [item reallyResume];
@@ -87,8 +86,8 @@
     __weak typeof(self)weakSelf = self;
     dispatch_async(self.serialQueue, ^{
         weakSelf.countDownloading++;
-        [self dequeueItem];
     });
+    [self dequeueItem];
 }
 
 - (void)itemWillStartDownload:(DownloadItem *)downloadItem {
@@ -128,7 +127,9 @@ totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
             }
         }
     }
-    self.countDownloading++;
+    dispatch_async(self.serialQueue, ^{
+        self.countDownloading++;
+    });
     [self dequeueItem];
 }
 
