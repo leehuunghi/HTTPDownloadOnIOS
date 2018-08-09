@@ -24,7 +24,7 @@
     self = [super init];
     if (self) {
         _progress = 0;
-        _state = DownloadStateDownloading;
+        _state = DownloadStatePending;
     }
     return self;
 }
@@ -128,6 +128,7 @@
 
 - (void)resume {
     [_downloadItem resume];
+    self.state = DownloadStatePending;
 }
 
 - (void)cancel {

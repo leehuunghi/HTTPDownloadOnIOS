@@ -76,9 +76,14 @@
     if (downloadItem) {
         __weak typeof(self)weakSelf = self;
         dispatch_async(self.serialQueue, ^{
+<<<<<<< HEAD
             [weakSelf.priorityQueue addObject:downloadItem withPriority:downloadItem.downloadState];
             if (weakSelf.countDownloading > 0) {
                 weakSelf.countDownloading--;
+=======
+            [weakSelf.priorityQueue addObject:downloadItem withPriority:downloadItem.downloadPriority];
+            if (self.countDownloading > 0) {
+>>>>>>> f0e85512a762a8774608269eaab8e9aa6b23f845
                 [weakSelf.downloadingOperation addOperationWithBlock:^{
                     DownloadItem *item = (DownloadItem *)[weakSelf.priorityQueue getObjectFromQueue];
                     [item.downloadTask resume];
@@ -89,8 +94,7 @@
     }
 }
 
-- (void)URLSession:(NSURLSession *)session downloadTask:(NSURLSessionDownloadTask *)downloadTask
-      didWriteData:(int64_t)bytesWritten
+- (void)URLSession:(NSURLSession *)session downloadTask:(NSURLSessionDownloadTask *)downloadTask didWriteData:(int64_t)bytesWritten
  totalBytesWritten:(int64_t)totalBytesWritten
 totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
     for (DownloadItem *item in self.downloadedItems) {
