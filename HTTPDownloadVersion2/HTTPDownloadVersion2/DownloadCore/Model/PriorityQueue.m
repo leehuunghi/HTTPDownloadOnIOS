@@ -69,25 +69,24 @@
 }
 
 - (void)addObject:(id)object withPriority:(DownloadPriority)priority {
-        NSLog(@"add last");
     if(object) {
         __weak typeof (self) weakSelf = self;
             switch (priority) {
                 case DownloadPriorityHigh: {
-                    dispatch_sync(self.concurrentQueue, ^{
-                        [weakSelf.arrayHigh lastObject];
+                    dispatch_barrier_async(self.concurrentQueue, ^{
+                        [weakSelf.arrayHigh addObject:object];
                     });
                     break;
                 }
                 case DownloadPriorityMedium: {
-                    dispatch_sync(self.concurrentQueue, ^{
-                        [weakSelf.arrayMedium lastObject];
+                    dispatch_barrier_async(self.concurrentQueue, ^{
+                        [weakSelf.arrayMedium addObject:object];
                     });
                     break;
                 }
                 case DownloadPriorityLow: {
-                    dispatch_sync(self.concurrentQueue, ^{
-                        [weakSelf.arrayLow lastObject];
+                    dispatch_barrier_async(self.concurrentQueue, ^{
+                        [weakSelf.arrayLow addObject:object];
                     });
                     break;
                 }
