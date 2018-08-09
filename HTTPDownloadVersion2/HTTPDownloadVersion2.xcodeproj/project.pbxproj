@@ -95,6 +95,7 @@
 				933AA26A2119836500CE94A0 /* InformationTableViewCell.m */,
 				933AA26B2119836500CE94A0 /* ViewController.h */,
 				933AA26C2119836500CE94A0 /* ViewController.m */,
+				933AA2832119836600CE94A0 /* Main.storyboard */,
 			);
 			path = UI;
 			sourceTree = "<group>";
@@ -132,7 +133,6 @@
 				933AA27F2119836600CE94A0 /* Assets.xcassets */,
 				933AA2802119836600CE94A0 /* LaunchScreen.storyboard */,
 				933AA2822119836600CE94A0 /* main.m */,
-				933AA2832119836600CE94A0 /* Main.storyboard */,
 			);
 			path = Default;
 			sourceTree = "<group>";

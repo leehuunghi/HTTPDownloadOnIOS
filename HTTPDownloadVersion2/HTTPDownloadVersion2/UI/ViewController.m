@@ -24,7 +24,6 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    _downloader = [[Downloader alloc] init];
     self.navigationItem.title = @"Download";
     
     [self loadCore];
