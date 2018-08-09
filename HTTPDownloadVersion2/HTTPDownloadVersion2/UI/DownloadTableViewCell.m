@@ -85,7 +85,6 @@
         default: {
             UIAlertController* alert = [UIAlertController alertControllerWithTitle:@"Cancel" message:@"Do you want cancel download this file?" preferredStyle:UIAlertControllerStyleAlert];
             
-            __weak __typeof(self) weakSelf = self;
             UIAlertAction* exitAction = [UIAlertAction actionWithTitle:@"Yes" style:UIAlertActionStyleDefault handler:^(UIAlertAction * action) {
 //                [weakSelf.cellObject.downloadManager cancel];
                 [tableView removeCell:self.cellObject];
