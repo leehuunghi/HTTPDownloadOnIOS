@@ -31,8 +31,8 @@
 - (void)pause {
     if(self.downloadState != DownloadItemStatePause) {
         _downloadState = DownloadItemStatePause;
-        [self.delegate itemWillPauseDownload];
         [self.downloadTask suspend];
+        [self.delegate itemWillPauseDownload];
         [self.downloaderDelegate itemWillPauseDownload:self];
     }
     
