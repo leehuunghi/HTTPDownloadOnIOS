@@ -38,7 +38,7 @@
         _session = [NSURLSession sessionWithConfiguration:self.configuration delegate:self delegateQueue:nil];
         _priorityQueue = [PriorityQueue new];
         _serialQueue = dispatch_queue_create("serial_queue_downloader", DISPATCH_QUEUE_SERIAL);
-        _countDownloading = 5;
+        _countDownloading = 3;
     }
     return self;
 }
@@ -54,19 +54,22 @@
     completion(item, nil);
     [_downloadedItems addObject:item];
     item.downloadTask = [_session downloadTaskWithURL:url];
-//    item.downloadTask = [_session downloadTaskWithURL:url completionHandler:^(NSURL * _Nullable location, NSURLResponse * _Nullable response, NSError * _Nullable error) {
-//        //task finish
-//        NSHTTPURLResponse *httpRespone = (NSHTTPURLResponse *)response;
-//        if(httpRespone.statusCode == 200) {
-//            [item.delegate itemDidFinishDownload:YES withError:nil];
-//        } else {
-//            [item.delegate itemDidFinishDownload:NO withError:error];
-//        }
-//    }];
-    
-    NSLog(@"%@", item.downloadTask);
-    
     [item resume];
+}
+
+#pragma DownloaderDelegate
+
+- (void)itemWillPauseDownload {
+    __weak typeof(self)weakSelf = self;
+    dispatch_async(self.serialQueue, ^{
+        weakSelf.countDownloading++;
+        if([self.priorityQueue count] > 0) {
+            weakSelf.countDownloading--;
+            DownloadItem *item = (DownloadItem *)[weakSelf.priorityQueue getObjectFromQueue];
+            [item.downloadTask resume];
+            [weakSelf.priorityQueue removeObject];
+        }
+    });
 }
 
 - (void)itemWillStartDownload:(DownloadItem *)downloadItem {
@@ -74,10 +77,10 @@
         __weak typeof(self)weakSelf = self;
         dispatch_async(self.serialQueue, ^{
             [weakSelf.priorityQueue addObject:downloadItem withPriority:downloadItem.downloadState];
-            if (self.countDownloading > 0) {
-                [_downloadingOperation addOperationWithBlock:^{
+            if (weakSelf.countDownloading > 0) {
+                weakSelf.countDownloading--;
+                [weakSelf.downloadingOperation addOperationWithBlock:^{
                     DownloadItem *item = (DownloadItem *)[weakSelf.priorityQueue getObjectFromQueue];
-                    NSLog(@"%@", item.downloadTask);
                     [item.downloadTask resume];
                     [weakSelf.priorityQueue removeObject];
                 }];
@@ -90,7 +93,6 @@
       didWriteData:(int64_t)bytesWritten
  totalBytesWritten:(int64_t)totalBytesWritten
 totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
-    NSLog(@"Update!!!!!!!!");
     for (DownloadItem *item in self.downloadedItems) {
         if (item.downloadTask == downloadTask) {
             [item.delegate itemDidUpdateTotalBytesWritten:totalBytesWritten andTotalBytesExpectedToWrite:totalBytesExpectedToWrite];
@@ -117,6 +119,21 @@ totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
             }
         }
     }
+    __weak typeof(self)weakSelf = self;
+    dispatch_async(self.serialQueue, ^{
+        weakSelf.countDownloading++;
+        if([self.priorityQueue count] > 0) {
+            weakSelf.countDownloading--;
+            DownloadItem *item = (DownloadItem *)[weakSelf.priorityQueue getObjectFromQueue];
+            [item.downloadTask resume];
+            [weakSelf.priorityQueue removeObject];
+        }
+    });
+}
+
+- (void)setCountDownloading:(NSUInteger)countDownloading {
+    _countDownloading = countDownloading;
+    NSLog(@"Count Downloading: %ld", _countDownloading);
 }
 
 @end

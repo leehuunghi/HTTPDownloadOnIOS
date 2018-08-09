@@ -38,19 +38,19 @@
             switch (priority) {
                 case DownloadPriorityHigh: {
                     dispatch_barrier_async(self.concurrentQueue, ^{
-                        [weakSelf.arrayHigh addObject:object];
+                        [weakSelf.arrayHigh insertObject:object atIndex:0];
                     });
                     break;
                 }
                 case DownloadPriorityMedium: {
                     dispatch_barrier_async(self.concurrentQueue, ^{
-                        [weakSelf.arrayMedium addObject:object];
+                        [weakSelf.arrayMedium insertObject:object atIndex:0];
                     });
                     break;
                 }
                 case DownloadPriorityLow: {
                     dispatch_barrier_async(self.concurrentQueue, ^{
-                        [weakSelf.arrayLow addObject:object];
+                        [weakSelf.arrayLow insertObject:object atIndex:0];
                     });
                     break;
                 }

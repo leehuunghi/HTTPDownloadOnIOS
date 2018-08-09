@@ -27,4 +27,10 @@
     [self.downloaderDelegate itemWillStartDownload:self];
 }
 
+- (void)pause {
+    [self.delegate itemWillPauseDownload];
+    [self.downloadTask suspend];
+    [self.downloaderDelegate itemWillPauseDownload];
+}
+
 @end
