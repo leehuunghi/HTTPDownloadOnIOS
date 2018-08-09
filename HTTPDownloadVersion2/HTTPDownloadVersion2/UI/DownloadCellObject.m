@@ -9,7 +9,7 @@
 #import "DownloadCellObject.h"
 #import "DownloadTableViewCell.h"
 
-@interface DownloadCellObject()
+@interface DownloadCellObject()<DownloadItemDelegate>
 
 @end
 
@@ -183,6 +183,10 @@
     
 }
 
+- (void)itemDidUpdateTotalBytesWritten:(int64_t)totalBytesWritten andTotalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
+    [self progressDidUpdate:totalBytesWritten total:totalBytesExpectedToWrite];
+}
+
 - (void)itemDidUpdateProgress:(NSProgress *)progress {
     [self progressDidUpdate:progress.completedUnitCount total:progress.totalUnitCount];
 }
@@ -258,6 +262,7 @@
     });
     return pauseColor;
 }
+
 
 @end
 

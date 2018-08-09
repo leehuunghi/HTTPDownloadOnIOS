@@ -10,7 +10,7 @@
 #import "DownloadItem.h"
 
 
-@interface Downloader : DownloaderModel <DownloaderDelegate>
+@interface Downloader : DownloaderModel <DownloaderDelegate, NSURLSessionDownloadDelegate>
 
 
 

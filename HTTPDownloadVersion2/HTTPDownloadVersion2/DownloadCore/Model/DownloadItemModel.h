@@ -44,6 +44,11 @@
  */
 - (void)itemDidUpdateProgress:(NSProgress *)progress;
 
+/**
+ 
+ */
+- (void)itemDidUpdateTotalBytesWritten:(int64_t)totalBytesWritten andTotalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite;
+
 @end
 
 @interface DownloadItemModel : NSObject
@@ -63,7 +68,9 @@
  */
 @property (nonatomic, strong) NSString *filePath;
 
-
+/**
+ queue contain task repair download
+ */
 @property (nonatomic) DownloadPriority downloadPriority;
 
 /**

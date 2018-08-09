@@ -14,13 +14,15 @@
 
 @property (nonatomic, strong) NSURLSession *session;
 
-@property (nonatomic, strong) NSMutableArray* arrayDownloadTaskPending; //Pending
+@property (nonatomic) NSUInteger countDownloading;
 
 @property (nonatomic, strong) PriorityQueue *priorityQueue;
 
-@property (nonatomic, strong) NSOperationQueue *downloadingOperation;    //Downloadings
+@property (nonatomic, strong) NSOperationQueue *downloadingOperation;
 
 @property (nonatomic, strong) NSMutableArray *downloadedItems;
+
+@property (nonatomic, strong) dispatch_queue_t serialQueue;
 
 @end
 
@@ -29,12 +31,14 @@
 - (instancetype)init {
     self = [super init];
     if (self) {
-        _arrayDownloadTaskPending = [[NSMutableArray alloc] init];
         _downloadedItems = [[NSMutableArray alloc] init];
         _downloadingOperation = [[NSOperationQueue alloc] init];
-        _downloadingOperation.maxConcurrentOperationCount = 8;
-        _session = [NSURLSession sessionWithConfiguration:self.configuration];
+        _downloadingOperation.maxConcurrentOperationCount = 1;
+        _configuration = NSURLSessionConfiguration.defaultSessionConfiguration;
+        _session = [NSURLSession sessionWithConfiguration:self.configuration delegate:self delegateQueue:nil];
         _priorityQueue = [PriorityQueue new];
+        _serialQueue = dispatch_queue_create("serial_queue_downloader", DISPATCH_QUEUE_SERIAL);
+        _countDownloading = 5;
     }
     return self;
 }
@@ -48,23 +52,28 @@
     item.downloadState = DownloadItemStatePending;
     item.downloaderDelegate = self;
     completion(item, nil);
-    [_arrayDownloadTaskPending addObject:item];
-
+    [_downloadedItems addObject:item];
+    
     item.downloadTask = [_session downloadTaskWithURL:url completionHandler:^(NSURL * _Nullable location, NSURLResponse * _Nullable response, NSError * _Nullable error) {
         //task finish
-        NSLog(@"Location: %@", location);
-        NSLog(@"Path: %@", response.URL.filePathURL);
+        NSHTTPURLResponse *httpRespone = (NSHTTPURLResponse *)response;
+        if(httpRespone.statusCode == 200) {
+            [item.delegate itemDidFinishDownload:YES withError:nil];
+        } else {
+            [item.delegate itemDidFinishDownload:NO withError:error];
+        }
     }];
-        
+    
+    
+    
     [item resume];
 }
 
 - (void)itemWillStartDownload:(DownloadItem *)downloadItem {
     if (downloadItem) {
         __weak typeof(self)weakSelf = self;
-        [_arrayDownloadTaskPending removeObject:downloadItem];
-        [weakSelf.priorityQueue addObject:downloadItem withPriority:downloadItem.downloadState];
-        if (_downloadingOperation.operationCount < _downloadingOperation.maxConcurrentOperationCount) {
+        [_priorityQueue addObject:downloadItem withPriority:downloadItem.downloadState];
+        if (self.countDownloading > 0) {
             [_downloadingOperation addOperationWithBlock:^{
                 DownloadItem *item = (DownloadItem *)[weakSelf.priorityQueue getObjectFromQueue];
                 [item.downloadTask resume];
@@ -73,5 +82,23 @@
         }
     }
 }
+
+- (void)URLSession:(NSURLSession *)session downloadTask:(NSURLSessionDownloadTask *)downloadTask
+      didWriteData:(int64_t)bytesWritten
+ totalBytesWritten:(int64_t)totalBytesWritten
+totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
+    NSLog(@"Update!!!!!!!!");
+    for (DownloadItem *item in self.downloadedItems) {
+        if (item.downloadTask == downloadTask) {
+            [item.delegate itemDidUpdateTotalBytesWritten:totalBytesWritten andTotalBytesExpectedToWrite:totalBytesExpectedToWrite];
+        }
+    }
+}
+
+- (void)URLSession:(nonnull NSURLSession *)session downloadTask:(nonnull NSURLSessionDownloadTask *)downloadTask didFinishDownloadingToURL:(nonnull NSURL *)location {
+    NSLog(@"finish!!!!");
+}
+
+
 
 @end

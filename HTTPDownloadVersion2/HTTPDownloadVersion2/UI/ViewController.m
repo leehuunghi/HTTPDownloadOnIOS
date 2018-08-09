@@ -47,6 +47,8 @@
     
     self.staticArr = @[
                        @"http://www.vietnamvisaonentry.com/file/2014/06/coconut-tree.jpg",
+                       @"http://grail.cba.csuohio.edu/~matos/notes/ist-211/2015-fall/classroster_IST_211_1.xlsx",
+                       @"http://www.noiseaddicts.com/samples_1w72b820/274.mp3",
                        @"http://ipv4.download.thinkbroadband.com/200MB.zip",
                        @"http://ipv4.download.thinkbroadband.com/50MB.zip",
                        @"http://ipv4.download.thinkbroadband.com/512MB.zip",
