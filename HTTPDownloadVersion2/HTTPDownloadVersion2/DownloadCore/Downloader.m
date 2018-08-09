@@ -38,7 +38,7 @@
         _session = [NSURLSession sessionWithConfiguration:self.configuration delegate:self delegateQueue:nil];
         _priorityQueue = [PriorityQueue new];
         _serialQueue = dispatch_queue_create("serial_queue_downloader", DISPATCH_QUEUE_SERIAL);
-        _countDownloading = 3;
+        self.countDownloading = 3;
     }
     return self;
 }
@@ -54,38 +54,48 @@
     completion(item, nil);
     [_downloadedItems addObject:item];
     item.downloadTask = [_session downloadTaskWithURL:url];
-    [item resume];
+    [self enqueueItem:item];
+}
+
+- (void)dequeueItem {
+    __weak typeof(self)weakSelf = self;
+    dispatch_async(self.serialQueue, ^{
+        NSLog(@"%lu %ld",(unsigned long)weakSelf.countDownloading, (long)[weakSelf.priorityQueue count]);
+        if (weakSelf.countDownloading > 0 && [weakSelf.priorityQueue count] > 0) {
+            weakSelf.countDownloading--;
+            NSLog(@"giam");
+            [weakSelf.downloadingOperation addOperationWithBlock:^{
+                DownloadItem *item = (DownloadItem *)[weakSelf.priorityQueue getObjectFromQueue];
+                [item reallyResume];
+                [weakSelf.priorityQueue removeObject];
+            }];
+        }
+    });
+}
+
+- (void)enqueueItem:(DownloadItem *)downloadItem {
+    if (downloadItem) {
+        [self.priorityQueue addHeadObject:downloadItem withPriority:downloadItem.downloadPriority];
+        [self dequeueItem];
+    }
 }
 
 #pragma DownloaderDelegate
 
-- (void)itemWillPauseDownload {
+
+- (void)itemWillPauseDownload:(DownloadItem *)downloadItem {
     __weak typeof(self)weakSelf = self;
     dispatch_async(self.serialQueue, ^{
         weakSelf.countDownloading++;
-        if([self.priorityQueue count] > 0) {
-            weakSelf.countDownloading--;
-            DownloadItem *item = (DownloadItem *)[weakSelf.priorityQueue getObjectFromQueue];
-            [item.downloadTask resume];
-            [weakSelf.priorityQueue removeObject];
-        }
+        [self.priorityQueue addObject:downloadItem];
+        [self dequeueItem];
     });
 }
 
 - (void)itemWillStartDownload:(DownloadItem *)downloadItem {
     if (downloadItem) {
-        __weak typeof(self)weakSelf = self;
-        dispatch_async(self.serialQueue, ^{
-            [weakSelf.priorityQueue addObject:downloadItem withPriority:downloadItem.downloadState];
-            if (weakSelf.countDownloading > 0) {
-                weakSelf.countDownloading--;
-                [weakSelf.downloadingOperation addOperationWithBlock:^{
-                    DownloadItem *item = (DownloadItem *)[weakSelf.priorityQueue getObjectFromQueue];
-                    [item.downloadTask resume];
-                    [weakSelf.priorityQueue removeObject];
-                }];
-            }
-        });
+        [self.priorityQueue addObject:downloadItem];
+        [self dequeueItem];
     }
 }
 
@@ -118,16 +128,8 @@ totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
             }
         }
     }
-    __weak typeof(self)weakSelf = self;
-    dispatch_async(self.serialQueue, ^{
-        weakSelf.countDownloading++;
-        if([self.priorityQueue count] > 0) {
-            weakSelf.countDownloading--;
-            DownloadItem *item = (DownloadItem *)[weakSelf.priorityQueue getObjectFromQueue];
-            [item.downloadTask resume];
-            [weakSelf.priorityQueue removeObject];
-        }
-    });
+    self.countDownloading++;
+    [self dequeueItem];
 }
 
 - (void)setCountDownloading:(NSUInteger)countDownloading {

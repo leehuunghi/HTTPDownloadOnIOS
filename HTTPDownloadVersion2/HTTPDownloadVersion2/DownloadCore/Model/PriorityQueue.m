@@ -28,29 +28,64 @@
     return self;
 }
 
+- (void)addHeadObject:(id)object {
+    [self addHeadObject:object withPriority:DownloadPriorityMedium];
+}
+
+- (void)addHeadObject:(id)object withPriority:(DownloadPriority)priority {
+    NSLog(@"add Head");
+    if(object) {
+        __weak typeof (self) weakSelf = self;
+        switch (priority) {
+            case DownloadPriorityHigh: {
+                dispatch_barrier_async(self.concurrentQueue, ^{
+                    [weakSelf.arrayHigh insertObject:object atIndex:0];
+                });
+                break;
+            }
+            case DownloadPriorityMedium: {
+                dispatch_barrier_async(self.concurrentQueue, ^{
+                    [weakSelf.arrayMedium insertObject:object atIndex:0];
+                });
+                break;
+            }
+            case DownloadPriorityLow: {
+                dispatch_barrier_async(self.concurrentQueue, ^{
+                    [weakSelf.arrayLow insertObject:object atIndex:0];
+                });
+                break;
+            }
+            default:
+                NSLog(@"No priority");
+                break;
+        }
+    }
+}
+
 - (void)addObject:(id)object {
     [self addObject:object withPriority:DownloadPriorityMedium];
 }
 
 - (void)addObject:(id)object withPriority:(DownloadPriority)priority {
+        NSLog(@"add last");
     if(object) {
         __weak typeof (self) weakSelf = self;
             switch (priority) {
                 case DownloadPriorityHigh: {
                     dispatch_barrier_async(self.concurrentQueue, ^{
-                        [weakSelf.arrayHigh insertObject:object atIndex:0];
+                        [weakSelf.arrayHigh lastObject];
                     });
                     break;
                 }
                 case DownloadPriorityMedium: {
                     dispatch_barrier_async(self.concurrentQueue, ^{
-                        [weakSelf.arrayMedium insertObject:object atIndex:0];
+                        [weakSelf.arrayMedium lastObject];
                     });
                     break;
                 }
                 case DownloadPriorityLow: {
                     dispatch_barrier_async(self.concurrentQueue, ^{
-                        [weakSelf.arrayLow insertObject:object atIndex:0];
+                        [weakSelf.arrayLow lastObject];
                     });
                     break;
                 }

@@ -19,9 +19,9 @@
 
 - (void)itemWillFinishDownload:(DownloadItem *)downloadItem;
 
-- (void)itemWillPauseDownload;
+- (void)itemWillPauseDownload:(DownloadItem *)downloadItem;
 
-- (void)itemWillCancelDownload;
+- (void)itemWillCancelDownload:(DownloadItem *)downloadItem;
 
 @end
 
@@ -40,6 +40,8 @@ typedef NS_ENUM(NSUInteger, DownloadItemState) {
 @property (nonatomic, strong) NSURLSessionDownloadTask* downloadTask;
 
 @property (nonatomic, retain) id<DownloaderDelegate> downloaderDelegate;
+
+- (void)reallyResume;
 
 @end
 

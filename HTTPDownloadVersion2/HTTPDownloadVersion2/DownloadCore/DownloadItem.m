@@ -24,13 +24,23 @@
 }
 
 - (void)resume {
-    [self.downloaderDelegate itemWillStartDownload:self];
+        _downloadState = DownloadItemStatePending;
+        [self.downloaderDelegate itemWillStartDownload:self];
 }
 
 - (void)pause {
-    [self.delegate itemWillPauseDownload];
-    [self.downloadTask suspend];
-    [self.downloaderDelegate itemWillPauseDownload];
+    if(self.downloadState != DownloadItemStatePause) {
+        _downloadState = DownloadItemStatePause;
+        [self.delegate itemWillPauseDownload];
+        [self.downloadTask suspend];
+        [self.downloaderDelegate itemWillPauseDownload:self];
+    }
+    
+}
+
+- (void)reallyResume {
+    [self.delegate itemWillStartDownload];
+    [self.downloadTask resume];
 }
 
 @end
