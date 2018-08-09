@@ -83,10 +83,11 @@
             break;
             
         default: {
+            __weak typeof(self)weakSelf = self;
             UIAlertController* alert = [UIAlertController alertControllerWithTitle:@"Cancel" message:@"Do you want cancel download this file?" preferredStyle:UIAlertControllerStyleAlert];
             
             UIAlertAction* exitAction = [UIAlertAction actionWithTitle:@"Yes" style:UIAlertActionStyleDefault handler:^(UIAlertAction * action) {
-//                [weakSelf.cellObject.downloadManager cancel];
+                [weakSelf.cellObject cancel];
                 [tableView removeCell:self.cellObject];
             }];
             

@@ -24,6 +24,8 @@
 
 @property (nonatomic, strong) dispatch_queue_t serialQueue;
 
+@property (nonatomic, strong) dispatch_queue_t serialQueueSameItem;
+
 @end
 
 @implementation Downloader
@@ -38,23 +40,41 @@
         _session = [NSURLSession sessionWithConfiguration:self.configuration delegate:self delegateQueue:nil];
         _priorityQueue = [PriorityQueue new];
         _serialQueue = dispatch_queue_create("serial_queue_downloader", DISPATCH_QUEUE_SERIAL);
+        _serialQueueSameItem = dispatch_queue_create("serial_queue_same_item", DISPATCH_QUEUE_SERIAL);
         self.countDownloading = 2;
     }
     return self;
 }
 
 - (void)createDownloadItemWithUrl:(NSString *)urlString filePath:(NSString *)filePath priority:(DownloadPriority)priority completion:(void (^)(DownloadItemModel *, NSError *))completion {
-    //check params
-    
-    NSURL *url = [NSURL URLWithString:urlString];
-    
-    DownloadItem *item = [DownloadItem new];
-    item.downloadState = DownloadItemStatePending;
-    item.downloaderDelegate = self;
-    completion(item, nil);
-    [_downloadedItems addObject:item];
-    item.downloadTask = [_session downloadTaskWithURL:url];
-    [self enqueueItem:item];
+    __weak typeof(self)weakSelf = self;
+    dispatch_async(self.serialQueueSameItem, ^{
+        BOOL isDownloaded = NO;
+        for (DownloadItem* downloadItem in weakSelf.downloadedItems) {
+            if ([downloadItem.url compare:urlString] == 0) {
+                if (completion) {
+                    completion(downloadItem, nil);
+                    isDownloaded = YES;
+                }
+            }
+        }
+        
+        if (!isDownloaded) {
+            NSURL *url = [NSURL URLWithString:urlString];
+            DownloadItem *item = [DownloadItem new];
+            item.downloadState = DownloadItemStatePending;
+            item.downloaderDelegate = self;
+            item.downloadTask = [weakSelf.session downloadTaskWithURL:url];
+            item.url = urlString;
+            
+            if (completion) {
+                completion(item, nil);
+            }
+            
+            [weakSelf.downloadedItems addObject:item];
+            [self enqueueItem:item];
+        }
+    });
 }
 
 - (void)dequeueItem {
@@ -81,6 +101,8 @@
 
 #pragma DownloaderDelegate
 
+- (void)itemWillCancelDownload:(DownloadItem *)downloadItem {
+}
 
 - (void)itemWillPauseDownload:(DownloadItem *)downloadItem {
     __weak typeof(self)weakSelf = self;
@@ -121,8 +143,10 @@ totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
         if (item.downloadTask == task) {
             NSHTTPURLResponse *httpRespone = (NSHTTPURLResponse *)task.response;
             if(httpRespone.statusCode == 200) {
+                item.downloadState = DownloadItemStateComplete;
                 [item.delegate itemDidFinishDownload:YES withError:nil];
             } else {
+                item.downloadState = DownloadItemStateError;
                 [item.delegate itemDidFinishDownload:NO withError:error];
             }
         }

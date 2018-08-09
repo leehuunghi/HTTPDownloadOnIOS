@@ -38,4 +38,9 @@
     [self.downloadTask resume];
 }
 
+- (void)cancel {
+    [self.downloaderDelegate itemWillCancelDownload:self];
+    [self.downloadTask cancel];
+}
+
 @end
