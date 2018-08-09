@@ -73,10 +73,8 @@
         switch (state) {
             case DownloadStatePause:
                 self.progressString = @"Pause";
-                [_downloadItem pause];
                 break;
             case DownloadStateDownloading:
-                [_downloadItem resume];
                 break;
             case DownloadStateComplete:
                 self.progress = 1.0;

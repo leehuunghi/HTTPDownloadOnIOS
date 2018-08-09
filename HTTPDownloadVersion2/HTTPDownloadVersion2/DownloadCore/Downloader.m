@@ -38,7 +38,7 @@
         _session = [NSURLSession sessionWithConfiguration:self.configuration delegate:self delegateQueue:nil];
         _priorityQueue = [PriorityQueue new];
         _serialQueue = dispatch_queue_create("serial_queue_downloader", DISPATCH_QUEUE_SERIAL);
-        self.countDownloading = 3;
+        self.countDownloading = 2;
     }
     return self;
 }
@@ -58,14 +58,14 @@
 }
 
 - (void)dequeueItem {
-    __weak typeof(self)weakSelf = self;
+	    __weak typeof(self)weakSelf = self;
     dispatch_async(self.serialQueue, ^{
         NSLog(@"%lu %ld",(unsigned long)weakSelf.countDownloading, (long)[weakSelf.priorityQueue count]);
         if (weakSelf.countDownloading > 0 && [weakSelf.priorityQueue count] > 0) {
+            weakSelf.countDownloading--;
             NSLog(@"giam");
             [weakSelf.downloadingOperation addOperationWithBlock:^{
                 DownloadItem *item = (DownloadItem *)[weakSelf.priorityQueue getObjectFromQueue];
-                weakSelf.countDownloading--;
                 [item reallyResume];
                 [weakSelf.priorityQueue removeObject];
             }];
