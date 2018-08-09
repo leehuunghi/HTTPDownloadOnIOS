@@ -24,18 +24,13 @@
 }
 
 - (void)resume {
-        _downloadState = DownloadItemStatePending;
-        [self.downloaderDelegate itemWillStartDownload:self];
+    [self.downloaderDelegate itemWillStartDownload:self];
 }
 
 - (void)pause {
-    if(self.downloadState != DownloadItemStatePause) {
-        _downloadState = DownloadItemStatePause;
-        [self.delegate itemWillPauseDownload];
-        [self.downloadTask suspend];
-        [self.downloaderDelegate itemWillPauseDownload:self];
-    }
-    
+    [self.delegate itemWillPauseDownload];
+    [self.downloadTask suspend];
+    [self.downloaderDelegate itemWillPauseDownload:self];
 }
 
 - (void)reallyResume {

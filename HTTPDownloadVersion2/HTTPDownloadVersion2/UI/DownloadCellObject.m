@@ -58,12 +58,16 @@
     if (_cell) {
         __weak __typeof(self) weakSelf = self;
         dispatch_async(dispatch_get_main_queue(), ^{
-            weakSelf.cell.progressLabel.text = progressString;
+            weakSelf.cell.progressLabel.text = weakSelf.progressString;
         });
     }
 }
 
 - (void)setState:(DownloadState)state {
+    if (_state == DownloadStateComplete) {
+        return;
+    }
+    
     if (_state != state) {
         _state = state;
         switch (state) {

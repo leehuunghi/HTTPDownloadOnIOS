@@ -87,7 +87,6 @@
     __weak typeof(self)weakSelf = self;
     dispatch_async(self.serialQueue, ^{
         weakSelf.countDownloading++;
-        [self.priorityQueue addObject:downloadItem];
         [self dequeueItem];
     });
 }

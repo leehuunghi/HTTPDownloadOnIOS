@@ -55,6 +55,4 @@ typedef NS_ENUM(NSUInteger, DownloadState) {
 
 - (void)progressDidUpdate:(NSUInteger)currentSize total:(NSUInteger)totalSize;
 
-- (void)downloadFinish:(NSString *)filePath;
-
 @end

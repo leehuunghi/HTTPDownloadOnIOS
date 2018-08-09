@@ -15,6 +15,8 @@
 @property (strong, nonatomic) dispatch_queue_t concurrentQueue;
 @end
 
+
+//Not safe
 @implementation PriorityQueue
 
 - (instancetype)init {
@@ -23,7 +25,7 @@
         _arrayHigh = [[NSMutableArray alloc] init];
         _arrayMedium = [[NSMutableArray alloc] init];
         _arrayLow = [[NSMutableArray alloc] init];
-        _concurrentQueue = dispatch_queue_create("concurrent_queue_for_priority_queue", DISPATCH_QUEUE_CONCURRENT);
+        _concurrentQueue = dispatch_queue_create("concurrent_queue_for_priority_queue", DISPATCH_QUEUE_SERIAL);
     }
     return self;
 }
@@ -38,19 +40,19 @@
         __weak typeof (self) weakSelf = self;
         switch (priority) {
             case DownloadPriorityHigh: {
-                dispatch_barrier_async(self.concurrentQueue, ^{
+                dispatch_sync(self.concurrentQueue, ^{
                     [weakSelf.arrayHigh insertObject:object atIndex:0];
                 });
                 break;
             }
             case DownloadPriorityMedium: {
-                dispatch_barrier_async(self.concurrentQueue, ^{
+                dispatch_sync(self.concurrentQueue, ^{
                     [weakSelf.arrayMedium insertObject:object atIndex:0];
                 });
                 break;
             }
             case DownloadPriorityLow: {
-                dispatch_barrier_async(self.concurrentQueue, ^{
+                dispatch_sync(self.concurrentQueue, ^{
                     [weakSelf.arrayLow insertObject:object atIndex:0];
                 });
                 break;
@@ -72,19 +74,19 @@
         __weak typeof (self) weakSelf = self;
             switch (priority) {
                 case DownloadPriorityHigh: {
-                    dispatch_barrier_async(self.concurrentQueue, ^{
+                    dispatch_sync(self.concurrentQueue, ^{
                         [weakSelf.arrayHigh lastObject];
                     });
                     break;
                 }
                 case DownloadPriorityMedium: {
-                    dispatch_barrier_async(self.concurrentQueue, ^{
+                    dispatch_sync(self.concurrentQueue, ^{
                         [weakSelf.arrayMedium lastObject];
                     });
                     break;
                 }
                 case DownloadPriorityLow: {
-                    dispatch_barrier_async(self.concurrentQueue, ^{
+                    dispatch_sync(self.concurrentQueue, ^{
                         [weakSelf.arrayLow lastObject];
                     });
                     break;
@@ -98,7 +100,7 @@
 
 - (void)removeObject {
     __weak typeof(self)weakSelf = self;
-    dispatch_barrier_async(self.concurrentQueue, ^{
+    dispatch_sync(self.concurrentQueue, ^{
         if ([weakSelf.arrayHigh count]) {
             [weakSelf.arrayHigh removeLastObject];
         } else if ([weakSelf.arrayMedium count]) {
@@ -114,7 +116,7 @@
 - (id)getObjectFromQueue {
     __weak typeof(self)weakSelf = self;
     __block id object = nil;
-    dispatch_barrier_sync(self.concurrentQueue, ^{
+    dispatch_sync(self.concurrentQueue, ^{
         if ([weakSelf.arrayHigh count]) {
             object = [weakSelf.arrayHigh lastObject];
         } else if ([weakSelf.arrayMedium count]) {
@@ -137,6 +139,10 @@
         count += [weakSelf.arrayLow  count];
     });
     return count;
+}
+
+- (void)setPriorityForObject:(id)object withPriority:(int)priority {
+    
 }
 
 @end

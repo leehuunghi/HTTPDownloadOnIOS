@@ -10,45 +10,61 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "HTTPDownloadVersion2/DownloadCore/Downloader.m"
-            timestampString = "555478871.366268"
+            timestampString = "555493502.667586"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "87"
-            endingLineNumber = "87"
-            landmarkName = "-itemWillStartDownload:"
+            startingLineNumber = "104"
+            endingLineNumber = "104"
+            landmarkName = "-URLSession:downloadTask:didWriteData:totalBytesWritten:totalBytesExpectedToWrite:"
             landmarkType = "7">
             <Locations>
                <Location
                   shouldBeEnabled = "Yes"
                   ignoreCount = "0"
                   continueAfterRunningActions = "No"
-                  symbolName = "-[Downloader itemWillStartDownload:]"
+                  symbolName = "-[Downloader URLSession:downloadTask:didWriteData:totalBytesWritten:totalBytesExpectedToWrite:]"
                   moduleName = "HTTPDownloadVersion2"
                   usesParentBreakpointCondition = "Yes"
                   urlString = "file:///Users/cpu11367/Desktop/HTTPDownload2/HTTPDownloadOnIOS/HTTPDownloadVersion2/HTTPDownloadVersion2/DownloadCore/Downloader.m"
-                  timestampString = "555478871.685318"
+                  timestampString = "555493141.333474"
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "87"
-                  endingLineNumber = "87"
-                  offsetFromSymbolStart = "381">
+                  startingLineNumber = "104"
+                  endingLineNumber = "104"
+                  offsetFromSymbolStart = "181">
                </Location>
                <Location
                   shouldBeEnabled = "Yes"
                   ignoreCount = "0"
                   continueAfterRunningActions = "No"
-                  symbolName = "-[Downloader itemWillStartDownload:]"
+                  symbolName = "-[Downloader URLSession:downloadTask:didWriteData:totalBytesWritten:totalBytesExpectedToWrite:]"
                   moduleName = "HTTPDownloadVersion2"
                   usesParentBreakpointCondition = "Yes"
                   urlString = "file:///Users/cpu11367/Desktop/HTTPDownload2/HTTPDownloadOnIOS/HTTPDownloadVersion2/HTTPDownloadVersion2/DownloadCore/Downloader.m"
-                  timestampString = "555478871.6894799"
+                  timestampString = "555493141.338496"
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "87"
-                  endingLineNumber = "87"
-                  offsetFromSymbolStart = "442">
+                  startingLineNumber = "104"
+                  endingLineNumber = "104"
+                  offsetFromSymbolStart = "189">
                </Location>
             </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "HTTPDownloadVersion2/DownloadCore/DownloadItem.m"
+            timestampString = "555493502.668147"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "38"
+            endingLineNumber = "38"
+            landmarkName = "-reallyResume"
+            landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
    </Breakpoints>
