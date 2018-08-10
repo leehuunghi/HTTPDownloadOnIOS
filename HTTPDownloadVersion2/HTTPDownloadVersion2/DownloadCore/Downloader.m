@@ -18,8 +18,6 @@
 
 @property (nonatomic, strong) PriorityQueue *priorityQueue;
 
-@property (nonatomic, strong) NSOperationQueue *downloadingOperation;
-
 @property (nonatomic, strong) NSMutableArray *downloadedItems;
 
 @property (nonatomic, strong) dispatch_queue_t serialQueue;
@@ -34,8 +32,6 @@
     self = [super init];
     if (self) {
         _downloadedItems = [[NSMutableArray alloc] init];
-        _downloadingOperation = [[NSOperationQueue alloc] init];
-        _downloadingOperation.maxConcurrentOperationCount = 1;
         _configuration = NSURLSessionConfiguration.defaultSessionConfiguration;
         _session = [NSURLSession sessionWithConfiguration:self.configuration delegate:self delegateQueue:nil];
         _priorityQueue = [PriorityQueue new];
@@ -80,14 +76,12 @@
 - (void)dequeueItem {
 	    __weak typeof(self)weakSelf = self;
     dispatch_async(self.serialQueue, ^{
-        NSLog(@"%lu %ld",(unsigned long)weakSelf.countDownloading, (long)[weakSelf.priorityQueue count]);
         if (weakSelf.countDownloading > 0 && [weakSelf.priorityQueue count] > 0) {
             weakSelf.countDownloading--;
-            [weakSelf.downloadingOperation addOperationWithBlock:^{
-                DownloadItem *item = (DownloadItem *)[weakSelf.priorityQueue getObjectFromQueue];
-                [item reallyResume];
-                [weakSelf.priorityQueue removeObject];
-            }];
+            NSLog(@"%lu %ld",(unsigned long)weakSelf.countDownloading, (long)[weakSelf.priorityQueue count]);
+            DownloadItem *item = (DownloadItem *)[weakSelf.priorityQueue getObjectFromQueue];
+            [item reallyResume];
+            [weakSelf.priorityQueue removeObject];
         }
     });
 }
@@ -139,13 +133,17 @@ totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
 }
 
 - (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didCompleteWithError:(NSError *)error {
+    NSLog(@"complete");
     for (DownloadItem *item in self.downloadedItems) {
         if (item.downloadTask == task) {
             NSHTTPURLResponse *httpRespone = (NSHTTPURLResponse *)task.response;
-            if(httpRespone.statusCode == 200) {
+            if(httpRespone.statusCode == 200 && !error) {
                 item.downloadState = DownloadItemStateComplete;
-                [item.delegate itemDidFinishDownload:YES withError:nil];
+                [item.delegate itemDidFinishDownload:YES withError:error];
+            } else if (error.code == -1001) {
+                return;
             } else {
+                NSLog(@"%@", error.description);
                 item.downloadState = DownloadItemStateError;
                 [item.delegate itemDidFinishDownload:NO withError:error];
             }

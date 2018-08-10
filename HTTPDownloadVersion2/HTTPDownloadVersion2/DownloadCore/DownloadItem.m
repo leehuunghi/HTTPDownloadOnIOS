@@ -28,9 +28,13 @@
 }
 
 - (void)pause {
-    [self.delegate itemWillPauseDownload];
-    [self.downloadTask suspend];
-    [self.downloaderDelegate itemWillPauseDownload:self];
+    if (self.downloadTask.state != NSURLSessionTaskStateSuspended) {
+        [self.downloadTask suspend];
+        if (self.downloadTask.state == NSURLSessionTaskStateSuspended) {
+            [self.delegate itemWillPauseDownload];
+            [self.downloaderDelegate itemWillPauseDownload:self];
+        }
+    }
 }
 
 - (void)reallyResume {
