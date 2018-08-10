@@ -62,9 +62,18 @@
             DownloadItem *item = [DownloadItem new];
             item.downloadState = DownloadItemStatePending;
             item.downloaderDelegate = self;
-            item.downloadTask = [weakSelf.session downloadTaskWithURL:url];
-            item.url = urlString;
             
+            NSObject* resumeData = [NSUserDefaults.standardUserDefaults objectForKey:urlString];
+            if (resumeData) {
+                if ([resumeData isKindOfClass:[NSData class]]) {
+                    item.downloadTask = [weakSelf.session downloadTaskWithResumeData:(NSData*)resumeData];
+                }
+            }
+            if (!item.downloadTask) {
+                item.downloadTask = [weakSelf.session downloadTaskWithURL:url];
+            }
+            
+            item.url = urlString;
             if (completion) {
                 completion(item, nil);
             }
@@ -176,6 +185,31 @@ totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
 - (void)setCountDownloading:(NSUInteger)countDownloading {
     _countDownloading = countDownloading;
     NSLog(@"Count Downloading: %ld", _countDownloading);
+}
+
+- (void)saveResumeData:(void(^)(void))completion {
+    NSMutableArray* suspendedDownloads = [NSMutableArray new];
+    for (DownloadItem* download in _downloadedItems) {
+        if (download.downloadTask.state == NSURLSessionTaskStateSuspended) {
+            [suspendedDownloads addObject:download];
+        }
+    }
+    if (suspendedDownloads.count == 0) {
+        completion();
+    }
+    for (DownloadItem* download in suspendedDownloads) {
+        [download.downloadTask cancelByProducingResumeData:^(NSData * _Nullable resumeData) {
+            if (resumeData) {
+                [NSUserDefaults.standardUserDefaults setObject:resumeData forKey:download.url];
+            }
+            @synchronized (suspendedDownloads) {
+                [suspendedDownloads removeObject:download];
+                if (suspendedDownloads.count == 0) {
+                    completion();
+                }
+            }
+        }];
+    }
 }
 
 @end

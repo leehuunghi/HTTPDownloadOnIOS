@@ -42,6 +42,6 @@
 
 - (void)pauseAll;
 
-
+- (void)saveResumeData:(void(^)(void))completion;
 
 @end

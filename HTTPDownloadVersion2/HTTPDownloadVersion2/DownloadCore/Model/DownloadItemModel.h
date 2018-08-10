@@ -9,6 +9,14 @@
 #import <UIKit/UIKit.h>
 #import "DownloadPriority.h"
 
+typedef NS_ENUM(NSUInteger, DownloadState) {
+    DownloadStatePending = 0,
+    DownloadStateDownloading,
+    DownloadStatePause,
+    DownloadStateComplete,
+    DownloadStateError
+};
+
 @protocol DownloadItemDelegate <NSObject>
 
 @optional
@@ -51,6 +59,7 @@
 
 @end
 
+
 @interface DownloadItemModel : NSObject
 
 /**
@@ -78,6 +87,8 @@
  */
 @property (nonatomic, retain) id<DownloadItemDelegate> delegate;
 
+@property (nonatomic) DownloadState state;
+
 @property (nonatomic, strong) NSData* resumeData;
 
 /**
@@ -99,5 +110,7 @@
  Cancel download. If downloaded will ask user to delete downloaded file
  */
 - (void)cancel;
+
+- (id)replacementObjectForCoder:(NSCoder *)aCoder;
 
 @end

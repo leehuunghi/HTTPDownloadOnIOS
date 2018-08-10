@@ -35,4 +35,14 @@
     
 }
 
+- (id)replacementObjectForCoder:(NSCoder *)aCoder {
+    return nil;
+}
+
+- (void)encodeWithCoder:(NSCoder *)coder {
+    [coder encodeObject:_url forKey:@"url"];
+    [coder encodeObject:_filePath forKey:@"filePath"];
+    [coder encodeInteger:_state forKey:@"state"];
+}
+
 @end

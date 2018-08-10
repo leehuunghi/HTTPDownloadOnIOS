@@ -9,14 +9,6 @@
 #import "CellObjectModel.h"
 #import "DownloadItemModel.h"
 
-typedef NS_ENUM(NSUInteger, DownloadState) {
-    DownloadStatePending = 0,
-    DownloadStateDownloading,
-    DownloadStatePause,
-    DownloadStateComplete,
-    DownloadStateError
-};
-
 @class DownloadTableViewCell;
 
 @interface DownloadCellObject : CellObjectModel <DownloadItemDelegate>

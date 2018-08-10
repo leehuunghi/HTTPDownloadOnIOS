@@ -60,6 +60,7 @@
                        @"https://speed.hetzner.de/10GB.bin"
                        ];
     _count = 0;
+    
 }
 
 - (void)loadUI {
@@ -104,7 +105,9 @@
 }
 
 - (IBAction)quitItemTouch:(id)sender {
-    exit(0);
+    [_downloader saveResumeData:^{
+        exit(0);
+    }];
 }
 
 @end
