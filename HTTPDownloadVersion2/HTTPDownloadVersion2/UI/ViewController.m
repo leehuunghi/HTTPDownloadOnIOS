@@ -103,5 +103,8 @@
     return [url substringFromIndex:startPoint];
 }
 
+- (IBAction)quitItemTouch:(id)sender {
+    exit(0);
+}
 
 @end

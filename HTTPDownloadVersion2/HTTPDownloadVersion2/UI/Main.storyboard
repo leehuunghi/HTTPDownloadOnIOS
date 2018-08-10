@@ -28,11 +28,14 @@
                                         <rect key="frame" x="0.0" y="0.0" width="375" height="44"/>
                                         <items>
                                             <navigationItem title="Download Manager" id="urf-FI-qHq">
-                                                <barButtonItem key="leftBarButtonItem" title="Item" image="exit" id="KpL-gN-Mm0">
-                                                    <inset key="imageInsets" minX="-10" minY="4" maxX="0.0" maxY="-7"/>
+                                                <barButtonItem key="leftBarButtonItem" title="Item" image="exit" id="BBa-vh-01p">
+                                                    <inset key="imageInsets" minX="-10" minY="2" maxX="0.0" maxY="-10"/>
+                                                    <connections>
+                                                        <action selector="quitItemTouch:" destination="5Hh-lI-p3W" id="9YZ-Ex-LfW"/>
+                                                    </connections>
                                                 </barButtonItem>
                                                 <barButtonItem key="rightBarButtonItem" title="Item" image="setting" id="kRg-Uo-hLc">
-                                                    <inset key="imageInsets" minX="0.0" minY="4" maxX="-10" maxY="-7"/>
+                                                    <inset key="imageInsets" minX="0.0" minY="2" maxX="-10" maxY="-10"/>
                                                 </barButtonItem>
                                             </navigationItem>
                                         </items>

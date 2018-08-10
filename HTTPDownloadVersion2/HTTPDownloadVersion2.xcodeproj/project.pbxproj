@@ -29,6 +29,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		9323BB6F211D898200954D2F /* HTTPDownloadVersion2.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = HTTPDownloadVersion2.entitlements; sourceTree = "<group>"; };
 		933AA2612119836500CE94A0 /* DownloadCellObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DownloadCellObject.h; sourceTree = "<group>"; };
 		933AA2622119836500CE94A0 /* DownloadCellObject.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DownloadCellObject.m; sourceTree = "<group>"; };
 		933AA2632119836500CE94A0 /* DownloadTableView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DownloadTableView.h; sourceTree = "<group>"; };
@@ -170,6 +171,7 @@
 		A35C824921193986002D42B5 /* HTTPDownloadVersion2 */ = {
 			isa = PBXGroup;
 			children = (
+				9323BB6F211D898200954D2F /* HTTPDownloadVersion2.entitlements */,
 				933AA27C2119836600CE94A0 /* Default */,
 				933AA2742119836600CE94A0 /* DownloadCore */,
 				933AA2602119836500CE94A0 /* UI */,
@@ -209,6 +211,11 @@
 				TargetAttributes = {
 					A35C824621193986002D42B5 = {
 						CreatedOnToolsVersion = 9.3;
+						SystemCapabilities = {
+							com.apple.Push = {
+								enabled = 1;
+							};
+						};
 					};
 				};
 			};
@@ -395,7 +402,9 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = HTTPDownloadVersion2/HTTPDownloadVersion2.entitlements;
 				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 36B6SWNZ97;
 				INFOPLIST_FILE = HTTPDownloadVersion2/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -411,7 +420,9 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = HTTPDownloadVersion2/HTTPDownloadVersion2.entitlements;
 				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 36B6SWNZ97;
 				INFOPLIST_FILE = HTTPDownloadVersion2/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",

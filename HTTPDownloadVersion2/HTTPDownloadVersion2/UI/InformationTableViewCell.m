@@ -24,6 +24,7 @@
 
 + (TableViewCellModel *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     TableViewCellModel *cell = [tableView dequeueReusableCellWithIdentifier:@"InformationTableViewCell"];
+    cell.selectionStyle = UITableViewCellSelectionStyleNone;
     return cell;
 }
 

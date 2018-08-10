@@ -24,6 +24,8 @@
 
 @property (nonatomic, strong) dispatch_queue_t serialQueueSameItem;
 
+@property (nonatomic, strong) NSMutableArray *downloadingItems;
+
 @end
 
 @implementation Downloader
@@ -80,6 +82,7 @@
             weakSelf.countDownloading--;
             NSLog(@"%lu %ld",(unsigned long)weakSelf.countDownloading, (long)[weakSelf.priorityQueue count]);
             DownloadItem *item = (DownloadItem *)[weakSelf.priorityQueue getObjectFromQueue];
+            [weakSelf.downloadingItems addObject:item];
             [item reallyResume];
             [weakSelf.priorityQueue removeObject];
         }
@@ -96,10 +99,14 @@
 #pragma DownloaderDelegate
 
 - (void)itemWillCancelDownload:(DownloadItem *)downloadItem {
+    [_downloadedItems removeObject:downloadItem];
+    [_downloadingItems removeObject:downloadItem];
+    [_priorityQueue removeObject:downloadItem withPriority:downloadItem.downloadPriority];
 }
 
 - (void)itemWillPauseDownload:(DownloadItem *)downloadItem {
     __weak typeof(self)weakSelf = self;
+    [_downloadingItems removeObject:downloadItem];
     dispatch_async(self.serialQueue, ^{
         weakSelf.countDownloading++;
     });
@@ -120,6 +127,7 @@ totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
     for (DownloadItem *item in self.downloadedItems) {
         if (item.downloadTask == downloadTask) {
             [item.delegate itemDidUpdateTotalBytesWritten:totalBytesWritten andTotalBytesExpectedToWrite:totalBytesExpectedToWrite];
+            break;
         }
     }
 }
@@ -128,6 +136,7 @@ totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
     for (DownloadItem *item in self.downloadedItems) {
         if (item.downloadTask == downloadTask) {
             //store file to document
+            break;
         }
     }
 }
@@ -155,6 +164,7 @@ totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
                     [item.delegate itemDidFinishDownload:NO withError:error];
                 }
             }
+            break;
         }
     }
     dispatch_async(self.serialQueue, ^{

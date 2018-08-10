@@ -140,7 +140,11 @@
     return count;
 }
 
-- (void)setPriorityForObject:(id)object withPriority:(int)priority {
+- (void)setPriorityForObject:(id)object withPriority:(DownloadPriority)priority {
+    
+}
+
+- (void)removeObject:(id)object withPriority:(DownloadPriority)priority {
     
 }
 

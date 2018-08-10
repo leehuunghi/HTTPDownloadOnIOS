@@ -10,6 +10,15 @@
 
 @implementation DownloadItemModel
 
+- (instancetype)init
+{
+    self = [super init];
+    if (self) {
+        _downloadPriority = DownloadPriorityMedium;
+    }
+    return self;
+}
+
 - (void)suppend {
     
 }
