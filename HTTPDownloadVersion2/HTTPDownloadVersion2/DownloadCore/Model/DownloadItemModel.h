@@ -78,6 +78,8 @@
  */
 @property (nonatomic, retain) id<DownloadItemDelegate> delegate;
 
+@property (nonatomic, strong) NSData* resumeData;
+
 /**
  Switch background download and foreground download
  */

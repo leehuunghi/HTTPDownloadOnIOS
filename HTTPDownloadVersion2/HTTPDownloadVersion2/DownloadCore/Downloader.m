@@ -137,15 +137,23 @@ totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
     for (DownloadItem *item in self.downloadedItems) {
         if (item.downloadTask == task) {
             NSHTTPURLResponse *httpRespone = (NSHTTPURLResponse *)task.response;
-            if(httpRespone.statusCode == 200 && !error) {
-                item.downloadState = DownloadItemStateComplete;
-                [item.delegate itemDidFinishDownload:YES withError:error];
-            } else if (error.code == -1001) {
-                return;
+            if (error) {
+                if (error.code == -1001) {
+                    item.resumeData = [error.userInfo objectForKey:NSURLSessionDownloadTaskResumeData];
+                    item.downloadTask = [_session downloadTaskWithResumeData:item.resumeData];
+                    return;
+                } else {
+                    item.downloadState = DownloadItemStateError;
+                    [item.delegate itemDidFinishDownload:NO withError:error];
+                }
             } else {
-                NSLog(@"%@", error.description);
-                item.downloadState = DownloadItemStateError;
-                [item.delegate itemDidFinishDownload:NO withError:error];
+                if (httpRespone.statusCode/100==2) {
+                    item.downloadState = DownloadItemStateComplete;
+                    [item.delegate itemDidFinishDownload:YES withError:error];
+                } else {
+                    item.downloadState = DownloadItemStateError;
+                    [item.delegate itemDidFinishDownload:NO withError:error];
+                }
             }
         }
     }
