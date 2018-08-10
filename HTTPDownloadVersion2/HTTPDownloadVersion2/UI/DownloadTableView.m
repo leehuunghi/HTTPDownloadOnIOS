@@ -64,14 +64,18 @@
     if (cellObject) {
         [_cellObjects insertObject:cellObject atIndex:0];
     }
-    [self insertRowsAtIndexPaths:@[[NSIndexPath indexPathForRow:0 inSection:0]] withRowAnimation:UITableViewRowAnimationMiddle];
-    
-    if (_error) {
-        if (_error.code == DownloadErrorCodeEmpty) {
-            _error = nil;
-            [self removeCell:_infoObject];
+    __weak __typeof(self) weakSelf = self;
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [weakSelf insertRowsAtIndexPaths:@[[DownloadTableView headIndexPath]] withRowAnimation:UITableViewRowAnimationMiddle];
+        if (weakSelf.error) {
+            if (weakSelf.error.code == DownloadErrorCodeEmpty) {
+                weakSelf.error = nil;
+                [self removeCell:weakSelf.infoObject];
+            }
         }
-    }
+    });
+    
+    
     
     
 }
@@ -80,11 +84,14 @@
     NSUInteger index = [_cellObjects indexOfObject:cellObject];
     if (index < _cellObjects.count) {
         [_cellObjects removeObjectAtIndex:index];
-        [self deleteRowsAtIndexPaths:@[[NSIndexPath indexPathForRow:index inSection:0]] withRowAnimation:UITableViewRowAnimationBottom];
-        if (_cellObjects.count == 0) {
-            _error = [NSError errorWithDomain:DownloadErrorDomain code:DownloadErrorCodeEmpty userInfo:nil];
-            [self errorCellWillDisplay];
-        }
+        __weak __typeof(self) weakSelf = self;
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [weakSelf deleteRowsAtIndexPaths:@[[NSIndexPath indexPathForRow:index inSection:0]] withRowAnimation:UITableViewRowAnimationBottom];
+            if (weakSelf.cellObjects.count == 0) {
+                weakSelf.error = [NSError errorWithDomain:DownloadErrorDomain code:DownloadErrorCodeEmpty userInfo:nil];
+                [weakSelf errorCellWillDisplay];
+            }
+        });
     } else {
         
     }
@@ -111,4 +118,33 @@
     [_cellObjects insertObject:_infoObject atIndex:0];
     [self insertRowsAtIndexPaths:@[[NSIndexPath indexPathForRow:0 inSection:0]] withRowAnimation:UITableViewRowAnimationFade];
 }
+
+- (void)moveCellToHead:(CellObjectModel *)cellObject {
+    NSUInteger index = [_cellObjects indexOfObject:cellObject];
+    if (index < [_cellObjects count]) {
+        [_cellObjects removeObjectAtIndex:index];
+        [_cellObjects insertObject:cellObject atIndex:0];
+        __weak __typeof(self) weakSelf = self;
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [weakSelf moveRowAtIndexPath:[DownloadTableView indexPathForIndex:index] toIndexPath:[DownloadTableView headIndexPath]];
+        });
+    }
+
+}
+
+#pragma constant
+
++ (NSIndexPath *)headIndexPath {
+    static NSIndexPath *indexPath;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        indexPath = [NSIndexPath indexPathForRow:0 inSection:0];
+    });
+    return indexPath;
+}
+
++ (NSIndexPath *)indexPathForIndex:(NSUInteger)index {
+    return [NSIndexPath indexPathForRow:index inSection:0];
+}
+
 @end

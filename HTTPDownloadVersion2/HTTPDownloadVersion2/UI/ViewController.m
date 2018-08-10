@@ -46,10 +46,10 @@
     
     self.staticArr = @[
                        @"http://www.vietnamvisaonentry.com/file/2014/06/coconut-tree.jpg",
-                       @"http://www.vietnamvisaonentry.com/file/2014/06/coconut-tree.jpg",
-                       @"http://www.vietnamvisaonentry.com/file/2014/06/coconut-tree.jpg",
                        @"http://grail.cba.csuohio.edu/~matos/notes/ist-211/2015-fall/classroster_IST_211_1.xlsx",
+                       @"http://www.vietnamvisaonentry.com/file/2014/06/coconut-tree.jpg",
                        @"http://www.noiseaddicts.com/samples_1w72b820/274.mp3",
+                       @"http://www.vietnamvisaonentry.com/file/2014/06/coconut-tree.jpg",
                        @"http://ipv4.download.thinkbroadband.com/200MB.zip",
                        @"http://ipv4.download.thinkbroadband.com/50MB.zip",
                        @"http://ipv4.download.thinkbroadband.com/512MB.zip",
@@ -72,16 +72,22 @@
     if(_count >= [self.staticArr count]) _count = 0;
     //    _urlInputTextField.text = @"";
     if (url.length > 0) {
-        DownloadCellObject *cellObject = [DownloadCellObject new];
-        cellObject.title = [ViewController getNameInURL:url];
-        [_downloadTableView addCell:cellObject];
+        __weak __typeof(self) weakSelf = self;
         
         [_downloader createDownloadItemWithUrl:url completion:^(DownloadItemModel *downloadItem, NSError *error) {
-            if (error) {
-                cellObject.state = DownloadStateError;
+            if (downloadItem && downloadItem.delegate && [downloadItem.delegate isKindOfClass:[CellObjectModel class]]) {
+                CellObjectModel *cellObject = downloadItem.delegate;
+                [weakSelf.downloadTableView moveCellToHead:cellObject];
             } else {
-                cellObject.downloadItem = downloadItem;
-                downloadItem.delegate = cellObject;
+                DownloadCellObject *cellObject = [DownloadCellObject new];
+                cellObject.title = [ViewController getNameInURL:url];
+                [weakSelf.downloadTableView addCell:cellObject];
+                if (error) {
+                    cellObject.state = DownloadStateError;
+                } else {
+                    cellObject.downloadItem = downloadItem;
+                    downloadItem.delegate = cellObject;
+                }
             }
         }];
     }

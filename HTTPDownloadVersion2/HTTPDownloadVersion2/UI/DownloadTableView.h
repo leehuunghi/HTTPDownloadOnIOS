@@ -29,4 +29,6 @@ static NSString *const DownloadErrorDomain = @"com.download.contact";
 
 - (void)removeCell:(CellObjectModel *)cellObject;
 
+- (void)moveCellToHead:(CellObjectModel *)cellObject;
+
 @end

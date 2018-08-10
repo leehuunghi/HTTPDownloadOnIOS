@@ -125,15 +125,18 @@
 }
 
 - (void)pause {
+    NSLog(@"UI want pause");
     [_downloadItem pause];
 }
 
 - (void)resume {
+    NSLog(@"UI want resume");
     [_downloadItem resume];
     self.state = DownloadStatePending;
 }
 
 - (void)cancel {
+    NSLog(@"UI want cancel");
     [_downloadItem cancel];
 }
 

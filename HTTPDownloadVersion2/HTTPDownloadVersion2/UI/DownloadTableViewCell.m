@@ -22,6 +22,10 @@
 
 @implementation DownloadTableViewCell
 
+- (void)prepareForReuse {
+    [super prepareForReuse];
+    [_progressView setHidden:NO];
+}
 
 - (void)awakeFromNib {
     [super awakeFromNib];
