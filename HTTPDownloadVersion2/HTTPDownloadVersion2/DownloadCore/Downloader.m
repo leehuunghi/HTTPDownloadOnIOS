@@ -129,7 +129,7 @@
 - (void)itemWillStartDownload:(DownloadItem *)downloadItem {
     if (downloadItem) {
         __weak typeof(self)weakSelf = self;
-        [weakSelf.priorityQueue addObject:downloadItem];
+        [weakSelf.priorityQueue addObject:downloadItem withPriority:downloadItem.downloadPriority];
         [self dequeueItem];
     }
 }
