@@ -43,8 +43,15 @@
 }
 
 - (void)cancel {
-    [self.downloaderDelegate itemWillCancelDownload:self];
+    if (self.downloadTask.state == NSURLSessionTaskStateRunning) {
+        [self pause];
+    }
     [self.downloadTask cancel];
+    [self.downloaderDelegate itemWillCancelDownload:self];
+}
+
+-(void)reload {
+    
 }
 
 - (id)initWithCoder:(NSCoder *)coder {
@@ -71,6 +78,22 @@
 
 - (instancetype)initWithData:(NSData *)data {
     return [NSKeyedUnarchiver unarchiveObjectWithData:data];
+}
+
+- (void)open {
+    if (self.filePath) {
+        NSURL *resourceToOpen = [NSURL fileURLWithPath:self.filePath];
+        BOOL canOpenResource = [[UIApplication sharedApplication] canOpenURL:resourceToOpen];
+        if (canOpenResource) {
+            [[UIApplication sharedApplication] openURL:resourceToOpen options:@{} completionHandler:^(BOOL success) {
+                if (success) {
+                    
+                } else {
+                    
+                }
+            }];
+        }
+    }
 }
 
 @end

@@ -35,6 +35,14 @@
     
 }
 
+- (void)restart {
+    
+}
+
+- (void)open {
+    
+}
+
 - (id)initWithCoder:(NSCoder *)coder {
     self = [super init];
     if (self!=NULL)

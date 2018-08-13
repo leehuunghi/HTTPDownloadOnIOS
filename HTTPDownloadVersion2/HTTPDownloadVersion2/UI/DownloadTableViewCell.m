@@ -115,6 +115,10 @@
     [_cellObject resume];
 }
 
+- (IBAction)restartButtonClick:(id)sender {
+    [_cellObject restart];
+}
+
 - (void)updateState {
     if (_cellObject) {
         switch (_cellObject.state) {

@@ -18,6 +18,8 @@
 
 @property (nonatomic) int count;
 
+@property (weak, nonatomic) IBOutlet UISegmentedControl *prioritySegmented;
+
 @end
 
 @implementation ViewController
@@ -47,6 +49,7 @@
     for (DownloadItemModel *item in historyDownload) {
         DownloadCellObject *cellObject = [[DownloadCellObject alloc] initWithDownloadItem:item];
         [cellObjects insertObject:cellObject atIndex:0];
+        item.delegate = cellObject;
     }
     _downloadTableView.cellObjects = cellObjects;
     
@@ -80,8 +83,8 @@
     //    _urlInputTextField.text = @"";
     if (url.length > 0) {
         __weak __typeof(self) weakSelf = self;
-        
-        [_downloader createDownloadItemWithUrl:url completion:^(DownloadItemModel *downloadItem, NSError *error) {
+        DownloadPriority priority = _prioritySegmented.selectedSegmentIndex;
+        [_downloader createDownloadItemWithUrl:url priority:priority completion:^(DownloadItemModel *downloadItem, NSError *error) {
             if (downloadItem && downloadItem.delegate && [downloadItem.delegate isKindOfClass:[CellObjectModel class]]) {
                 CellObjectModel *cellObject = downloadItem.delegate;
                 [weakSelf.downloadTableView moveCellToHead:cellObject];
