@@ -39,6 +39,8 @@
 
 - (void)cancel;
 
+- (void)restart;
+
 - (void)upPriority;
 
 - (void)downPriority;

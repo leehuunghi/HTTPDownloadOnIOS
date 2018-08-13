@@ -33,7 +33,6 @@
     self = [self init];
     if (self) {
         _state = downloadItem.state;
-        
         if (downloadItem.filePath) {
             _title = [downloadItem.filePath lastPathComponent];
         } else {
@@ -155,6 +154,10 @@
     [_downloadItem cancel];
 }
 
+- (void)restart {
+    
+}
+
 - (void)upPriority {
     
 }
@@ -164,21 +167,7 @@
 }
 
 - (void)openFile {
-    if (_filePath) {
-        //_filePath = @"/coconut-tree.jpg";
-        
-        NSURL *resourceToOpen = [NSURL fileURLWithPath:_filePath];
-        BOOL canOpenResource = [[UIApplication sharedApplication] canOpenURL:resourceToOpen];
-        if (canOpenResource) {
-            [[UIApplication sharedApplication] openURL:resourceToOpen options:@{} completionHandler:^(BOOL success) {
-                if (success) {
-                    
-                } else {
-                    
-                }
-            }];
-        }
-    }
+    
 }
 //filePath    __NSCFString *    @"file: ///Us ers/c pu113 67/Li brary /Deve loper /Core Simul ator/ Devic es/B1 692B0 8-2CD 0-4E5 3-9A9 2-18A E9C26 C97C/ data/ Conta iners /Data /Application/B4C3E093-776D-4992-9DB7-8A9EAD644FE1/Documents/coconut-tree.jpg"    0x00006040005a7c40
 

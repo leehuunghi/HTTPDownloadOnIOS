@@ -35,7 +35,11 @@
     
 }
 
-- (void)reload {
+- (void)restart {
+    
+}
+
+- (void)open {
     
 }
 
