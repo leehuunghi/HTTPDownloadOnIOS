@@ -64,6 +64,7 @@
             DownloadItem *item = [DownloadItem new];
             item.downloadState = DownloadItemStatePending;
             item.downloaderDelegate = self;
+            item.downloadPriority = priority;
             
             NSObject* resumeData = [NSUserDefaults.standardUserDefaults objectForKey:urlString];
             if (resumeData) {
@@ -161,6 +162,11 @@ totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
                     if (error.code == -1001) {
                         item.resumeData = [error.userInfo objectForKey:NSURLSessionDownloadTaskResumeData];
                         item.downloadTask = [_session downloadTaskWithResumeData:item.resumeData];
+                        return;
+                    } else if (error.code == -1005) {
+                        item.resumeData = [error.userInfo objectForKey:NSURLSessionDownloadTaskResumeData];
+                        item.downloadTask = [_session downloadTaskWithResumeData:item.resumeData];
+                        [item.downloadTask resume];
                         return;
                     } else {
                         item.downloadState = DownloadItemStateError;

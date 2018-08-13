@@ -35,7 +35,6 @@
 }
 
 - (void)addHeadObject:(id)object withPriority:(DownloadPriority)priority {
-    NSLog(@"add Head");
     if(object) {
         __weak typeof (self) weakSelf = self;
         switch (priority) {
