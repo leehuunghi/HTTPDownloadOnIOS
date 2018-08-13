@@ -19,15 +19,13 @@
 
 @property (readwrite, nonatomic) float progress;
 
-@property (readwrite, nonatomic) BOOL isPersen;
+@property (nonatomic) DownloadPriority priority;
 
 @property (readwrite, nonatomic) DownloadState state;
 
 @property (readwrite, nonatomic, weak) DownloadTableViewCell *cell;
 
 @property (readwrite, nonatomic, strong) DownloadItemModel *downloadItem;
-
-@property (readwrite, nonatomic, strong) NSString *filePath;
 
 - (instancetype)init;
 

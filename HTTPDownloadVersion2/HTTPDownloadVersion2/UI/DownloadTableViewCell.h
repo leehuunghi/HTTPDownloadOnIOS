@@ -20,6 +20,8 @@
 
 @property (strong, nonatomic) NSIndexPath *indexPath;
 
+@property (weak, nonatomic) IBOutlet UILabel *priorityLabel;
+
 @property (weak, nonatomic, readwrite) DownloadCellObject *cellObject;
 
 - (void)updateState;

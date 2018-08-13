@@ -61,6 +61,7 @@
         self.url = [coder decodeObjectForKey:@"url"];
         self.filePath = [coder decodeObjectForKey:@"filePath"];
         self.state = [coder decodeIntegerForKey:@"state"];
+        self.downloadPriority = [coder decodeIntegerForKey:@"priority"];
     }
     return self;
 }
@@ -69,6 +70,7 @@
     [coder encodeObject:self.url forKey:@"url"];
     [coder encodeObject:self.filePath forKey:@"filePath"];
     [coder encodeInteger:self.state forKey:@"state"];
+    [coder encodeInteger:self.downloadPriority forKey:@"priority"];
 }
 
 - (NSData *)transToData {

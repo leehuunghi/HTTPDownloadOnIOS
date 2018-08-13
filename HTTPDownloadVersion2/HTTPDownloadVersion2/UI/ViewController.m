@@ -90,6 +90,7 @@
                 [weakSelf.downloadTableView moveCellToHead:cellObject];
             } else {
                 DownloadCellObject *cellObject = [DownloadCellObject new];
+                cellObject.priority = priority;
                 cellObject.title = [ViewController getNameInURL:url];
                 [weakSelf.downloadTableView addCell:cellObject];
                 if (error) {
@@ -114,7 +115,6 @@
 }
 
 - (IBAction)quitItemTouch:(id)sender {
-    [_downloader saveData];
     [_downloader saveResumeData:^{
         exit(0);
     }];

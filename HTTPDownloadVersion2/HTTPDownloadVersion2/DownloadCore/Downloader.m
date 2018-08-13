@@ -207,6 +207,7 @@ totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
 }
 
 - (void)saveResumeData:(void(^)(void))completion {
+    [self saveData];
     NSMutableArray* suspendedDownloads = [NSMutableArray new];
     for (DownloadItem* download in _downloadedItems) {
         if (download.downloadTask.state == NSURLSessionTaskStateSuspended) {

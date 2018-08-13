@@ -67,8 +67,11 @@
     object.cell = self;
     self.cellObject = object;
     [self updateState];
+    [self setPriority:object.priority];
     return true;
 }
+
+#pragma event
 
 - (IBAction)cencelButtonTouch:(id)sender {
     if (!_cellObject) {
@@ -119,6 +122,8 @@
     [_cellObject restart];
 }
 
+#pragma state
+
 - (void)updateState {
     if (_cellObject) {
         switch (_cellObject.state) {
@@ -135,7 +140,7 @@
                 [self noDownloadState];
                 break;
         }
-        self.backgroundColor = [_cellObject getColorBackgroud];
+        //self.backgroundColor = [_cellObject getColorBackgroud];
     }
     
 }
@@ -157,6 +162,18 @@
     [_pauseButton setHidden:YES];
 }
 
-
+- (void)setPriority:(DownloadPriority)priority {
+    switch (priority) {
+        case DownloadPriorityLow:
+            _priorityLabel.text = @"Low";
+            break;
+        case DownloadPriorityHigh:
+            _priorityLabel.text = @"High";
+            break;
+        default:
+            _priorityLabel.text = @"Medium";
+            break;
+    }
+}
 
 @end

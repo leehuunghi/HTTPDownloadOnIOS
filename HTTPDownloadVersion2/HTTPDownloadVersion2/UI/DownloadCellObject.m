@@ -38,7 +38,7 @@
         } else {
             _title = [downloadItem.url lastPathComponent];
         }
-        
+        _priority = downloadItem.downloadPriority;
         _downloadItem = downloadItem;
         downloadItem.delegate = self;
     }
@@ -169,7 +169,6 @@
 - (void)openFile {
     
 }
-//filePath    __NSCFString *    @"file: ///Us ers/c pu113 67/Li brary /Deve loper /Core Simul ator/ Devic es/B1 692B0 8-2CD 0-4E5 3-9A9 2-18A E9C26 C97C/ data/ Conta iners /Data /Application/B4C3E093-776D-4992-9DB7-8A9EAD644FE1/Documents/coconut-tree.jpg"    0x00006040005a7c40
 
 # pragma delegate
 
@@ -202,6 +201,9 @@
 }
 
 - (void)progressDidUpdate:(NSUInteger)currentSize total:(NSUInteger)totalSize {
+    if (_state != DownloadStateDownloading) {
+        return;
+    }
     if (totalSize > 0) {
         self.progressString = [NSString stringWithFormat:@"%ld/%ld B", currentSize, totalSize];
         self.progress = (float)currentSize / totalSize;
@@ -222,7 +224,6 @@
         successColor = [UIColor colorWithRed:red green:green blue:blue alpha:1.0];
     });
     return successColor;
-    
 }
 
 + (UIColor *)errorColor {

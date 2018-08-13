@@ -92,7 +92,7 @@
                                                         <segments>
                                                             <segment title="Low"/>
                                                             <segment title="Medium"/>
-                                                            <segment title="Hight"/>
+                                                            <segment title="High"/>
                                                         </segments>
                                                     </segmentedControl>
                                                 </subviews>
@@ -134,16 +134,8 @@
                                                                             <color key="textColor" red="0.10196078431372549" green="0.14901960784313725" blue="0.18823529411764706" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                                             <nil key="highlightedColor"/>
                                                                         </label>
-                                                                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="jyo-Rd-M7L">
-                                                                            <rect key="frame" x="215" y="0.0" width="30" height="30"/>
-                                                                            <inset key="imageEdgeInsets" minX="5" minY="5" maxX="5" maxY="5"/>
-                                                                            <state key="normal" image="reload"/>
-                                                                            <connections>
-                                                                                <action selector="restartButtonClick:" destination="7Zf-wx-rAz" eventType="touchUpInside" id="ZRV-Gb-40V"/>
-                                                                            </connections>
-                                                                        </button>
                                                                         <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="yUl-7n-Z2Y">
-                                                                            <rect key="frame" x="245" y="0.0" width="30" height="30"/>
+                                                                            <rect key="frame" x="215" y="0.0" width="30" height="30"/>
                                                                             <inset key="imageEdgeInsets" minX="5" minY="5" maxX="5" maxY="5"/>
                                                                             <state key="normal" title="P" image="resume"/>
                                                                             <connections>
@@ -151,11 +143,19 @@
                                                                             </connections>
                                                                         </button>
                                                                         <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="6KB-Yy-XmK">
-                                                                            <rect key="frame" x="275" y="0.0" width="30" height="30"/>
+                                                                            <rect key="frame" x="245" y="0.0" width="30" height="30"/>
                                                                             <inset key="imageEdgeInsets" minX="5" minY="5" maxX="5" maxY="5"/>
                                                                             <state key="normal" title="II" image="pause"/>
                                                                             <connections>
                                                                                 <action selector="pauseButtonTouch:" destination="7Zf-wx-rAz" eventType="touchUpInside" id="3Lu-cy-e3K"/>
+                                                                            </connections>
+                                                                        </button>
+                                                                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="jyo-Rd-M7L">
+                                                                            <rect key="frame" x="275" y="0.0" width="30" height="30"/>
+                                                                            <inset key="imageEdgeInsets" minX="5" minY="5" maxX="5" maxY="5"/>
+                                                                            <state key="normal" image="reload"/>
+                                                                            <connections>
+                                                                                <action selector="restartButtonClick:" destination="7Zf-wx-rAz" eventType="touchUpInside" id="ZRV-Gb-40V"/>
                                                                             </connections>
                                                                         </button>
                                                                         <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="3Ma-7P-nIh">
@@ -176,15 +176,29 @@
                                                                         <constraint firstItem="yUl-7n-Z2Y" firstAttribute="width" secondItem="6KB-Yy-XmK" secondAttribute="width" id="wBd-Bf-ysK"/>
                                                                     </constraints>
                                                                 </stackView>
-                                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="9sJ-SU-faA">
+                                                                <stackView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Tpd-4K-hXN">
                                                                     <rect key="frame" x="0.0" y="30" width="335" height="27.5"/>
-                                                                    <fontDescription key="fontDescription" type="system" pointSize="15"/>
-                                                                    <color key="textColor" red="0.51764705882352946" green="0.5725490196078431" blue="0.61568627450980395" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                                                    <nil key="highlightedColor"/>
-                                                                </label>
+                                                                    <subviews>
+                                                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="9sJ-SU-faA">
+                                                                            <rect key="frame" x="0.0" y="0.0" width="167.5" height="27.5"/>
+                                                                            <fontDescription key="fontDescription" type="system" pointSize="15"/>
+                                                                            <color key="textColor" red="0.51764705882352946" green="0.5725490196078431" blue="0.61568627450980395" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                                                            <nil key="highlightedColor"/>
+                                                                        </label>
+                                                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Priority Unknow" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="eda-7y-IDe">
+                                                                            <rect key="frame" x="167.5" y="0.0" width="167.5" height="27.5"/>
+                                                                            <fontDescription key="fontDescription" type="system" pointSize="15"/>
+                                                                            <nil key="textColor"/>
+                                                                            <nil key="highlightedColor"/>
+                                                                        </label>
+                                                                    </subviews>
+                                                                    <constraints>
+                                                                        <constraint firstItem="9sJ-SU-faA" firstAttribute="width" secondItem="Tpd-4K-hXN" secondAttribute="width" multiplier="0.5" id="NZt-aa-naX"/>
+                                                                    </constraints>
+                                                                </stackView>
                                                                 <progressView opaque="NO" contentMode="scaleToFill" verticalHuggingPriority="750" progress="0.5" translatesAutoresizingMaskIntoConstraints="NO" id="kFn-hC-p9L">
                                                                     <rect key="frame" x="0.0" y="57.5" width="335" height="2"/>
-                                                                    <color key="progressTintColor" red="0.0" green="0.80392156862745101" blue="0.45882352941176469" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                                                    <color key="progressTintColor" red="0.0" green="0.47843137250000001" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                                     <color key="trackTintColor" red="0.98431372549019602" green="0.9882352941176471" blue="0.9882352941176471" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                                 </progressView>
                                                             </subviews>
@@ -204,10 +218,10 @@
                                                         <constraint firstItem="gj8-3M-v2m" firstAttribute="leading" secondItem="VF1-dN-5st" secondAttribute="leading" constant="20" id="uPd-yS-v4U"/>
                                                     </constraints>
                                                 </tableViewCellContentView>
-                                                <color key="backgroundColor" red="0.98039215686274506" green="0.90588235294117647" blue="0.64313725490196083" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                 <connections>
                                                     <outlet property="cancelButton" destination="3Ma-7P-nIh" id="eCc-hr-nRq"/>
                                                     <outlet property="pauseButton" destination="6KB-Yy-XmK" id="hmC-WS-tzI"/>
+                                                    <outlet property="priorityLabel" destination="eda-7y-IDe" id="Dn4-Ek-qcT"/>
                                                     <outlet property="progressLabel" destination="9sJ-SU-faA" id="45J-nw-yl3"/>
                                                     <outlet property="progressView" destination="kFn-hC-p9L" id="Y6v-Nv-XtI"/>
                                                     <outlet property="resumeButton" destination="yUl-7n-Z2Y" id="QbD-hT-RH9"/>
@@ -222,7 +236,7 @@
                                                     <autoresizingMask key="autoresizingMask"/>
                                                     <subviews>
                                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="5" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Sjc-kt-gbe">
-                                                            <rect key="frame" x="15" y="11" width="345" height="478"/>
+                                                            <rect key="frame" x="8" y="8" width="359" height="483.5"/>
                                                             <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                                             <nil key="textColor"/>
                                                             <nil key="highlightedColor"/>
