@@ -68,6 +68,7 @@
             NSObject* resumeData = [NSUserDefaults.standardUserDefaults objectForKey:urlString];
             if (resumeData) {
                 if ([resumeData isKindOfClass:[NSData class]]) {
+                    [NSUserDefaults.standardUserDefaults removeObjectForKey:urlString];
                     item.downloadTask = [weakSelf.session downloadTaskWithResumeData:(NSData*)resumeData];
                 }
             }
