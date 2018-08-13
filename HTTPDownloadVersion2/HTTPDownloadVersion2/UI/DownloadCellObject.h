@@ -31,6 +31,8 @@
 
 - (instancetype)init;
 
+- (instancetype)initWithDownloadItem:(DownloadItemModel *)downloadItem;
+
 - (void)pause;
 
 - (void)resume;

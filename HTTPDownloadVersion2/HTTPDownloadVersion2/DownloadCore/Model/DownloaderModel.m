@@ -34,4 +34,12 @@
 
 }
 
+- (void)saveData {
+    
+}
+
+- (NSArray *)loadData {
+    return nil;
+}
+
 @end

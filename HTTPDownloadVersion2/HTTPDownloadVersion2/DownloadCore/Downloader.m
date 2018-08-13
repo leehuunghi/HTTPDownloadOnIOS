@@ -6,6 +6,8 @@
 //  Copyright © 2018 CPU11360. All rights reserved.
 //
 
+#define kSaveKey @"download_array_data"
+
 #import "Downloader.h"
 
 @interface Downloader()
@@ -210,6 +212,27 @@ totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
             }
         }];
     }
+}
+
+- (void)saveData {
+    NSMutableArray *downloadDataArray = [NSMutableArray new];
+    for (DownloadItem *item in _downloadedItems) {
+        [downloadDataArray addObject:[item transToData]];
+    }
+    NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+    [userDefaults setObject:downloadDataArray forKey:kSaveKey];
+    [userDefaults synchronize];
+}
+
+- (NSArray *)loadData {
+    NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+    NSArray *array = [userDefaults objectForKey:kSaveKey];
+    _downloadedItems = [NSMutableArray new];
+    for (NSData *data in array) {
+        DownloadItem *item = [[DownloadItem alloc] initWithData:data];
+        [_downloadedItems addObject:item];
+    }
+    return _downloadedItems;
 }
 
 @end

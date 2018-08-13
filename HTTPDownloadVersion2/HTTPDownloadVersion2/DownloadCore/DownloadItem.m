@@ -47,4 +47,30 @@
     [self.downloadTask cancel];
 }
 
+- (id)initWithCoder:(NSCoder *)coder {
+    self = [super init];
+    if (self != NULL)
+    {
+        self.url = [coder decodeObjectForKey:@"url"];
+        self.filePath = [coder decodeObjectForKey:@"filePath"];
+        self.state = [coder decodeIntegerForKey:@"state"];
+    }
+    return self;
+}
+
+- (void)encodeWithCoder:(NSCoder *)coder {
+    [coder encodeObject:self.url forKey:@"url"];
+    [coder encodeObject:self.filePath forKey:@"filePath"];
+    [coder encodeInteger:self.state forKey:@"state"];
+}
+
+- (NSData *)transToData {
+    NSData *encodedObject = [NSKeyedArchiver archivedDataWithRootObject:self];
+    return encodedObject;
+}
+
+- (instancetype)initWithData:(NSData *)data {
+    return [NSKeyedUnarchiver unarchiveObjectWithData:data];
+}
+
 @end

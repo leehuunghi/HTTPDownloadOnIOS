@@ -29,6 +29,23 @@
     return self;
 }
 
+- (instancetype)initWithDownloadItem:(DownloadItemModel *)downloadItem {
+    self = [self init];
+    if (self) {
+        _state = downloadItem.state;
+        
+        if (downloadItem.filePath) {
+            _title = [downloadItem.filePath lastPathComponent];
+        } else {
+            _title = [downloadItem.url lastPathComponent];
+        }
+        
+        _downloadItem = downloadItem;
+        downloadItem.delegate = self;
+    }
+    return self;
+}
+
 - (NSUInteger)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
     return 80;
 }
@@ -70,6 +87,7 @@
     
     if (_state != state) {
         _state = state;
+        _downloadItem.state = state;
         switch (state) {
             case DownloadStatePause:
                 self.progressString = @"Pause";

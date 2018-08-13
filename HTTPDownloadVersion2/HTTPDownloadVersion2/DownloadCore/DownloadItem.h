@@ -43,6 +43,10 @@ typedef NS_ENUM(NSUInteger, DownloadItemState) {
 
 - (void)reallyResume;
 
+- (NSData *)transToData;
+
+- (instancetype)initWithData:(NSData *)data;
+
 @end
 
 

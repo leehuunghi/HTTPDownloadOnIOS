@@ -44,4 +44,8 @@
 
 - (void)saveResumeData:(void(^)(void))completion;
 
+- (void)saveData;
+
+- (NSArray *)loadData;
+
 @end

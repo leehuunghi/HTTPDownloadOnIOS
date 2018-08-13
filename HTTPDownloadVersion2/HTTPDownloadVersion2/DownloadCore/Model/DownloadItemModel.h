@@ -78,7 +78,7 @@ typedef NS_ENUM(NSUInteger, DownloadState) {
 @property (nonatomic, strong) NSString *filePath;
 
 /**
- queue contain task repair download
+ Priority queue contain task repair to download
  */
 @property (nonatomic) DownloadPriority downloadPriority;
 
@@ -110,7 +110,5 @@ typedef NS_ENUM(NSUInteger, DownloadState) {
  Cancel download. If downloaded will ask user to delete downloaded file
  */
 - (void)cancel;
-
-- (id)replacementObjectForCoder:(NSCoder *)aCoder;
 
 @end

@@ -38,11 +38,18 @@
 
 - (void)loadCore {
     _downloader = [Downloader new];
+    
 }
 
 - (void)loadData {
-    NSMutableArray *historyDownload = [NSMutableArray new];
-    _downloadTableView.cellObjects = historyDownload;
+    
+    NSArray *historyDownload = [_downloader loadData];
+    NSMutableArray *cellObjects = [NSMutableArray new];
+    for (DownloadItemModel *item in historyDownload) {
+        DownloadCellObject *cellObject = [[DownloadCellObject alloc] initWithDownloadItem:item];
+        [cellObjects insertObject:cellObject atIndex:0];
+    }
+    _downloadTableView.cellObjects = cellObjects;
     
     self.staticArr = @[
                        @"http://www.vietnamvisaonentry.com/file/2014/06/coconut-tree.jpg",
@@ -105,6 +112,7 @@
 }
 
 - (IBAction)quitItemTouch:(id)sender {
+    [_downloader saveData];
     [_downloader saveResumeData:^{
         exit(0);
     }];

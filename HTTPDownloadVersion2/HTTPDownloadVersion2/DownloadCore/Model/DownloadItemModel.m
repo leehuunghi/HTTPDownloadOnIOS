@@ -35,8 +35,15 @@
     
 }
 
-- (id)replacementObjectForCoder:(NSCoder *)aCoder {
-    return nil;
+- (id)initWithCoder:(NSCoder *)coder {
+    self = [super init];
+    if (self!=NULL)
+    {
+        _url = [coder decodeObjectForKey:@"url"];
+        _filePath = [coder decodeObjectForKey:@"filePath"];
+        _state = [coder decodeIntegerForKey:@"state"];
+    }
+    return self;
 }
 
 - (void)encodeWithCoder:(NSCoder *)coder {
