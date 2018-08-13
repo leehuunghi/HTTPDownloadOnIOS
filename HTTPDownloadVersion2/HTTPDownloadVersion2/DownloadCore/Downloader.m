@@ -153,35 +153,36 @@ totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
 }
 
 - (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didCompleteWithError:(NSError *)error {
-    NSLog(@"complete");
-    for (DownloadItem *item in self.downloadedItems) {
-        if (item.downloadTask == task) {
-            NSHTTPURLResponse *httpRespone = (NSHTTPURLResponse *)task.response;
-            if (error) {
-                if (error.code == -1001) {
-                    item.resumeData = [error.userInfo objectForKey:NSURLSessionDownloadTaskResumeData];
-                    item.downloadTask = [_session downloadTaskWithResumeData:item.resumeData];
-                    return;
+    if (error.code != -999) {
+        for (DownloadItem *item in self.downloadedItems) {
+            if (item.downloadTask == task) {
+                NSHTTPURLResponse *httpRespone = (NSHTTPURLResponse *)task.response;
+                if (error) {
+                    if (error.code == -1001) {
+                        item.resumeData = [error.userInfo objectForKey:NSURLSessionDownloadTaskResumeData];
+                        item.downloadTask = [_session downloadTaskWithResumeData:item.resumeData];
+                        return;
+                    } else {
+                        item.downloadState = DownloadItemStateError;
+                        [item.delegate itemDidFinishDownload:NO withError:error];
+                    }
                 } else {
-                    item.downloadState = DownloadItemStateError;
-                    [item.delegate itemDidFinishDownload:NO withError:error];
+                    if (httpRespone.statusCode/100==2) {
+                        item.downloadState = DownloadItemStateComplete;
+                        [item.delegate itemDidFinishDownload:YES withError:error];
+                    } else {
+                        item.downloadState = DownloadItemStateError;
+                        [item.delegate itemDidFinishDownload:NO withError:error];
+                    }
                 }
-            } else {
-                if (httpRespone.statusCode/100==2) {
-                    item.downloadState = DownloadItemStateComplete;
-                    [item.delegate itemDidFinishDownload:YES withError:error];
-                } else {
-                    item.downloadState = DownloadItemStateError;
-                    [item.delegate itemDidFinishDownload:NO withError:error];
-                }
+                break;
             }
-            break;
         }
+        dispatch_async(self.serialQueue, ^{
+            self.countDownloading++;
+        });
+        [self dequeueItem];
     }
-    dispatch_async(self.serialQueue, ^{
-        self.countDownloading++;
-    });
-    [self dequeueItem];
 }
 
 - (void)setCountDownloading:(NSUInteger)countDownloading {
