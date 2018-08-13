@@ -230,8 +230,10 @@ totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
     _downloadedItems = [NSMutableArray new];
     for (NSData *data in array) {
         DownloadItem *item = [[DownloadItem alloc] initWithData:data];
+        item.downloaderDelegate = self;
         NSData* resumeData = [NSUserDefaults.standardUserDefaults objectForKey:item.url];
         item.resumeData = [resumeData copy];
+        item.downloadTask = [_session downloadTaskWithResumeData:(NSData*)resumeData];
         [_downloadedItems addObject:item];
     }
     return _downloadedItems;
