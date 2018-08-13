@@ -48,6 +48,7 @@
     for (DownloadItemModel *item in historyDownload) {
         DownloadCellObject *cellObject = [[DownloadCellObject alloc] initWithDownloadItem:item];
         [cellObjects insertObject:cellObject atIndex:0];
+        item.delegate = cellObject;
     }
     _downloadTableView.cellObjects = cellObjects;
     

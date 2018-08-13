@@ -33,7 +33,6 @@
     self = [self init];
     if (self) {
         _state = downloadItem.state;
-        
         if (downloadItem.filePath) {
             _title = [downloadItem.filePath lastPathComponent];
         } else {
