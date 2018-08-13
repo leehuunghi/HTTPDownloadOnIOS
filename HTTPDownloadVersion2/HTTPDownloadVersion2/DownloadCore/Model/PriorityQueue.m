@@ -30,11 +30,11 @@
     return self;
 }
 
-- (void)addHeadObject:(id)object {
-    [self addHeadObject:object withPriority:DownloadPriorityMedium];
+- (void)addObject:(id)object {
+    [self addObject:object withPriority:DownloadPriorityMedium];
 }
 
-- (void)addHeadObject:(id)object withPriority:(DownloadPriority)priority {
+- (void)addObject:(id)object withPriority:(DownloadPriority)priority {
     if(object) {
         __weak typeof (self) weakSelf = self;
         switch (priority) {
@@ -63,39 +63,6 @@
     }
 }
 
-- (void)addObject:(id)object {
-    [self addObject:object withPriority:DownloadPriorityMedium];
-}
-
-- (void)addObject:(id)object withPriority:(DownloadPriority)priority {
-    if(object) {
-        __weak typeof (self) weakSelf = self;
-            switch (priority) {
-                case DownloadPriorityHigh: {
-                    dispatch_barrier_async(self.concurrentQueue, ^{
-                        [weakSelf.arrayHigh addObject:object];
-                    });
-                    break;
-                }
-                case DownloadPriorityMedium: {
-                    dispatch_barrier_async(self.concurrentQueue, ^{
-                        [weakSelf.arrayMedium addObject:object];
-                    });
-                    break;
-                }
-                case DownloadPriorityLow: {
-                    dispatch_barrier_async(self.concurrentQueue, ^{
-                        [weakSelf.arrayLow addObject:object];
-                    });
-                    break;
-                }
-                default:
-                    NSLog(@"No priority");
-                    break;
-            }
-    }
-}
-
 - (void)removeObject {
     __weak typeof(self)weakSelf = self;
     dispatch_sync(self.concurrentQueue, ^{
@@ -111,7 +78,7 @@
     });
 }
 
-- (id)getObjectFromQueue {
+- (id)dequeue {
     __weak typeof(self)weakSelf = self;
     __block id object = nil;
     dispatch_sync(self.concurrentQueue, ^{

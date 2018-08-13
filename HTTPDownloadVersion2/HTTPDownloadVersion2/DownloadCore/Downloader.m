@@ -94,7 +94,7 @@
         if (weakSelf.countDownloading > 0 && [weakSelf.priorityQueue count] > 0) {
             weakSelf.countDownloading--;
             NSLog(@"%lu %ld",(unsigned long)weakSelf.countDownloading, (long)[weakSelf.priorityQueue count]);
-            DownloadItem *item = (DownloadItem *)[weakSelf.priorityQueue getObjectFromQueue];
+            DownloadItem *item = (DownloadItem *)[weakSelf.priorityQueue dequeue];
             [weakSelf.downloadingItems addObject:item];
             [item reallyResume];
             [weakSelf.priorityQueue removeObject];
@@ -104,7 +104,7 @@
 
 - (void)enqueueItem:(DownloadItem *)downloadItem {
     if (downloadItem) {
-        [self.priorityQueue addHeadObject:downloadItem withPriority:downloadItem.downloadPriority];
+        [self.priorityQueue addObject:downloadItem withPriority:downloadItem.downloadPriority];
         [self dequeueItem];
     }
 }

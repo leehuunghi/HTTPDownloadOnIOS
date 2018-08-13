@@ -11,15 +11,11 @@
 
 @interface PriorityQueue : NSObject
 
-- (void)addHeadObject:(id)object;
-
 - (void)addObject:(id)object;
-
-- (void)addHeadObject:(id)object withPriority:(DownloadPriority)priority;
 
 - (void)addObject:(id)object withPriority:(DownloadPriority)priority;
 
-- (id)getObjectFromQueue;
+- (id)dequeue;
 
 - (void)removeObject;
 
