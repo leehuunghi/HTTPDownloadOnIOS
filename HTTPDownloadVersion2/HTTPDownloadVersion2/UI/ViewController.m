@@ -42,7 +42,6 @@
 }
 
 - (void)loadData {
-    
     NSArray *historyDownload = [_downloader loadData];
     NSMutableArray *cellObjects = [NSMutableArray new];
     for (DownloadItemModel *item in historyDownload) {
