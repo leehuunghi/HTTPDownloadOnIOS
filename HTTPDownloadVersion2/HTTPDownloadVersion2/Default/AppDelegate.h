@@ -13,6 +13,7 @@
 
 @property (strong, nonatomic) UIWindow *window;
 
+@property (strong) void(^backgroundCompletionHandler)(void);
 
 @end
 

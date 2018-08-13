@@ -36,7 +36,10 @@
     self = [super init];
     if (self) {
         _downloadedItems = [[NSMutableArray alloc] init];
-        _configuration = NSURLSessionConfiguration.defaultSessionConfiguration;
+        _configuration = [NSURLSessionConfiguration backgroundSessionConfigurationWithIdentifier:@"My session"];
+        [_configuration setDiscretionary:YES];
+        [_configuration setSessionSendsLaunchEvents:YES];
+        
         _session = [NSURLSession sessionWithConfiguration:self.configuration delegate:self delegateQueue:nil];
         _priorityQueue = [PriorityQueue new];
         _serialQueue = dispatch_queue_create("serial_queue_downloader", DISPATCH_QUEUE_SERIAL);
@@ -152,6 +155,12 @@ totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
             break;
         }
     }
+    NSURL *documentsURL = [NSFileManager.defaultManager URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask][0];
+    
+    documentsURL = [documentsURL URLByAppendingPathComponent:downloadTask.currentRequest.URL.lastPathComponent];
+    
+    NSLog(@"%@", documentsURL.absoluteString);
+    [NSFileManager.defaultManager moveItemAtURL:location toURL:documentsURL error:nil];
 }
 
 - (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didCompleteWithError:(NSError *)error {
