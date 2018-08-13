@@ -111,4 +111,14 @@ typedef NS_ENUM(NSUInteger, DownloadState) {
  */
 - (void)cancel;
 
+/**
+ Restart download
+ */
+- (void)restart;
+
+/**
+ Open file if file downloaded
+ */
+- (void)open;
+
 @end

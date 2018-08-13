@@ -9,10 +9,10 @@
 #ifndef DownloadPriority_h
 #define DownloadPriority_h
 
-typedef enum {
-    DownloadPriorityHigh,
-    DownloadPriorityMedium,
-    DownloadPriorityLow
-} DownloadPriority;
+typedef NS_ENUM(NSInteger, DownloadPriority){
+    DownloadPriorityLow = 0,
+    DownloadPriorityMedium = 1,
+    DownloadPriorityHigh = 2
+};
 
 #endif /* DownloadPriority_h */
