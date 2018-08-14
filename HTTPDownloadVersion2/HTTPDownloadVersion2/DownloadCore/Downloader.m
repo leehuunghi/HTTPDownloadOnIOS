@@ -181,6 +181,7 @@ totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
 }
 
 - (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didCompleteWithError:(NSError *)error {
+    NSLog(@"%@", error);
     if (error.code != -999) {
         for (DownloadItem *item in self.downloadedItems) {
             if (item.downloadTask == task) {
@@ -208,16 +209,16 @@ totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
                         [item.delegate itemDidFinishDownload:NO withError:[NSError errorWithDomain:@"ServerError" code:[(NSHTTPURLResponse*)(task.response) statusCode] userInfo:nil]];
                     }
                 }
+                __weak typeof(self)weakSelf = self;
+                dispatch_async(weakSelf.serialQueue, ^{
+                    if (weakSelf.countDownloading > 0) {
+                        weakSelf.countDownloading--;
+                    }
+                });
+                [self dequeueItem];
                 break;
             }
         }
-        __weak typeof(self)weakSelf = self;
-        dispatch_async(weakSelf.serialQueue, ^{
-            if (weakSelf.countDownloading > 0) {
-                weakSelf.countDownloading--;
-            }
-        });
-        [self dequeueItem];
     }
 }
 
