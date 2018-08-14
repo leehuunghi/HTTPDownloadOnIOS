@@ -121,15 +121,24 @@
 
 - (void)moveCellToHead:(CellObjectModel *)cellObject {
     NSUInteger index = [_cellObjects indexOfObject:cellObject];
-    if (index < [_cellObjects count]) {
-        [_cellObjects removeObjectAtIndex:index];
-        [_cellObjects insertObject:cellObject atIndex:0];
-        __weak __typeof(self) weakSelf = self;
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [weakSelf moveRowAtIndexPath:[DownloadTableView indexPathForIndex:index] toIndexPath:[DownloadTableView headIndexPath]];
+    NSIndexPath *indexPath = [DownloadTableView indexPathForIndex:index];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self scrollToRowAtIndexPath:indexPath atScrollPosition:UITableViewScrollPositionTop animated:YES];
+        UITableViewCell *cell = [self cellForRowAtIndexPath:indexPath];
+        [cell setSelected:YES];
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            [cell setSelected:NO];
         });
-    }
-
+    });
+    
+//    if (index < [_cellObjects count]) {
+//        [_cellObjects removeObjectAtIndex:index];
+//        [_cellObjects insertObject:cellObject atIndex:0];
+//        __weak __typeof(self) weakSelf = self;
+//        dispatch_async(dispatch_get_main_queue(), ^{
+//            [weakSelf moveRowAtIndexPath:[DownloadTableView indexPathForIndex:index] toIndexPath:[DownloadTableView headIndexPath]];
+//        });
+//    }
 }
 
 #pragma constant
