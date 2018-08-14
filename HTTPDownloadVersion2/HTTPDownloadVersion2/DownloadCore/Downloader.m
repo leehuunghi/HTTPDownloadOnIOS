@@ -37,6 +37,7 @@
 - (instancetype)init {
     self = [super init];
     if (self) {
+        _downloadingItems = [[NSMutableArray alloc] init];
         _downloadedItems = [[NSMutableArray alloc] init];
         _configuration = [NSURLSessionConfiguration backgroundSessionConfigurationWithIdentifier:@"My session"];
         [_configuration setDiscretionary:YES];
@@ -121,11 +122,13 @@
 #pragma DownloaderDelegate
 
 - (void)itemWillCancelDownload:(DownloadItem *)downloadItem {
-    [_downloadedItems removeObject:downloadItem];
-    if (downloadItem.downloadTask.state == NSURLSessionTaskStateRunning) {
-        [_downloadingItems removeObject:downloadItem];
-    } else {
-        [_priorityQueue removeObject:downloadItem withPriority:downloadItem.downloadPriority];
+    if (downloadItem) {
+        [_downloadedItems removeObject:downloadItem];
+        if (downloadItem.downloadTask.state == NSURLSessionTaskStateRunning) {
+            [_downloadingItems removeObject:downloadItem];
+        } else {
+            [_priorityQueue removeObject:downloadItem withPriority:downloadItem.downloadPriority];
+        }
     }
 }
 
@@ -151,7 +154,7 @@
 - (void)URLSession:(NSURLSession *)session downloadTask:(NSURLSessionDownloadTask *)downloadTask didWriteData:(int64_t)bytesWritten
  totalBytesWritten:(int64_t)totalBytesWritten
 totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
-    for (DownloadItem *item in self.downloadedItems) {
+    for (DownloadItem *item in self.downloadingItems) {
         if (item.downloadTask == downloadTask) {
             [item.delegate itemDidUpdateTotalBytesWritten:totalBytesWritten andTotalBytesExpectedToWrite:totalBytesExpectedToWrite];
             break;
