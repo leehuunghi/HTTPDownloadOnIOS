@@ -185,10 +185,10 @@ totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
                 } else {
                     if (httpRespone.statusCode/100==2) {
                         item.downloadState = DownloadItemStateComplete;
-                        [item.delegate itemDidFinishDownload:YES withError:error];
+                        [item.delegate itemDidFinishDownload:YES withError:nil];
                     } else {
                         item.downloadState = DownloadItemStateError;
-                        [item.delegate itemDidFinishDownload:NO withError:error];
+                        [item.delegate itemDidFinishDownload:NO withError:[NSError errorWithDomain:@"ServerError" code:[(NSHTTPURLResponse*)(task.response) statusCode] userInfo:nil]];
                     }
                 }
                 break;
