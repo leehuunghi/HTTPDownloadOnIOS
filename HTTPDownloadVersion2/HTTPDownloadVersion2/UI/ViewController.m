@@ -50,6 +50,9 @@
         DownloadCellObject *cellObject = [[DownloadCellObject alloc] initWithDownloadItem:item];
         [cellObjects insertObject:cellObject atIndex:0];
         item.delegate = cellObject;
+        if (item.state == DownloadStatePending) {
+            [item resume];
+        }
     }
     _downloadTableView.cellObjects = cellObjects;
     
