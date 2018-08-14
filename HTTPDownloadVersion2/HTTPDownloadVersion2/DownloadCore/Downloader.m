@@ -146,7 +146,17 @@
 - (void)itemWillStartDownload:(DownloadItem *)downloadItem {
     if (downloadItem) {
         __weak typeof(self)weakSelf = self;
+        if (!downloadItem.downloadTask && !downloadItem.url) {
+            return;
+        }
+        
+        if (!downloadItem.downloadTask) {
+            NSURL *url = [NSURL URLWithString:downloadItem.url];
+            downloadItem.downloadTask = [weakSelf.session downloadTaskWithURL:url];
+        }
+        
         [weakSelf.priorityQueue addObject:downloadItem withPriority:downloadItem.downloadPriority];
+        
         [self dequeueItem];
     }
 }
@@ -260,10 +270,16 @@ totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
         DownloadItem *item = [[DownloadItem alloc] initWithData:data];
         item.downloaderDelegate = self;
         NSData* resumeData = [NSUserDefaults.standardUserDefaults objectForKey:item.url];
+        
         if (resumeData) {
             item.resumeData = [resumeData copy];
             item.downloadTask = [_session downloadTaskWithResumeData:(NSData*)resumeData];
         }
+        
+        if (item.state == DownloadStatePending) {
+            [item resume];
+        }
+        
         [_downloadedItems addObject:item];
     }
     return _downloadedItems;
