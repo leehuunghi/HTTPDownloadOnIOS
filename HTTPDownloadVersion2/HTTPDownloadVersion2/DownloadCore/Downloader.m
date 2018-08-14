@@ -28,7 +28,7 @@
 
 @property (nonatomic, strong) NSMutableArray *downloadingItems;
 
-@property (nonatomic) unsigned int *limitDownloadTask;
+@property (nonatomic) NSUInteger limitDownloadTask;
 
 @end
 
@@ -93,7 +93,7 @@
     });
 }
 
-- (unsigned int)limitDownloadTask {
+- (NSUInteger)limitDownloadTask {
     return _limitDownloadTask;
 }
 
