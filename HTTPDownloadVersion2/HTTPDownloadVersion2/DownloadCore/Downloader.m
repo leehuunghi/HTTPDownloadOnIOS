@@ -153,7 +153,6 @@
         }
         
         [weakSelf.priorityQueue addObject:downloadItem withPriority:downloadItem.downloadPriority];
-        
         [self dequeueItem];
     }
 }
@@ -271,10 +270,6 @@ totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
         if (resumeData) {
             item.resumeData = [resumeData copy];
             item.downloadTask = [_session downloadTaskWithResumeData:(NSData*)resumeData];
-        }
-        
-        if (item.state == DownloadStatePending) {
-            [item resume];
         }
         
         [_downloadedItems addObject:item];

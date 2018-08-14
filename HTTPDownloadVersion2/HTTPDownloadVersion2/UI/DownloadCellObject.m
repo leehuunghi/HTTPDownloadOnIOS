@@ -41,6 +41,10 @@
         _priority = downloadItem.downloadPriority;
         _downloadItem = downloadItem;
         downloadItem.delegate = self;
+        if (downloadItem.state == DownloadStatePending) {
+            [downloadItem resume];
+        }
+        
     }
     return self;
 }

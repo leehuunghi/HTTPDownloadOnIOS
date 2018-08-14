@@ -112,24 +112,24 @@
 
 - (void)removeObject:(id)object withPriority:(DownloadPriority)priority {
     __weak typeof(self)weakSelf = self;
-    dispatch_async(self.concurrentQueue, ^{
+    dispatch_sync(self.concurrentQueue, ^{
         for (id obj in weakSelf.arrayHigh) {
             if (obj == object) {
-                dispatch_barrier_async(self.concurrentQueue, ^{
+                dispatch_barrier_sync(self.concurrentQueue, ^{
                     [weakSelf.arrayHigh removeObject:object];
                 });
             }
         }
         for (id obj in weakSelf.arrayHigh) {
             if (obj == object) {
-                dispatch_barrier_async(self.concurrentQueue, ^{
+                dispatch_barrier_sync(self.concurrentQueue, ^{
                     [weakSelf.arrayMedium removeObject:object];
                 });
             }
         }
         for (id obj in weakSelf.arrayHigh) {
             if (obj == object) {
-                dispatch_barrier_async(self.concurrentQueue, ^{
+                dispatch_barrier_sync(self.concurrentQueue, ^{
                     [weakSelf.arrayLow removeObject:object];
                 });
             }
