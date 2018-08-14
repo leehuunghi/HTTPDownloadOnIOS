@@ -26,6 +26,8 @@
 
 @property (nonatomic, strong) dispatch_queue_t serialQueueSameItem;
 
+@property (nonatomic, strong) NSMutableArray *downloadingItems;
+
 @property (nonatomic) NSUInteger limitDownloadTask;
 
 @end
@@ -102,6 +104,7 @@
             weakSelf.countDownloading++;
             NSLog(@"%lu %ld",(unsigned long)weakSelf.countDownloading, (long)[weakSelf.priorityQueue count]);
             DownloadItem *item = (DownloadItem *)[weakSelf.priorityQueue dequeue];
+            [weakSelf.downloadingItems addObject:item];
             [item reallyResume];
             [weakSelf.priorityQueue removeObject];
         }
@@ -119,13 +122,16 @@
 
 - (void)itemWillCancelDownload:(DownloadItem *)downloadItem {
     [_downloadedItems removeObject:downloadItem];
-    if (downloadItem.downloadTask.state != NSURLSessionTaskStateRunning) {
+    if (downloadItem.downloadTask.state == NSURLSessionTaskStateRunning) {
+        [_downloadingItems removeObject:downloadItem];
+    } else {
         [_priorityQueue removeObject:downloadItem withPriority:downloadItem.downloadPriority];
     }
 }
 
 - (void)itemWillPauseDownload:(DownloadItem *)downloadItem {
     __weak typeof(self)weakSelf = self;
+    [_downloadingItems removeObject:downloadItem];
     dispatch_async(self.serialQueue, ^{
         if (weakSelf.countDownloading > 0) {
             weakSelf.countDownloading--;
