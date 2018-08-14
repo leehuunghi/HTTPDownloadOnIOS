@@ -88,20 +88,8 @@
         _state = state;
         _downloadItem.state = state;
         switch (state) {
-            case DownloadStatePause:
-                self.progressString = @"Pause";
-                break;
-            case DownloadStateDownloading:
-                break;
             case DownloadStateComplete:
                 self.progress = 1.0;
-                self.progressString = @"Dowloaded";
-                break;
-            case DownloadStateError:
-                self.progressString = @"Error!";
-                break;
-            case DownloadStatePending:
-                self.progressString = @"Pending...";
                 break;
             default:
                 break;

@@ -42,8 +42,13 @@
 }
 
 - (void)setSelected:(BOOL)selected animated:(BOOL)animated {
-    [super setSelected:selected animated:animated];
-
+    [super setSelected:selected animated:YES];
+    if (selected) {
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            [self setSelected:NO];
+        });
+    }
+    
     // Configure the view for the selected state
 }
 
@@ -68,6 +73,7 @@
     self.cellObject = object;
     [self updateState];
     [self setPriority:object.priority];
+    [self setStateString:object.state];
     return true;
 }
 
@@ -140,6 +146,7 @@
                 [self noDownloadState];
                 break;
         }
+        [self setStateString:_cellObject.state];
         //self.backgroundColor = [_cellObject getColorBackgroud];
     }
     
@@ -172,6 +179,25 @@
             break;
         default:
             _priorityLabel.text = @"Medium";
+            break;
+    }
+}
+
+- (void)setStateString:(DownloadState)state {
+    switch (state) {
+        case DownloadStatePause:
+            self.progressLabel.text = @"Pause";
+            break;
+        case DownloadStatePending:
+            self.progressLabel.text = @"Pending...";
+            break;
+        case DownloadStateComplete:
+            self.progressLabel.text = @"Downloaded";
+            break;
+        case DownloadStateError:
+            self.progressLabel.text = @"Error !";
+            break;
+        default:
             break;
     }
 }

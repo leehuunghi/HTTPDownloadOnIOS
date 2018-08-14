@@ -115,6 +115,7 @@
 }
 
 - (IBAction)quitItemTouch:(id)sender {
+    [_downloader saveData];
     [_downloader saveResumeData:^{
         exit(0);
     }];
