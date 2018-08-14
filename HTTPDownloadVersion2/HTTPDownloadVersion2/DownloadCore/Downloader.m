@@ -28,6 +28,8 @@
 
 @property (nonatomic, strong) NSMutableArray *downloadingItems;
 
+@property (nonatomic) unsigned int *limitDownloadTask;
+
 @end
 
 @implementation Downloader
@@ -44,7 +46,7 @@
         _priorityQueue = [PriorityQueue new];
         _serialQueue = dispatch_queue_create("serial_queue_downloader", DISPATCH_QUEUE_SERIAL);
         _serialQueueSameItem = dispatch_queue_create("serial_queue_same_item", DISPATCH_QUEUE_SERIAL);
-        self.countDownloading = 2;
+        _limitDownloadTask = 2;
     }
     return self;
 }
@@ -91,11 +93,15 @@
     });
 }
 
+- (unsigned int)limitDownloadTask {
+    return _limitDownloadTask;
+}
+
 - (void)dequeueItem {
 	    __weak typeof(self)weakSelf = self;
     dispatch_async(self.serialQueue, ^{
-        if (weakSelf.countDownloading > 0 && [weakSelf.priorityQueue count] > 0) {
-            weakSelf.countDownloading--;
+        if (weakSelf.countDownloading < weakSelf.limitDownloadTask && [weakSelf.priorityQueue count] > 0) {
+            weakSelf.countDownloading++;
             NSLog(@"%lu %ld",(unsigned long)weakSelf.countDownloading, (long)[weakSelf.priorityQueue count]);
             DownloadItem *item = (DownloadItem *)[weakSelf.priorityQueue dequeue];
             [weakSelf.downloadingItems addObject:item];
@@ -127,7 +133,9 @@
     __weak typeof(self)weakSelf = self;
     [_downloadingItems removeObject:downloadItem];
     dispatch_async(self.serialQueue, ^{
-        weakSelf.countDownloading++;
+        if (weakSelf.countDownloading > 0) {
+            weakSelf.countDownloading--;
+        }
     });
     [self dequeueItem];
 }
@@ -152,12 +160,6 @@ totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
 }
 
 - (void)URLSession:(nonnull NSURLSession *)session downloadTask:(nonnull NSURLSessionDownloadTask *)downloadTask didFinishDownloadingToURL:(nonnull NSURL *)location {
-    for (DownloadItem *item in self.downloadedItems) {
-        if (item.downloadTask == downloadTask) {
-            //store file to document
-            break;
-        }
-    }
     NSURL *documentsURL = [NSFileManager.defaultManager URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask][0];
     
     documentsURL = [documentsURL URLByAppendingPathComponent:downloadTask.currentRequest.URL.lastPathComponent];
@@ -197,8 +199,11 @@ totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
                 break;
             }
         }
-        dispatch_async(self.serialQueue, ^{
-            self.countDownloading++;
+        __weak typeof(self)weakSelf = self;
+        dispatch_async(weakSelf.serialQueue, ^{
+            if (weakSelf.countDownloading > 0) {
+                weakSelf.countDownloading--;
+            }
         });
         [self dequeueItem];
     }
