@@ -276,10 +276,6 @@ totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
             item.downloadTask = [_session downloadTaskWithResumeData:(NSData*)resumeData];
         }
         
-        if (item.state == DownloadStatePending) {
-            [item resume];
-        }
-        
         [_downloadedItems addObject:item];
     }
     return _downloadedItems;
