@@ -116,8 +116,11 @@
 
 - (void)itemWillCancelDownload:(DownloadItem *)downloadItem {
     [_downloadedItems removeObject:downloadItem];
-    [_downloadingItems removeObject:downloadItem];
-    [_priorityQueue removeObject:downloadItem withPriority:downloadItem.downloadPriority];
+    if (downloadItem.downloadTask.state == NSURLSessionTaskStateRunning) {
+        [_downloadingItems removeObject:downloadItem];
+    } else {
+        [_priorityQueue removeObject:downloadItem withPriority:downloadItem.downloadPriority];
+    }
 }
 
 - (void)itemWillPauseDownload:(DownloadItem *)downloadItem {

@@ -46,8 +46,8 @@
     if (self.downloadTask.state == NSURLSessionTaskStateRunning) {
         [self pause];
     }
-    [self.downloadTask cancel];
     [self.downloaderDelegate itemWillCancelDownload:self];
+    [self.downloadTask cancel];
 }
 
 -(void)reload {
