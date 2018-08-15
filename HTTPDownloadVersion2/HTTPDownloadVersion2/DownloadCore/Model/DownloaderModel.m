@@ -42,4 +42,7 @@
     return nil;
 }
 
+- (void)checkURL:(NSString*)urlString completion:(void (^)(NSError* error))completion {
+    
+}
 @end

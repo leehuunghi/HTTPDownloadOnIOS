@@ -48,4 +48,13 @@
 
 - (NSArray *)loadData;
 
+
+/**
+ check link url can download
+
+ @param urlString is link to file need download
+ @param completion callback block to return error
+ */
+- (void)checkURL:(NSString*)urlString completion:(void (^)(NSError* error))completion;
+
 @end
