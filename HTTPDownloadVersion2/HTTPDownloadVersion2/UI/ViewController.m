@@ -85,28 +85,21 @@
         __weak __typeof(self) weakSelf = self;
         DownloadPriority priority = _prioritySegmented.selectedSegmentIndex;
         
-        
-        [_downloader checkURL:url completion:^(NSError *error) {
-            if (error) {
-                NSLog(@"Error URL!");
+        [weakSelf.downloader createDownloadItemWithUrl:url priority:priority completion:^(DownloadItemModel *downloadItem, NSError *error) {
+            if (downloadItem && downloadItem.delegate && [downloadItem.delegate isKindOfClass:[CellObjectModel class]]) {
+                CellObjectModel *cellObject = downloadItem.delegate;
+                [weakSelf.downloadTableView moveCellToHead:cellObject];
             } else {
-                [weakSelf.downloader createDownloadItemWithUrl:url priority:priority completion:^(DownloadItemModel *downloadItem, NSError *error) {
-                    if (downloadItem && downloadItem.delegate && [downloadItem.delegate isKindOfClass:[CellObjectModel class]]) {
-                        CellObjectModel *cellObject = downloadItem.delegate;
-                        [weakSelf.downloadTableView moveCellToHead:cellObject];
-                    } else {
-                        DownloadCellObject *cellObject = [DownloadCellObject new];
-                        cellObject.priority = priority;
-                        cellObject.title = [ViewController getNameInURL:url];
-                        [weakSelf.downloadTableView addCell:cellObject];
-                        if (error) {
-                            cellObject.state = DownloadStateError;
-                        } else {
-                            cellObject.downloadItem = downloadItem;
-                            downloadItem.delegate = cellObject;
-                        }
-                    }
-                }];
+                DownloadCellObject *cellObject = [DownloadCellObject new];
+                cellObject.priority = priority;
+                cellObject.title = [ViewController getNameInURL:url];
+                [weakSelf.downloadTableView addCell:cellObject];
+                if (error) {
+                    cellObject.state = DownloadStateError;
+                } else {
+                    cellObject.downloadItem = downloadItem;
+                    downloadItem.delegate = cellObject;
+                }
             }
         }];
     }

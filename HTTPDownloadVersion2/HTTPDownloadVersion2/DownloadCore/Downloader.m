@@ -55,43 +55,48 @@
 - (void)createDownloadItemWithUrl:(NSString *)urlString filePath:(NSString *)filePath priority:(DownloadPriority)priority completion:(void (^)(DownloadItemModel *, NSError *))completion {
     __weak typeof(self)weakSelf = self;
     dispatch_async(self.serialQueueDownloaderRequestURL, ^{
-        BOOL isDownloaded = NO;
         for (DownloadItem* downloadItem in weakSelf.downloadedItems) {
             if ([downloadItem.url compare:urlString] == 0) {
                 if (completion) {
                     completion(downloadItem, nil);
-                    isDownloaded = YES;
+                    return;
                 }
             }
         }
         
-        if (!isDownloaded) {
-            NSURL *url = [NSURL URLWithString:urlString];
-            
+        [self checkURL:urlString completion:^(NSError *error) {
             DownloadItem *item = [DownloadItem new];
             item.downloadState = DownloadItemStatePending;
             item.downloaderDelegate = self;
             item.downloadPriority = priority;
             item.url = urlString;
-            
-            NSObject* resumeData = [NSUserDefaults.standardUserDefaults objectForKey:urlString];
-            if (resumeData) {
-                if ([resumeData isKindOfClass:[NSData class]]) {
-                    [NSUserDefaults.standardUserDefaults removeObjectForKey:urlString];
-                    item.downloadTask = [weakSelf.session downloadTaskWithResumeData:(NSData*)resumeData];
+            if (error) {
+                if (completion) {
+                    completion(item, error);
                 }
+            } else {
+                NSURL *url = [NSURL URLWithString:urlString];
+
+                NSObject* resumeData = [NSUserDefaults.standardUserDefaults objectForKey:urlString];
+                if (resumeData) {
+                    if ([resumeData isKindOfClass:[NSData class]]) {
+                        [NSUserDefaults.standardUserDefaults removeObjectForKey:urlString];
+                        item.downloadTask = [weakSelf.session downloadTaskWithResumeData:(NSData*)resumeData];
+                    }
+                }
+                
+                if (!item.downloadTask) {
+                    item.downloadTask = [weakSelf.session downloadTaskWithURL:url];
+                }
+                
+                if (completion) {
+                    completion(item, nil);
+                }
+                
+                [weakSelf.downloadedItems addObject:item];
+                [self enqueueItem:item];
             }
-            if (!item.downloadTask) {
-                item.downloadTask = [weakSelf.session downloadTaskWithURL:url];
-            }
-            
-            if (completion) {
-                completion(item, nil);
-            }
-            
-            [weakSelf.downloadedItems addObject:item];
-            [self enqueueItem:item];
-        }
+        }];
     });
 }
 
