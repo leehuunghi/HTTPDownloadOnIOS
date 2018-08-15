@@ -28,6 +28,8 @@
 
 @property (nonatomic, strong) NSMutableArray *downloadingItems;
 
+@property (nonatomic, strong) NSMutableArray *unknowTasks;
+
 @property (nonatomic) NSUInteger limitDownloadTask;
 
 @end
@@ -37,6 +39,7 @@
 - (instancetype)init {
     self = [super init];
     if (self) {
+        _unknowTasks = [NSMutableArray new];
         _downloadingItems = [[NSMutableArray alloc] init];
         _downloadedItems = [[NSMutableArray alloc] init];
         _configuration = [NSURLSessionConfiguration backgroundSessionConfigurationWithIdentifier:@"My session"];
@@ -163,12 +166,20 @@
 - (void)URLSession:(NSURLSession *)session downloadTask:(NSURLSessionDownloadTask *)downloadTask didWriteData:(int64_t)bytesWritten
  totalBytesWritten:(int64_t)totalBytesWritten
 totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
+    
     for (DownloadItem *item in self.downloadingItems) {
         if (item.downloadTask == downloadTask) {
             [item.delegate itemDidUpdateTotalBytesWritten:totalBytesWritten andTotalBytesExpectedToWrite:totalBytesExpectedToWrite];
-            break;
+            return;
         }
     }
+    for (NSURLSessionDownloadTask *task in _unknowTasks) {
+        if (task == downloadTask) {
+            return;
+        }
+    }
+    [_unknowTasks addObject:downloadTask];
+    // check
 }
 
 - (void)URLSession:(nonnull NSURLSession *)session downloadTask:(nonnull NSURLSessionDownloadTask *)downloadTask didFinishDownloadingToURL:(nonnull NSURL *)location {
