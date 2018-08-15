@@ -51,7 +51,8 @@
 }
 
 -(void)reload {
-    
+    [self.downloadTask cancel];
+    [self resume];
 }
 
 - (id)initWithCoder:(NSCoder *)coder {
