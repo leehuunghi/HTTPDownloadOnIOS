@@ -67,26 +67,26 @@
             }
         }
         
+        DownloadItem *item = [DownloadItem new];
+        item.downloadState = DownloadItemStatePending;
+        item.downloaderDelegate = self;
+        item.downloadPriority = priority;
+        item.url = urlString;
+        
+        if (completion) {
+            completion(item, nil);
+        }
+        
         [self checkURL:urlString completion:^(NSError *error) {
-            DownloadItem *item = [DownloadItem new];
-            item.downloadState = DownloadItemStatePending;
-            item.downloaderDelegate = self;
-            item.downloadPriority = priority;
-            item.url = urlString;
             if (error) {
-                if (completion) {
-                    completion(item, error);
-                }
+                [item.delegate itemDidFinishDownload:NO withError:error];
             } else {
                 NSURL *url = [NSURL URLWithString:urlString];
                 
                 if (!item.downloadTask) {
                     item.downloadTask = [weakSelf.session downloadTaskWithURL:url];
                 }
-                
-                if (completion) {
-                    completion(item, nil);
-                }
+
                 
                 [weakSelf.downloadItems addObject:item];
                 [self enqueueItem:item];

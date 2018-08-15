@@ -50,8 +50,9 @@
     [self.downloadTask cancel];
 }
 
--(void)reload {
+-(void)restart {
     [self.downloadTask cancel];
+    self.downloadTask = nil;
     [self resume];
 }
 

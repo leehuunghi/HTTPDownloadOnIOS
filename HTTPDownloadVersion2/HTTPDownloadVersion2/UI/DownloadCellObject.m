@@ -147,7 +147,9 @@
 }
 
 - (void)restart {
-    
+    _state = DownloadStatePending;
+    self.progress = 0; 
+    [_downloadItem restart];
 }
 
 - (void)upPriority {

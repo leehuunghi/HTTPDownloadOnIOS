@@ -125,6 +125,7 @@
 }
 
 - (IBAction)restartButtonClick:(id)sender {
+    [_progressView setHidden:NO];
     [_cellObject restart];
 }
 
