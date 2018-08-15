@@ -10,11 +10,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "HTTPDownloadVersion2/DownloadCore/Downloader.m"
-            timestampString = "556019933.9807889"
+            timestampString = "556020626.518959"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "142"
-            endingLineNumber = "142"
+            startingLineNumber = "134"
+            endingLineNumber = "134"
             landmarkName = "-dequeueItem"
             landmarkType = "7">
          </BreakpointContent>
@@ -26,11 +26,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "HTTPDownloadVersion2/DownloadCore/Downloader.m"
-            timestampString = "556019933.981149"
+            timestampString = "556020626.519744"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "301"
-            endingLineNumber = "301"
+            startingLineNumber = "277"
+            endingLineNumber = "277"
             landmarkName = "-saveResumeData:"
             landmarkType = "7">
          </BreakpointContent>
@@ -42,11 +42,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "HTTPDownloadVersion2/DownloadCore/Downloader.m"
-            timestampString = "556019933.981222"
+            timestampString = "556020626.520059"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "169"
-            endingLineNumber = "169"
+            startingLineNumber = "161"
+            endingLineNumber = "161"
             landmarkName = "Downloader"
             landmarkType = "3">
             <Locations>

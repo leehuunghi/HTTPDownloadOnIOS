@@ -79,14 +79,6 @@
                 }
             } else {
                 NSURL *url = [NSURL URLWithString:urlString];
-
-                NSObject* resumeData = [NSUserDefaults.standardUserDefaults objectForKey:urlString];
-                if (resumeData) {
-                    if ([resumeData isKindOfClass:[NSData class]]) {
-                        [NSUserDefaults.standardUserDefaults removeObjectForKey:urlString];
-                        item.downloadTask = [weakSelf.session downloadTaskWithResumeData:(NSData*)resumeData];
-                    }
-                }
                 
                 if (!item.downloadTask) {
                     item.downloadTask = [weakSelf.session downloadTaskWithURL:url];
@@ -175,8 +167,16 @@
         }
         
         if (!downloadItem.downloadTask) {
-            NSURL *url = [NSURL URLWithString:downloadItem.url];
-            downloadItem.downloadTask = [weakSelf.session downloadTaskWithURL:url];
+            NSObject* resumeData = [NSUserDefaults.standardUserDefaults objectForKey:downloadItem.url];
+            if (resumeData) {
+                if ([resumeData isKindOfClass:[NSData class]]) {
+                    [_userDefaults removeObjectForKey:downloadItem.url];
+                    downloadItem.downloadTask = [weakSelf.session downloadTaskWithResumeData:(NSData*)resumeData];
+                }
+            } else {
+                NSURL *url = [NSURL URLWithString:downloadItem.url];
+                downloadItem.downloadTask = [weakSelf.session downloadTaskWithURL:url];
+            }
         }
         
         [weakSelf.priorityQueue addObject:downloadItem withPriority:downloadItem.downloadPriority];
@@ -248,34 +248,10 @@ totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
             }
         }
         for (DownloadItem *item in self.downloadingItems) {
-            NSHTTPURLResponse *httpRespone = (NSHTTPURLResponse *)task.response;
-            if (error) {
-                if (error.code == -1001) {
-                    item.resumeData = [error.userInfo objectForKey:NSURLSessionDownloadTaskResumeData];
-                    item.downloadTask = [_session downloadTaskWithResumeData:item.resumeData];
-                    return;
-                } else if (error.code == -1005) {
-                    item.resumeData = [error.userInfo objectForKey:NSURLSessionDownloadTaskResumeData];
-                    item.downloadTask = [_session downloadTaskWithResumeData:item.resumeData];
-                    [item.downloadTask resume];
-                    return;
-                } else {
-                    item.downloadState = DownloadItemStateError;
-                    [item.delegate itemDidFinishDownload:NO withError:error];
-                }
-            } else {
-                if (httpRespone.statusCode/100==2) {
-                    item.downloadState = DownloadItemStateComplete;
-                    [item.delegate itemDidFinishDownload:YES withError:nil];
-                } else {
-                    item.downloadState = DownloadItemStateError;
-                    [item.delegate itemDidFinishDownload:NO withError:[NSError errorWithDomain:@"ServerError" code:[(NSHTTPURLResponse*)(task.response) statusCode] userInfo:nil]];
-                }
+            if ([item.url compare:task.currentRequest.URL.absoluteString] == 0) {
+                item.downloadTask = (NSURLSessionDownloadTask *)task;
+                return [self URLSession:session task:task didCompleteWithError:error];
             }
-            
-            [_downloadingItems removeObject:item];
-            [self dequeueItem];
-            return;
         }
     }
 }
