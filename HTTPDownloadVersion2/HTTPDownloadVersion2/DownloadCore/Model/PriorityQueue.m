@@ -25,33 +25,35 @@
         _arrayHigh = [[NSMutableArray alloc] init];
         _arrayMedium = [[NSMutableArray alloc] init];
         _arrayLow = [[NSMutableArray alloc] init];
-        _concurrentQueue = dispatch_queue_create("concurrent_queue_for_priority_queue", DISPATCH_QUEUE_SERIAL);
+        _concurrentQueue = dispatch_queue_create("concurrent_queue_for_priority_queue", DISPATCH_QUEUE_CONCURRENT);
     }
     return self;
 }
 
 - (void)addObject:(id)object {
-    [self addObject:object withPriority:DownloadPriorityMedium];
+    if (object) {
+        [self addObject:object withPriority:DownloadPriorityMedium];
+    }
 }
 
 - (void)addObject:(id)object withPriority:(DownloadPriority)priority {
-    if(object) {
+    if (object) {
         __weak typeof (self) weakSelf = self;
         switch (priority) {
             case DownloadPriorityHigh: {
-                dispatch_sync(self.concurrentQueue, ^{
+                dispatch_barrier_async(self.concurrentQueue, ^{
                     [weakSelf.arrayHigh insertObject:object atIndex:0];
                 });
                 break;
             }
             case DownloadPriorityMedium: {
-                dispatch_sync(self.concurrentQueue, ^{
+                dispatch_barrier_async(self.concurrentQueue, ^{
                     [weakSelf.arrayMedium insertObject:object atIndex:0];
                 });
                 break;
             }
             case DownloadPriorityLow: {
-                dispatch_sync(self.concurrentQueue, ^{
+                dispatch_barrier_async(self.concurrentQueue, ^{
                     [weakSelf.arrayLow insertObject:object atIndex:0];
                 });
                 break;
@@ -65,7 +67,7 @@
 
 - (void)removeObject {
     __weak typeof(self)weakSelf = self;
-    dispatch_sync(self.concurrentQueue, ^{
+    dispatch_barrier_async(self.concurrentQueue, ^{
         if ([weakSelf.arrayHigh count]) {
             [weakSelf.arrayHigh removeLastObject];
         } else if ([weakSelf.arrayMedium count]) {
@@ -111,30 +113,40 @@
 }
 
 - (void)removeObject:(id)object withPriority:(DownloadPriority)priority {
-    __weak typeof(self)weakSelf = self;
-    dispatch_sync(self.concurrentQueue, ^{
-        for (id obj in weakSelf.arrayHigh) {
-            if (obj == object) {
-                dispatch_barrier_async(self.concurrentQueue, ^{
-                    [weakSelf.arrayHigh removeObject:object];
-                });
+    if (object) {
+        __weak typeof(self)weakSelf = self;
+        dispatch_barrier_async(self.concurrentQueue, ^{
+            switch (priority) {
+                case DownloadPriorityHigh: {
+                    for (id obj in weakSelf.arrayHigh) {
+                        if (obj == object) {
+                            [weakSelf.arrayHigh removeObject:object];
+                        }
+                    }
+                    break;
+                }
+                case DownloadPriorityMedium: {
+                    for (id obj in weakSelf.arrayMedium) {
+                        if (obj == object) {
+                            [weakSelf.arrayMedium removeObject:object];
+                        }
+                    }
+                    break;
+                }
+                case DownloadPriorityLow: {
+                    for (id obj in weakSelf.arrayLow) {
+                        if (obj == object) {
+                            [weakSelf.arrayLow removeObject:object];
+                        }
+                    }
+                    break;
+                }
+                default:
+                    NSLog(@"No priority");
+                    break;
             }
-        }
-        for (id obj in weakSelf.arrayMedium) {
-            if (obj == object) {
-                dispatch_barrier_async(self.concurrentQueue, ^{
-                    [weakSelf.arrayMedium removeObject:object];
-                });
-            }
-        }
-        for (id obj in weakSelf.arrayLow) {
-            if (obj == object) {
-                dispatch_barrier_async(self.concurrentQueue, ^{
-                    [weakSelf.arrayLow removeObject:object];
-                });
-            }
-        }
-    });
+        });
+    }
 }
 
 

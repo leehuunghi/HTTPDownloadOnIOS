@@ -165,7 +165,6 @@
                 downloadItem.downloadTask = [weakSelf.session downloadTaskWithURL:url];
             }
         }
-        
         [weakSelf.priorityQueue addObject:downloadItem withPriority:downloadItem.downloadPriority];
         [self dequeueItem];
     }
