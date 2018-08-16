@@ -40,7 +40,11 @@
         }
         _priority = downloadItem.downloadPriority;
         _downloadItem = downloadItem;
-        [self downloadProgressDidUpdate];
+        
+        if (_downloadItem.totalBytesExpectedToWrite > 0) {
+            _progress = (float)_downloadItem.totalBytesWritten / _downloadItem.totalBytesExpectedToWrite;
+        }
+        
         downloadItem.delegate = self;
         if (downloadItem.state == DownloadStatePending) {
             [downloadItem resume];
