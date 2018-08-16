@@ -30,7 +30,7 @@
     
 }
 
-- (void)saveResumeData:(void(^)(void))completion {
+- (void)saveData:(void(^)(void))completion {
 
 }
 
@@ -45,4 +45,5 @@
 - (void)checkURL:(NSString*)urlString completion:(void (^)(NSError* error))completion {
     
 }
+
 @end

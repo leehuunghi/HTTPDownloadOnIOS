@@ -14,47 +14,13 @@
 
 @implementation DownloadItem
 
-- (instancetype)init
-{
-    self = [super init];
-    if (self) {
-        
-    }
-    return self;
-}
-
-- (void)resume {
-    [self.downloaderDelegate itemWillStartDownload:self];
-}
-
-- (void)pause {
-    if (self.downloadTask.state != NSURLSessionTaskStateSuspended) {
-        [self.downloadTask suspend];
-        if (self.downloadTask.state == NSURLSessionTaskStateSuspended) {
-            [self.delegate itemWillPauseDownload];
-            [self.downloaderDelegate itemWillPauseDownload:self];
-        }
-    }
-}
-
 - (void)reallyResume {
     [self.delegate itemWillStartDownload];
     [self.downloadTask resume];
+    self.state = DownloadStateDownloading;
 }
 
-- (void)cancel {
-    if (self.downloadTask.state == NSURLSessionTaskStateRunning) {
-        [self pause];
-    }
-    [self.downloaderDelegate itemWillCancelDownload:self];
-    [self.downloadTask cancel];
-}
-
--(void)restart {
-    [self.downloadTask cancel];
-    self.downloadTask = nil;
-    [self resume];
-}
+#pragma code/decode NSKeyed
 
 - (id)initWithCoder:(NSCoder *)coder {
     self = [super init];
@@ -82,6 +48,38 @@
 
 - (instancetype)initWithData:(NSData *)data {
     return [NSKeyedUnarchiver unarchiveObjectWithData:data];
+}
+
+#pragma implement DownloadItemModel
+
+- (void)resume {
+    [self.downloaderDelegate itemWillStartDownload:self];
+}
+
+- (void)pause {
+    if (self.downloadTask.state != NSURLSessionTaskStateSuspended) {
+        [self.delegate itemWillPauseDownload];
+        [self.downloadTask suspend];
+        self.state = DownloadStatePause;
+        if (self.downloadTask.state == NSURLSessionTaskStateSuspended) {
+            [self.downloaderDelegate itemWillPauseDownload:self];
+        }
+    }
+}
+
+- (void)cancel {
+    if (self.downloadTask.state == NSURLSessionTaskStateRunning) {
+        [self pause];
+    }
+    [self.downloaderDelegate itemWillCancelDownload:self];
+    [self.downloadTask cancel];
+}
+
+- (void)restart {
+    [self.downloadTask cancel];
+    self.downloadTask = nil;
+    [self resume];
+    self.state = DownloadStatePending;
 }
 
 - (void)open {

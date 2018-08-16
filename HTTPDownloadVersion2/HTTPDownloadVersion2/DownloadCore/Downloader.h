@@ -8,6 +8,7 @@
 
 #import "DownloaderModel.h"
 #import "DownloadItem.h"
+#import "PriorityQueue.h"
 
 
 @interface Downloader : DownloaderModel <DownloaderDelegate, NSURLSessionDownloadDelegate>

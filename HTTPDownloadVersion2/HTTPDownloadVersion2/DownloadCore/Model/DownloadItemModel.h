@@ -22,6 +22,16 @@ typedef NS_ENUM(NSUInteger, DownloadState) {
 @optional
 
 /**
+ It will be call every Download Item update state
+ */
+- (void)downloadStateDidUpdate;
+
+/**
+ It will be call every Download Item update process
+ */
+- (void)downloadProgressDidUpdate;
+
+/**
  It will be call before item start download, or resume download (after pause)
  */
 - (void)itemWillStartDownload;
@@ -33,7 +43,6 @@ typedef NS_ENUM(NSUInteger, DownloadState) {
  @param error error if have
  */
 - (void)itemDidFinishDownload:(BOOL)success withError:(NSError *)error;
-
 
 /**
  It will be call before download pause
@@ -48,12 +57,8 @@ typedef NS_ENUM(NSUInteger, DownloadState) {
 /**
  It will be call every progress of download item is updated
 
- @param progress progress of download item
- */
-- (void)itemDidUpdateProgress:(NSProgress *)progress;
-
-/**
- 
+ @param totalBytesWritten total bytes downloaded
+ @param totalBytesExpectedToWrite total bytes of download file
  */
 - (void)itemDidUpdateTotalBytesWritten:(int64_t)totalBytesWritten andTotalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite;
 
@@ -68,14 +73,14 @@ typedef NS_ENUM(NSUInteger, DownloadState) {
 @property (nonatomic, strong) NSString *url;
 
 /**
- Process of downloading
- */
-@property (nonatomic, strong) NSProgress *progress;
-
-/**
  Position and  to save file after downloaded
  */
 @property (nonatomic, strong) NSString *filePath;
+
+/**
+ State of download
+ */
+@property (nonatomic) DownloadState state;
 
 /**
  Priority queue contain task repair to download
@@ -83,13 +88,19 @@ typedef NS_ENUM(NSUInteger, DownloadState) {
 @property (nonatomic) DownloadPriority downloadPriority;
 
 /**
+ Total bytes downloaded and written
+ */
+@property (nonatomic) int64_t totalBytesWritten;
+
+/**
+ Total bytes of file download
+ */
+@property (nonatomic) int64_t totalBytesExpectedToWrite;
+
+/**
  Delegate to do something with every state of download file
  */
 @property (nonatomic, retain) id<DownloadItemDelegate> delegate;
-
-@property (nonatomic) DownloadState state;
-
-@property (nonatomic, strong) NSData* resumeData;
 
 /**
  Switch background download and foreground download
@@ -120,5 +131,6 @@ typedef NS_ENUM(NSUInteger, DownloadState) {
  Open file if file downloaded
  */
 - (void)open;
+
 
 @end
