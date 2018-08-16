@@ -60,10 +60,8 @@
     dispatch_async(self.serialQueueDownloaderRequestURL, ^{
         for (DownloadItem* downloadItem in weakSelf.downloadItems) {
             if ([downloadItem.url compare:urlString] == 0) {
-                if (completion) {
-                    completion(downloadItem, nil);
-                    return;
-                }
+                completion ? completion(downloadItem, nil) : nil;
+                return;
             }
         }
         
@@ -73,21 +71,16 @@
         item.downloadPriority = priority;
         item.url = urlString;
         
-        if (completion) {
-            completion(item, nil);
-        }
+        completion ? completion(item, nil) : nil;
         
         [self checkURL:urlString completion:^(NSError *error) {
             if (error) {
                 item.state = DownloadItemStateError;
             } else {
                 NSURL *url = [NSURL URLWithString:urlString];
-                
                 if (!item.downloadTask) {
                     item.downloadTask = [weakSelf.session downloadTaskWithURL:url];
                 }
-
-                
                 [weakSelf.downloadItems addObject:item];
                 [self enqueueItem:item];
             }
@@ -104,14 +97,10 @@
     NSURLSessionDataTask *dataTask = [manager dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
         NSHTTPURLResponse *httpRespone = (NSHTTPURLResponse *)response;
         if (httpRespone.statusCode / 100 == 2) {
-            if (completion) {
-                completion(nil);
-            }
+            completion ? completion(nil) : nil;
         } else {
             NSError *errorURL = [NSError errorWithDomain:@"com.download.error" code:httpRespone.statusCode userInfo:nil];
-            if (completion) {
-                completion(errorURL);
-            }
+            completion ? completion(errorURL) : nil;
         }
     }];
     [dataTask resume];
@@ -207,6 +196,7 @@ totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
     NSURL *documentsURL = [NSFileManager.defaultManager URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask][0];
     
     documentsURL = [documentsURL URLByAppendingPathComponent:downloadTask.currentRequest.URL.lastPathComponent];
+    
     [NSFileManager.defaultManager moveItemAtURL:location toURL:documentsURL error:nil];
     for (DownloadItem *item in self.downloadingItems) {
         if (item.downloadTask == downloadTask) {
@@ -220,45 +210,48 @@ totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
 }
 
 - (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didCompleteWithError:(NSError *)error {
-    NSLog(@"%@", error);
-    if (error.code != -999) {
-        for (DownloadItem *item in self.downloadingItems) {
-            if (item.downloadTask == task) {
-                NSHTTPURLResponse *httpRespone = (NSHTTPURLResponse *)task.response;
-                if (error) {
-                    if (error.code == -1001) {
-                        NSData *resumeData = [error.userInfo objectForKey:NSURLSessionDownloadTaskResumeData];
+    for (DownloadItem *item in self.downloadingItems) {
+        if (item.downloadTask == task) {
+            NSHTTPURLResponse *httpRespone = (NSHTTPURLResponse *)task.response;
+            if (error) {
+                switch (error.code) {
+                    case NSURLErrorCancelled:
+                        break;
+                    case NSURLErrorTimedOut: {
+                        NSData* resumeData = [error.userInfo objectForKey:NSURLSessionDownloadTaskResumeData];
                         item.downloadTask = [_session downloadTaskWithResumeData:resumeData];
                         return;
-                    } else if (error.code == -1005) {
-                        NSData *resumeData = [error.userInfo objectForKey:NSURLSessionDownloadTaskResumeData];
+                    }
+                    case NSURLErrorNetworkConnectionLost: {
+                        NSData* resumeData = [error.userInfo objectForKey:NSURLSessionDownloadTaskResumeData];
                         item.downloadTask = [_session downloadTaskWithResumeData:resumeData];
                         [item.downloadTask resume];
                         return;
-                    } else {
-                        item.downloadState = DownloadItemStateError;
-                        item.state = DownloadStateError;
                     }
-                } else {
-                    if (httpRespone.statusCode/100==2) {
-                        item.downloadState = DownloadItemStateComplete;
-                        item.state = DownloadStateComplete;
-                    } else {
+                    default: {
                         item.downloadState = DownloadItemStateError;
                         item.state = DownloadStateError;
+                        break;
                     }
                 }
-                
-                [_downloadingItems removeObject:item];
-                [self dequeueItem];
-                return;
+            } else {
+                if (httpRespone.statusCode/100==2) {
+                    item.downloadState = DownloadItemStateComplete;
+                    item.state = DownloadStateComplete;
+                } else {
+                    item.downloadState = DownloadItemStateError;
+                    item.state = DownloadStateError;
+                }
             }
+            [_downloadingItems removeObject:item];
+            [self dequeueItem];
+            return;
         }
-        for (DownloadItem *item in self.downloadingItems) {
-            if ([item.url compare:task.currentRequest.URL.absoluteString] == 0) {
-                item.downloadTask = (NSURLSessionDownloadTask *)task;
-                return [self URLSession:session task:task didCompleteWithError:error];
-            }
+    }
+    for (DownloadItem *item in self.downloadingItems) {
+        if ([item.url compare:task.currentRequest.URL.absoluteString] == 0) {
+            item.downloadTask = (NSURLSessionDownloadTask *)task;
+            return [self URLSession:session task:task didCompleteWithError:error];
         }
     }
 }
@@ -272,7 +265,7 @@ totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
         }
     }
     if (suspendedDownloads.count == 0) {
-        completion();
+        completion ? completion() : nil;
     }
     for (DownloadItem* download in suspendedDownloads) {
         [download.downloadTask cancelByProducingResumeData:^(NSData * _Nullable resumeData) {

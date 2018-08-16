@@ -120,16 +120,16 @@
                 });
             }
         }
-        for (id obj in weakSelf.arrayHigh) {
+        for (id obj in weakSelf.arrayMedium) {
             if (obj == object) {
-                dispatch_barrier_sync(self.concurrentQueue, ^{
+                dispatch_barrier_async(self.concurrentQueue, ^{
                     [weakSelf.arrayMedium removeObject:object];
                 });
             }
         }
-        for (id obj in weakSelf.arrayHigh) {
+        for (id obj in weakSelf.arrayLow) {
             if (obj == object) {
-                dispatch_barrier_sync(self.concurrentQueue, ^{
+                dispatch_barrier_async(self.concurrentQueue, ^{
                     [weakSelf.arrayLow removeObject:object];
                 });
             }
