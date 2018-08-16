@@ -86,8 +86,6 @@
                 if (!item.downloadTask) {
                     item.downloadTask = [weakSelf.session downloadTaskWithURL:url];
                 }
-
-                
                 [weakSelf.downloadItems addObject:item];
                 [self enqueueItem:item];
             }
@@ -208,50 +206,52 @@ totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
     
     documentsURL = [documentsURL URLByAppendingPathComponent:downloadTask.currentRequest.URL.lastPathComponent];
     
-    NSLog(@"%@", documentsURL.absoluteString);
     [NSFileManager.defaultManager moveItemAtURL:location toURL:documentsURL error:nil];
 }
 
 - (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didCompleteWithError:(NSError *)error {
-    NSLog(@"%@", error);
-    if (error.code != -999) {
-        for (DownloadItem *item in self.downloadingItems) {
-            if (item.downloadTask == task) {
-                NSHTTPURLResponse *httpRespone = (NSHTTPURLResponse *)task.response;
-                if (error) {
-                    if (error.code == -1001) {
+    for (DownloadItem *item in self.downloadingItems) {
+        if (item.downloadTask == task) {
+            NSHTTPURLResponse *httpRespone = (NSHTTPURLResponse *)task.response;
+            if (error) {
+                switch (error.code) {
+                    case NSURLErrorCancelled:
+                        break;
+                    case NSURLErrorTimedOut: {
                         item.resumeData = [error.userInfo objectForKey:NSURLSessionDownloadTaskResumeData];
                         item.downloadTask = [_session downloadTaskWithResumeData:item.resumeData];
                         return;
-                    } else if (error.code == -1005) {
+                    }
+                    case NSURLErrorNetworkConnectionLost: {
                         item.resumeData = [error.userInfo objectForKey:NSURLSessionDownloadTaskResumeData];
                         item.downloadTask = [_session downloadTaskWithResumeData:item.resumeData];
                         [item.downloadTask resume];
                         return;
-                    } else {
+                    }
+                    default: {
                         item.downloadState = DownloadItemStateError;
                         [item.delegate itemDidFinishDownload:NO withError:error];
-                    }
-                } else {
-                    if (httpRespone.statusCode/100==2) {
-                        item.downloadState = DownloadItemStateComplete;
-                        [item.delegate itemDidFinishDownload:YES withError:nil];
-                    } else {
-                        item.downloadState = DownloadItemStateError;
-                        [item.delegate itemDidFinishDownload:NO withError:[NSError errorWithDomain:@"ServerError" code:[(NSHTTPURLResponse*)(task.response) statusCode] userInfo:nil]];
+                        break;
                     }
                 }
-                
-                [_downloadingItems removeObject:item];
-                [self dequeueItem];
-                return;
+            } else {
+                if (httpRespone.statusCode / 100 == 2) {
+                    item.downloadState = DownloadItemStateComplete;
+                    [item.delegate itemDidFinishDownload:YES withError:nil];
+                } else {
+                    item.downloadState = DownloadItemStateError;
+                    [item.delegate itemDidFinishDownload:NO withError:[NSError errorWithDomain:@"ServerError" code:[(NSHTTPURLResponse*)(task.response) statusCode] userInfo:nil]];
+                }
             }
+            [_downloadingItems removeObject:item];
+            [self dequeueItem];
+            return;
         }
-        for (DownloadItem *item in self.downloadingItems) {
-            if ([item.url compare:task.currentRequest.URL.absoluteString] == 0) {
-                item.downloadTask = (NSURLSessionDownloadTask *)task;
-                return [self URLSession:session task:task didCompleteWithError:error];
-            }
+    }
+    for (DownloadItem *item in self.downloadingItems) {
+        if ([item.url compare:task.currentRequest.URL.absoluteString] == 0) {
+            item.downloadTask = (NSURLSessionDownloadTask *)task;
+            return [self URLSession:session task:task didCompleteWithError:error];
         }
     }
 }
