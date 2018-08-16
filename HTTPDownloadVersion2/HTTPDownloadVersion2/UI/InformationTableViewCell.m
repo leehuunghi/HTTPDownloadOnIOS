@@ -23,7 +23,8 @@
 }
 
 + (TableViewCellModel *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
-    TableViewCellModel *cell = [tableView dequeueReusableCellWithIdentifier:@"InformationTableViewCell"];
+    static NSString *cellIdentifier = @"InformationTableViewCell";
+    TableViewCellModel *cell = [tableView dequeueReusableCellWithIdentifier:cellIdentifier];
     cell.selectionStyle = UITableViewCellSelectionStyleNone;
     return cell;
 }

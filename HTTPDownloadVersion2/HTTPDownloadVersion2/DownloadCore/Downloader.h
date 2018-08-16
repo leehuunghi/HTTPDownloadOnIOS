@@ -13,6 +13,4 @@
 
 @interface Downloader : DownloaderModel <DownloaderDelegate, NSURLSessionDownloadDelegate>
 
-
-
 @end

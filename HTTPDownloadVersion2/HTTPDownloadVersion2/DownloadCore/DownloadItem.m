@@ -8,6 +8,13 @@
 
 #import "DownloadItem.h"
 
+#define kURL @"url"
+#define kFilePath @"filePath"
+#define kState @"state"
+#define kPriority @"priority"
+#define kWritten @"written"
+#define kExpected @"expected"
+
 @interface DownloadItem()
 
 @end
@@ -31,19 +38,23 @@
     self = [super init];
     if (self != NULL)
     {
-        self.url = [coder decodeObjectForKey:@"url"];
-        self.filePath = [coder decodeObjectForKey:@"filePath"];
-        self.state = [coder decodeIntegerForKey:@"state"];
-        self.downloadPriority = [coder decodeIntegerForKey:@"priority"];
+        self.url = [coder decodeObjectForKey:kURL];
+        self.filePath = [coder decodeObjectForKey:kFilePath];
+        self.state = [coder decodeIntegerForKey:kState];
+        self.downloadPriority = [coder decodeIntegerForKey:kPriority];
+        self.totalBytesWritten = [coder decodeIntegerForKey:kWritten];
+        self.totalBytesExpectedToWrite = [coder decodeIntegerForKey:kExpected];
     }
     return self;
 }
 
 - (void)encodeWithCoder:(NSCoder *)coder {
-    [coder encodeObject:self.url forKey:@"url"];
-    [coder encodeObject:self.filePath forKey:@"filePath"];
-    [coder encodeInteger:self.state forKey:@"state"];
-    [coder encodeInteger:self.downloadPriority forKey:@"priority"];
+    [coder encodeObject:self.url forKey:kURL];
+    [coder encodeObject:self.filePath forKey:kFilePath];
+    [coder encodeInteger:self.state forKey:kState];
+    [coder encodeInteger:self.downloadPriority forKey:kPriority];
+    [coder encodeInteger:self.totalBytesWritten forKey:kWritten];
+    [coder encodeInteger:self.totalBytesExpectedToWrite forKey:kExpected];
 }
 
 - (NSData *)transToData {

@@ -6,7 +6,8 @@
 //  Copyright © 2018 CPU11360. All rights reserved.
 //
 
-#define kSaveKey @"download_array_data"
+#define kSaveKeyUserDefaut @"download_array_data"
+
 
 #import "Downloader.h"
 
@@ -42,7 +43,7 @@
         _downloadingItems = [[NSMutableArray alloc] init];
         _downloadItems = [[NSMutableArray alloc] init];
         [self loadDataFromUserDefault];
-        _configuration = [NSURLSessionConfiguration backgroundSessionConfigurationWithIdentifier:@"My session"];
+        _configuration = [NSURLSessionConfiguration backgroundSessionConfigurationWithIdentifier:@"download.backgroud"];
         [_configuration setDiscretionary:YES];
         [_configuration setSessionSendsLaunchEvents:YES];
         
@@ -287,12 +288,12 @@ totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
         [downloadDataArray addObject:[item transToData]];
     }
     
-    [_userDefaults setObject:downloadDataArray forKey:kSaveKey];
+    [_userDefaults setObject:downloadDataArray forKey:kSaveKeyUserDefaut];
     [_userDefaults synchronize];
 }
 
 - (void)loadDataFromUserDefault {
-    NSArray *array = [_userDefaults objectForKey:kSaveKey];
+    NSArray *array = [_userDefaults objectForKey:kSaveKeyUserDefaut];
     _downloadItems = [NSMutableArray new];
     _downloadingItems = [NSMutableArray new];
     for (NSData *data in array) {
