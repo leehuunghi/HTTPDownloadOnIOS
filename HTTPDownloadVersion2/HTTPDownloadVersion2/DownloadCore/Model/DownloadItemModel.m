@@ -15,6 +15,7 @@
     self = [super init];
     if (self) {
         _downloadPriority = DownloadPriorityMedium;
+        _state = DownloadStatePending;
     }
     return self;
 }
@@ -43,21 +44,9 @@
     
 }
 
-- (id)initWithCoder:(NSCoder *)coder {
-    self = [super init];
-    if (self!=NULL)
-    {
-        _url = [coder decodeObjectForKey:@"url"];
-        _filePath = [coder decodeObjectForKey:@"filePath"];
-        _state = [coder decodeIntegerForKey:@"state"];
-    }
-    return self;
-}
-
-- (void)encodeWithCoder:(NSCoder *)coder {
-    [coder encodeObject:_url forKey:@"url"];
-    [coder encodeObject:_filePath forKey:@"filePath"];
-    [coder encodeInteger:_state forKey:@"state"];
+-(void)setState:(DownloadState)state {
+    _state = state;
+    [_delegate downloadStateDidUpdate];
 }
 
 @end

@@ -207,9 +207,16 @@ totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
     NSURL *documentsURL = [NSFileManager.defaultManager URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask][0];
     
     documentsURL = [documentsURL URLByAppendingPathComponent:downloadTask.currentRequest.URL.lastPathComponent];
-    
-    NSLog(@"%@", documentsURL.absoluteString);
     [NSFileManager.defaultManager moveItemAtURL:location toURL:documentsURL error:nil];
+    for (DownloadItem *item in self.downloadingItems) {
+        if (item.downloadTask == downloadTask) {
+            item.filePath = documentsURL.absoluteString;
+            
+            break;
+        }
+    }
+    
+    
 }
 
 - (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didCompleteWithError:(NSError *)error {
@@ -220,12 +227,12 @@ totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
                 NSHTTPURLResponse *httpRespone = (NSHTTPURLResponse *)task.response;
                 if (error) {
                     if (error.code == -1001) {
-                        item.resumeData = [error.userInfo objectForKey:NSURLSessionDownloadTaskResumeData];
-                        item.downloadTask = [_session downloadTaskWithResumeData:item.resumeData];
+                        NSData *resumeData = [error.userInfo objectForKey:NSURLSessionDownloadTaskResumeData];
+                        item.downloadTask = [_session downloadTaskWithResumeData:resumeData];
                         return;
                     } else if (error.code == -1005) {
-                        item.resumeData = [error.userInfo objectForKey:NSURLSessionDownloadTaskResumeData];
-                        item.downloadTask = [_session downloadTaskWithResumeData:item.resumeData];
+                        NSData *resumeData = [error.userInfo objectForKey:NSURLSessionDownloadTaskResumeData];
+                        item.downloadTask = [_session downloadTaskWithResumeData:resumeData];
                         [item.downloadTask resume];
                         return;
                     } else {
@@ -256,7 +263,8 @@ totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
     }
 }
 
-- (void)saveResumeData:(void(^)(void))completion {
+- (void)saveData:(void(^)(void))completion {
+    [self saveDataToUserDefault];
     NSMutableArray* suspendedDownloads = [NSMutableArray new];
     for (DownloadItem* download in _downloadItems) {
         if (download.downloadTask.state == NSURLSessionTaskStateSuspended) {
@@ -274,14 +282,16 @@ totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
             @synchronized (suspendedDownloads) {
                 [suspendedDownloads removeObject:download];
                 if (suspendedDownloads.count == 0) {
-                    completion();
+                    completion ? completion() : nil;
                 }
             }
         }];
     }
 }
 
-- (void)saveData {
+#pragma private
+
+- (void)saveDataToUserDefault {
     NSMutableArray *downloadDataArray = [NSMutableArray new];
     for (DownloadItem *item in _downloadItems) {
         [downloadDataArray addObject:[item transToData]];
@@ -294,6 +304,7 @@ totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
 - (void)loadDataFromUserDefault {
     NSArray *array = [_userDefaults objectForKey:kSaveKey];
     _downloadItems = [NSMutableArray new];
+    _downloadingItems = [NSMutableArray new];
     for (NSData *data in array) {
         DownloadItem *item = [[DownloadItem alloc] initWithData:data];
         item.downloaderDelegate = self;
@@ -307,6 +318,9 @@ totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
 }
 
 - (NSArray *)loadData {
+    if (_downloadItems) {
+        [self loadDataFromUserDefault];
+    }
     return _downloadItems;
 }
 

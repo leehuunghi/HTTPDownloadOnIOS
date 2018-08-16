@@ -7,7 +7,6 @@
 //
 
 #import "DownloadItemModel.h"
-#import "PriorityQueue.h"
 
 @interface DownloaderModel : NSObject
 
@@ -38,16 +37,29 @@
  */
 - (void)createDownloadItemWithUrl:(NSString *)urlString completion:(void (^)(DownloadItemModel *downloadItem, NSError *error))completion;
 
+/**
+ Cancel all download
+ */
 - (void)cancelAll;
 
+/**
+ Pause all
+ */
 - (void)pauseAll;
 
-- (void)saveResumeData:(void(^)(void))completion;
+/**
+ Save download list and do something
 
-- (void)saveData;
+ @param completion block will run after saved
+ */
+- (void)saveData:(void(^)(void))completion;
 
+/**
+ Load download list and return this
+
+ @return donwload item list
+ */
 - (NSArray *)loadData;
-
 
 /**
  check link url can download
