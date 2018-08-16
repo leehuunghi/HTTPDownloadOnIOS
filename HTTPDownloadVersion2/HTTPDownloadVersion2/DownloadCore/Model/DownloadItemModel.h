@@ -32,29 +32,6 @@ typedef NS_ENUM(NSUInteger, DownloadState) {
 - (void)downloadProgressDidUpdate;
 
 /**
- It will be call before item start download, or resume download (after pause)
- */
-- (void)itemWillStartDownload;
-
-/**
- It will be call after download finish
-
- @param success download item is success
- @param error error if have
- */
-- (void)itemDidFinishDownload:(BOOL)success withError:(NSError *)error;
-
-/**
- It will be call before download pause
- */
-- (void)itemWillPauseDownload;
-
-/**
- It will be call before download cancel
- */
-- (void)itemWillCancelDownload;
-
-/**
  It will be call every progress of download item is updated
 
  @param totalBytesWritten total bytes downloaded

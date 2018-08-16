@@ -163,26 +163,12 @@
     
 }
 
-# pragma delegate
+#pragma delegate
 
-- (void)itemDidFinishDownload:(BOOL)success withError:(NSError *)error {
-    if (success) {
-        self.state = DownloadStateComplete;
-    } else {
-        self.state = DownloadStateError;
+- (void)downloadStateDidUpdate {
+    if (_downloadItem) {
+        self.state = _downloadItem.state;
     }
-}
-
-- (void)itemWillPauseDownload {
-    self.state = DownloadStatePause;
-}
-
-- (void)itemWillStartDownload {
-    self.state = DownloadStateDownloading;
-}
-
-- (void)itemWillCancelDownload {
-    
 }
 
 - (void)itemDidUpdateTotalBytesWritten:(int64_t)totalBytesWritten andTotalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
