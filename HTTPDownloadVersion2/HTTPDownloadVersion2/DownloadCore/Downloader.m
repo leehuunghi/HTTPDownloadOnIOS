@@ -75,7 +75,6 @@
         
         [self checkURL:urlString completion:^(NSError *error) {
             if (error) {
-                [item.delegate itemDidFinishDownload:NO withError:error];
                 item.state = DownloadItemStateError;
             } else {
                 NSURL *url = [NSURL URLWithString:urlString];
@@ -131,7 +130,7 @@
     }
 }
 
-#pragma DownloaderDelegate
+#pragma mark - DownloaderDelegate
 
 - (void)itemWillCancelDownload:(DownloadItem *)downloadItem {
     if (downloadItem) {
@@ -174,7 +173,7 @@
     }
 }
 
-#pragma NSURLSessionDownloadDelegate
+#pragma mark - NSURLSessionDownloadDelegate
 
 - (void)URLSession:(NSURLSession *)session downloadTask:(NSURLSessionDownloadTask *)downloadTask didWriteData:(int64_t)bytesWritten
  totalBytesWritten:(int64_t)totalBytesWritten
@@ -182,7 +181,7 @@ totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
 
     for (DownloadItem *item in self.downloadingItems) {
         if (item.downloadTask == downloadTask) {
-            [item.delegate itemDidUpdateTotalBytesWritten:totalBytesWritten andTotalBytesExpectedToWrite:totalBytesExpectedToWrite];
+            [item updateProgressWithTotalBytesWritten:totalBytesWritten andTotalBytesExpectedToWrite:totalBytesExpectedToWrite];
             break;
         } else {
             if ([item.url compare:downloadTask.currentRequest.URL.absoluteString] == 0) {
@@ -231,7 +230,6 @@ totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
                     }
                     default: {
                         item.downloadState = DownloadItemStateError;
-                        [item.delegate itemDidFinishDownload:NO withError:error];
                         item.state = DownloadStateError;
                         break;
                     }
@@ -239,11 +237,9 @@ totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
             } else {
                 if (httpRespone.statusCode/100==2) {
                     item.downloadState = DownloadItemStateComplete;
-                    [item.delegate itemDidFinishDownload:YES withError:nil];
                     item.state = DownloadStateComplete;
                 } else {
                     item.downloadState = DownloadItemStateError;
-                    [item.delegate itemDidFinishDownload:NO withError:[NSError errorWithDomain:@"ServerError" code:[(NSHTTPURLResponse*)(task.response) statusCode] userInfo:nil]];
                     item.state = DownloadStateError;
                 }
             }
@@ -286,7 +282,7 @@ totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
     }
 }
 
-#pragma private
+#pragma mark - private
 
 - (void)saveDataToUserDefault {
     NSMutableArray *downloadDataArray = [NSMutableArray new];

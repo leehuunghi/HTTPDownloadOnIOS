@@ -47,6 +47,4 @@
 
 - (UIColor *)getColorBackgroud;
 
-- (void)progressDidUpdate:(NSUInteger)currentSize total:(NSUInteger)totalSize;
-
 @end

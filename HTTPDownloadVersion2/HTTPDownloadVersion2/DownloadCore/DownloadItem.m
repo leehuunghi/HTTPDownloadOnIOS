@@ -14,13 +14,18 @@
 
 @implementation DownloadItem
 
+- (void)updateProgressWithTotalBytesWritten:(int64_t)totalBytesWritten andTotalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
+    self.totalBytesWritten = totalBytesWritten;
+    self.totalBytesExpectedToWrite = totalBytesExpectedToWrite;
+    [self.delegate downloadProgressDidUpdate];
+}
+
 - (void)reallyResume {
-    [self.delegate itemWillStartDownload];
     [self.downloadTask resume];
     self.state = DownloadStateDownloading;
 }
 
-#pragma code/decode NSKeyed
+#pragma mark - code/decode NSKeyed
 
 - (id)initWithCoder:(NSCoder *)coder {
     self = [super init];
@@ -50,7 +55,7 @@
     return [NSKeyedUnarchiver unarchiveObjectWithData:data];
 }
 
-#pragma implement DownloadItemModel
+#pragma mark - implement DownloadItemModel
 
 - (void)resume {
     [self.downloaderDelegate itemWillStartDownload:self];
@@ -58,7 +63,6 @@
 
 - (void)pause {
     if (self.downloadTask.state != NSURLSessionTaskStateSuspended) {
-        [self.delegate itemWillPauseDownload];
         [self.downloadTask suspend];
         self.state = DownloadStatePause;
         if (self.downloadTask.state == NSURLSessionTaskStateSuspended) {

@@ -77,7 +77,7 @@
     return true;
 }
 
-#pragma event
+#pragma mark - event
 
 - (IBAction)cencelButtonTouch:(id)sender {
     if (!_cellObject) {
@@ -129,7 +129,7 @@
     [_cellObject restart];
 }
 
-#pragma state
+#pragma mark - state
 
 - (void)updateState {
     if (_cellObject) {
