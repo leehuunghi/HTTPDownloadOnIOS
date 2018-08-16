@@ -74,7 +74,9 @@
 }
 
 - (void)setProgressString:(NSString *)progressString {
-    _progressString = progressString;
+    if (_state == DownloadStateDownloading) {
+        _progressString = progressString;
+    }
     if (_cell) {
         __weak __typeof(self) weakSelf = self;
         dispatch_async(dispatch_get_main_queue(), ^{
@@ -84,17 +86,15 @@
 }
 
 - (void)setState:(DownloadState)state {
-    if (_state != state) {
-        _state = state;
-        switch (state) {
-            case DownloadStateComplete:
-                self.progress = 1.0;
-                break;
-            default:
-                break;
-        }
-        [self backgroudIfNeeded];
+    _state = state;
+    switch (state) {
+        case DownloadStateComplete:
+            self.progress = 1.0;
+            break;
+        default:
+            break;
     }
+    [self backgroudIfNeeded];
 }
 
 - (void)backgroudIfNeeded {
@@ -134,7 +134,6 @@
 
 - (void)resume {
     [_downloadItem resume];
-    self.state = DownloadStatePending;
 }
 
 - (void)cancel {

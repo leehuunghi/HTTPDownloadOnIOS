@@ -58,6 +58,7 @@
 #pragma mark - implement DownloadItemModel
 
 - (void)resume {
+    self.state = DownloadStatePending;
     [self.downloaderDelegate itemWillStartDownload:self];
 }
 
@@ -80,10 +81,10 @@
 }
 
 - (void)restart {
+    [self pause];
     [self.downloadTask cancel];
     self.downloadTask = nil;
     [self resume];
-    self.state = DownloadStatePending;
 }
 
 - (void)open {
