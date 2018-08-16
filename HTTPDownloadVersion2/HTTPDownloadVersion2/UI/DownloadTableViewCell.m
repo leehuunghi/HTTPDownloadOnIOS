@@ -53,7 +53,8 @@
 }
 
 + (TableViewCellModel *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
-    TableViewCellModel *cell = [tableView dequeueReusableCellWithIdentifier:@"DownloadTableViewCell"];
+    static NSString *cellIdentifier = @"DownloadTableViewCell";
+    TableViewCellModel *cell = [tableView dequeueReusableCellWithIdentifier:cellIdentifier];
     //cell.selectionStyle = UITableViewCellSelectionStyleNone;
     return cell;
 }
@@ -95,10 +96,29 @@
         case DownloadStateError:
             [tableView removeCell:self.cellObject];
             break;
+        case DownloadStateComplete: {
+            __weak typeof(self)weakSelf = self;
+            UIAlertController* alert = [UIAlertController alertControllerWithTitle:@"Cancel" message:@"Do you want to delete downloaded file?" preferredStyle:UIAlertControllerStyleAlert];
             
+            UIAlertAction* exitAction = [UIAlertAction actionWithTitle:@"Yes" style:UIAlertActionStyleDefault handler:^(UIAlertAction * action) {
+                [weakSelf.cellObject cancel];
+                [tableView removeCell:self.cellObject];
+            }];
+            
+            UIAlertAction* comebackAction = [UIAlertAction actionWithTitle:@"No" style:UIAlertActionStyleDefault handler:^(UIAlertAction * action) {
+                [weakSelf.cellObject cancel];
+                [tableView removeCell:self.cellObject];
+            }];
+            
+            [alert addAction:exitAction];
+            [alert addAction:comebackAction];
+            UIViewController *viewCotroller = [UIApplication sharedApplication].windows[0].rootViewController;
+            [viewCotroller presentViewController:alert animated:YES completion:nil];
+            break;
+        }
         default: {
             __weak typeof(self)weakSelf = self;
-            UIAlertController* alert = [UIAlertController alertControllerWithTitle:@"Cancel" message:@"Do you want cancel download this file?" preferredStyle:UIAlertControllerStyleAlert];
+            UIAlertController* alert = [UIAlertController alertControllerWithTitle:@"Cancel" message:@"Do you want to cancel downloading this file?\nWhich will remove downloaded data" preferredStyle:UIAlertControllerStyleAlert];
             
             UIAlertAction* exitAction = [UIAlertAction actionWithTitle:@"Yes" style:UIAlertActionStyleDefault handler:^(UIAlertAction * action) {
                 [weakSelf.cellObject cancel];
@@ -117,16 +137,48 @@
 }
 
 - (IBAction)pauseButtonTouch:(id)sender {
-    [_cellObject pause];
+    if (_cellObject) {
+        [_cellObject pause];
+    }
 }
 
 - (IBAction)resumeButtonTouch:(id)sender {
-    [_cellObject resume];
+    if (_cellObject) {
+        [_cellObject resume];
+    }
 }
 
 - (IBAction)restartButtonClick:(id)sender {
-    [_progressView setHidden:NO];
-    [_cellObject restart];
+    if (!_cellObject) {
+        return;
+    }
+    
+    switch (_cellObject.state) {
+        case DownloadStateError:
+            [_progressView setHidden:NO];
+            [_cellObject restart];
+            break;
+            
+        default: {
+//            [_progressView setHidden:NO];
+//            [_cellObject restart];
+            __weak typeof(self)weakSelf = self;
+            UIAlertController* alert = [UIAlertController alertControllerWithTitle:@"Restart" message:@"Do you want to predownload this file?\nWhich will remove downloaded data" preferredStyle:UIAlertControllerStyleAlert];
+            
+            UIAlertAction* exitAction = [UIAlertAction actionWithTitle:@"Yes" style:UIAlertActionStyleDefault handler:^(UIAlertAction * action) {
+                [weakSelf.progressView setHidden:NO];
+                [weakSelf.cellObject restart];
+            }];
+            
+            UIAlertAction* comebackAction = [UIAlertAction actionWithTitle:@"No" style:UIAlertActionStyleDefault handler:^(UIAlertAction * action) {}];
+            
+            [alert addAction:exitAction];
+            [alert addAction:comebackAction];
+            UIViewController *viewCotroller = [UIApplication sharedApplication].windows[0].rootViewController;
+            [viewCotroller presentViewController:alert animated:YES completion:nil];
+            break;
+        }
+    }
 }
 
 #pragma mark - state
