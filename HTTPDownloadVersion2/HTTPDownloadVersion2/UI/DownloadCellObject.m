@@ -90,7 +90,6 @@
     
     if (_state != state) {
         _state = state;
-        _downloadItem.state = state;
         switch (state) {
             case DownloadStateComplete:
                 self.progress = 1.0;

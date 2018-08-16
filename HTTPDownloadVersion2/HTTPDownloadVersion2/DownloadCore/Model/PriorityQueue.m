@@ -115,7 +115,7 @@
     dispatch_sync(self.concurrentQueue, ^{
         for (id obj in weakSelf.arrayHigh) {
             if (obj == object) {
-                dispatch_barrier_sync(self.concurrentQueue, ^{
+                dispatch_barrier_async(self.concurrentQueue, ^{
                     [weakSelf.arrayHigh removeObject:object];
                 });
             }

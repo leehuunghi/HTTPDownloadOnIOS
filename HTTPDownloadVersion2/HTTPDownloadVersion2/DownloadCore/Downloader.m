@@ -80,6 +80,7 @@
         [self checkURL:urlString completion:^(NSError *error) {
             if (error) {
                 [item.delegate itemDidFinishDownload:NO withError:error];
+                item.state = DownloadItemStateError;
             } else {
                 NSURL *url = [NSURL URLWithString:urlString];
                 
@@ -238,14 +239,17 @@ totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
                     } else {
                         item.downloadState = DownloadItemStateError;
                         [item.delegate itemDidFinishDownload:NO withError:error];
+                        item.state = DownloadStateError;
                     }
                 } else {
                     if (httpRespone.statusCode/100==2) {
                         item.downloadState = DownloadItemStateComplete;
                         [item.delegate itemDidFinishDownload:YES withError:nil];
+                        item.state = DownloadStateComplete;
                     } else {
                         item.downloadState = DownloadItemStateError;
                         [item.delegate itemDidFinishDownload:NO withError:[NSError errorWithDomain:@"ServerError" code:[(NSHTTPURLResponse*)(task.response) statusCode] userInfo:nil]];
+                        item.state = DownloadStateError;
                     }
                 }
                 
