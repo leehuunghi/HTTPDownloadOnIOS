@@ -41,6 +41,8 @@ typedef NS_ENUM(NSUInteger, DownloadItemState) {
 
 @property (nonatomic, retain) id<DownloaderDelegate> downloaderDelegate;
 
+- (void)updateProgressWithTotalBytesWritten:(int64_t)totalBytesWritten andTotalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite;
+
 - (void)reallyResume;
 
 - (NSData *)transToData;

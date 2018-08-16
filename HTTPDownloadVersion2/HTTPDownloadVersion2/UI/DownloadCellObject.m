@@ -84,10 +84,6 @@
 }
 
 - (void)setState:(DownloadState)state {
-    if (_state == DownloadStateComplete) {
-        return;
-    }
-    
     if (_state != state) {
         _state = state;
         switch (state) {
@@ -163,7 +159,7 @@
     
 }
 
-#pragma delegate
+#pragma mark - delegate
 
 - (void)downloadStateDidUpdate {
     if (_downloadItem) {
@@ -171,23 +167,15 @@
     }
 }
 
-- (void)itemDidUpdateTotalBytesWritten:(int64_t)totalBytesWritten andTotalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
-    [self progressDidUpdate:totalBytesWritten total:totalBytesExpectedToWrite];
-}
-
-- (void)itemDidUpdateProgress:(NSProgress *)progress {
-    [self progressDidUpdate:progress.completedUnitCount total:progress.totalUnitCount];
-}
-
-- (void)progressDidUpdate:(NSUInteger)currentSize total:(NSUInteger)totalSize {
-    if (_state != DownloadStateDownloading) {
+- (void)downloadProgressDidUpdate {
+    if (_state != DownloadStateDownloading || !_downloadItem) {
         return;
     }
-    if (totalSize > 0) {
-        self.progressString = [NSString stringWithFormat:@"%ld/%ld B", currentSize, totalSize];
-        self.progress = (float)currentSize / totalSize;
+    if (_downloadItem.totalBytesExpectedToWrite > 0) {
+        self.progressString = [NSString stringWithFormat:@"%lld/%lld B", _downloadItem.totalBytesWritten, _downloadItem.totalBytesExpectedToWrite];
+        self.progress = (float)_downloadItem.totalBytesWritten / _downloadItem.totalBytesExpectedToWrite;
     } else {
-        self.progressString = [NSString stringWithFormat:@"%ld B", currentSize];
+        self.progressString = [NSString stringWithFormat:@"%lld B", _downloadItem.totalBytesWritten];
     }
 }
 

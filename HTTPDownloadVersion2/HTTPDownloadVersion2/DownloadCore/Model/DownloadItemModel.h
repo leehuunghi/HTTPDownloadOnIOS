@@ -31,14 +31,6 @@ typedef NS_ENUM(NSUInteger, DownloadState) {
  */
 - (void)downloadProgressDidUpdate;
 
-/**
- It will be call every progress of download item is updated
-
- @param totalBytesWritten total bytes downloaded
- @param totalBytesExpectedToWrite total bytes of download file
- */
-- (void)itemDidUpdateTotalBytesWritten:(int64_t)totalBytesWritten andTotalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite;
-
 @end
 
 
