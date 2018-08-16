@@ -73,9 +73,6 @@
 }
 
 - (void)cancel {
-    if (self.downloadTask.state == NSURLSessionTaskStateRunning) {
-        [self pause];
-    }
     [self.downloaderDelegate itemWillCancelDownload:self];
     [self.downloadTask cancel];
 }

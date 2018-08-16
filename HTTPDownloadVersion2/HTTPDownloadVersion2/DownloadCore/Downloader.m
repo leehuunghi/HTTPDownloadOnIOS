@@ -135,9 +135,7 @@
 - (void)itemWillCancelDownload:(DownloadItem *)downloadItem {
     if (downloadItem) {
         [_downloadItems removeObject:downloadItem];
-        if (downloadItem.downloadTask.state == NSURLSessionTaskStateRunning) {
-            [_downloadingItems removeObject:downloadItem];
-        } else {
+        if (downloadItem.downloadTask.state != NSURLSessionTaskStateRunning) {
             [_priorityQueue removeObject:downloadItem withPriority:downloadItem.downloadPriority];
         }
     }
