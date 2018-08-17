@@ -7,32 +7,7 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "DownloadPriority.h"
-
-typedef NS_ENUM(NSUInteger, DownloadState) {
-    DownloadStatePending = 0,
-    DownloadStateDownloading,
-    DownloadStatePause,
-    DownloadStateComplete,
-    DownloadStateError
-};
-
-@protocol DownloadItemDelegate <NSObject>
-
-@optional
-
-/**
- It will be call every Download Item update state
- */
-- (void)downloadStateDidUpdate;
-
-/**
- It will be call every Download Item update process
- */
-- (void)downloadProgressDidUpdate;
-
-@end
-
+#import "DownloadEnumType.h"
 
 @interface DownloadItemModel : NSObject
 
@@ -65,41 +40,6 @@ typedef NS_ENUM(NSUInteger, DownloadState) {
  Total bytes of file download
  */
 @property (nonatomic) int64_t totalBytesExpectedToWrite;
-
-/**
- Delegate to do something with every state of download file
- */
-@property (nonatomic, retain) id<DownloadItemDelegate> delegate;
-
-/**
- Switch background download and foreground download
- */
-- (void)suppend;
-
-/**
- Resume download item
- */
-- (void)resume;
-
-/**
- Pause download item
- */
-- (void)pause;
-
-/**
- Cancel download. If downloaded will ask user to delete downloaded file
- */
-- (void)cancel;
-
-/**
- Restart download
- */
-- (void)restart;
-
-/**
- Open file if file downloaded
- */
-- (void)open;
 
 
 @end

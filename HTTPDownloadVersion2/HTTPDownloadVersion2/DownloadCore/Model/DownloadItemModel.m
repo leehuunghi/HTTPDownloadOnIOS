@@ -44,12 +44,4 @@
     
 }
 
--(void)setState:(DownloadState)state {
-    _state = state;
-    if (_delegate && [_delegate respondsToSelector:@selector(downloadStateDidUpdate)]) {
-        [_delegate downloadStateDidUpdate];
-    }
-    
-}
-
 @end

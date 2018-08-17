@@ -15,4 +15,12 @@ typedef NS_ENUM(NSInteger, DownloadPriority){
     DownloadPriorityHigh = 2
 };
 
+typedef NS_ENUM(NSUInteger, DownloadState) {
+    DownloadStatePending = 0,
+    DownloadStateDownloading,
+    DownloadStatePause,
+    DownloadStateComplete,
+    DownloadStateError
+};
+
 #endif /* DownloadPriority_h */

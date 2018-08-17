@@ -7,7 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "DownloadPriority.h"
+#import "DownloadEnumType.h"
 
 @interface PriorityQueue : NSObject
 

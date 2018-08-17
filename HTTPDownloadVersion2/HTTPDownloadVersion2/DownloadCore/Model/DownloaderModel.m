@@ -46,5 +46,31 @@
     
 }
 
+#pragma mark - single
+
+- (void)resumeDownloadWithIdentifier:(NSString *)identifier {
+    
+}
+
+- (void)pauseDownloadWithIdentifier:(NSString *)identifier {
+    
+}
+
+- (void)cancelDownloadWithIdentifier:(NSString *)identifier {
+    
+}
+
+- (void)restartDownloadWithIdentifier:(NSString *)identifier {
+    
+}
+
+- (void)openDownloadedFileWithIdentifier:(NSString *)identifier {
+    
+}
+
+- (void)removeDownloadedFileWithIdentifier:(NSString *)identifier {
+    
+}
+
 
 @end
