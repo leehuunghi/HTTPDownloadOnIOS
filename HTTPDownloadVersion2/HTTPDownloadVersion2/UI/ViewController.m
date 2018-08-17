@@ -39,18 +39,18 @@
 }
 
 - (void)loadCore {
-    _downloader = [Downloader new];
+    _downloader = [DownloaderSingleton shareIntance].downloader;
     
 }
 
 - (void)loadData {
-    NSArray *historyDownload = [_downloader loadData];
     NSMutableArray *cellObjects = [NSMutableArray new];
-    for (DownloadItemModel *item in historyDownload) {
-        DownloadCellObject *cellObject = [[DownloadCellObject alloc] initWithDownloadItem:item];
-        [cellObjects insertObject:cellObject atIndex:0];
-        item.delegate = cellObject;
-    }
+//    NSArray *historyDownload = [_downloader loadData];
+//    for (DownloadItemModel *item in historyDownload) {
+//        DownloadCellObject *cellObject = [[DownloadCellObject alloc] initWithDownloadItem:item];
+//        [cellObjects insertObject:cellObject atIndex:0];
+//        item.delegate = cellObject;
+//    }
     _downloadTableView.cellObjects = cellObjects;
     
     self.staticArr = @[
@@ -83,24 +83,15 @@
     if(_count >= [self.staticArr count]) _count = 0;
     //    _urlInputTextField.text = @"";
     if (url.length > 0) {
-        __weak __typeof(self) weakSelf = self;
+       
         DownloadPriority priority = _prioritySegmented.selectedSegmentIndex;
-        
-        [weakSelf.downloader createDownloadItemWithUrl:url priority:priority completion:^(DownloadItemModel *downloadItem, NSError *error) {
-            if (downloadItem && downloadItem.delegate && [downloadItem.delegate isKindOfClass:[CellObjectModel class]]) {
-                CellObjectModel *cellObject = downloadItem.delegate;
-                [weakSelf.downloadTableView moveCellToHead:cellObject];
-            } else {
-                DownloadCellObject *cellObject = [DownloadCellObject new];
-                cellObject.priority = priority;
-                cellObject.title = [ViewController getNameInURL:url];
-                [weakSelf.downloadTableView addCell:cellObject];
-                if (error) {
-                    cellObject.state = DownloadStateError;
-                } else {
-                    cellObject.downloadItem = downloadItem;
-                    downloadItem.delegate = cellObject;
-                }
+        DownloadCellObject *cellObject = [DownloadCellObject new];
+        cellObject.priority = priority;
+        cellObject.title = [url lastPathComponent];
+        [_downloader createDownloadItemWithUrl:url priority:priority delegate:cellObject completion:^(NSString *identifier, NSError *error) {
+            cellObject.identifier = identifier;
+            if (error) {
+                
             }
         }];
     }

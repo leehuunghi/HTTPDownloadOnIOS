@@ -24,7 +24,6 @@
 - (void)updateProgressWithTotalBytesWritten:(int64_t)totalBytesWritten andTotalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
     self.totalBytesWritten = totalBytesWritten;
     self.totalBytesExpectedToWrite = totalBytesExpectedToWrite;
-    [self.delegate downloadProgressDidUpdate];
 }
 
 - (void)reallyResume {

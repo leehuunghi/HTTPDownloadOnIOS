@@ -10,15 +10,14 @@
 
 @implementation DownloaderModel
 
-- (void)createDownloadItemWithUrl:(NSString *)urlString completion:(void (^)(DownloadItemModel *downloadItem, NSError *error))completion {
-    [self createDownloadItemWithUrl:urlString priority:DownloadPriorityMedium completion:completion];
+- (void)createDownloadItemWithUrl:(NSString *)urlString filePath:(NSString *)filePath priority:(DownloadPriority)priority delegate:(id<DownloadItemDelegate>)delegate completion:(void (^)(NSString *identifier, NSError *error))completion {
 }
 
-- (void)createDownloadItemWithUrl:(NSString *)urlString priority:(DownloadPriority)priority completion:(void (^)(DownloadItemModel *downloadItem, NSError *error))completion {
-    [self createDownloadItemWithUrl:urlString filePath:nil priority:priority completion:completion];
+- (void)createDownloadItemWithUrl:(NSString *)urlString priority:(DownloadPriority)priority delegate:(id<DownloadItemDelegate>)delegate completion:(void (^)(NSString *identifier, NSError *error))completion {
+    
 }
 
-- (void)createDownloadItemWithUrl:(NSString *)urlString filePath:(NSString *)filePath priority:(DownloadPriority)priority completion:(void (^)(DownloadItemModel *downloadItem, NSError *error))completion {
+- (void)createDownloadItemWithUrl:(NSString *)urlString delegate:(id<DownloadItemDelegate>)delegate completion:(void (^)(NSString *identifier, NSError *error))completion {
     
 }
 
@@ -72,5 +71,12 @@
     
 }
 
+- (void)getFileNameWithIdentifier:(NSString *)identifier {
+    
+}
+
+- (void)setDelegateForIdentifier:(NSString *)identifier {
+    
+}
 
 @end

@@ -11,7 +11,7 @@
 
 @implementation DownloaderSingleton
 
-+ (DownloaderSingleton *)shareDownloader {
++ (DownloaderSingleton *)shareIntance {
     static DownloaderSingleton *intance;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
