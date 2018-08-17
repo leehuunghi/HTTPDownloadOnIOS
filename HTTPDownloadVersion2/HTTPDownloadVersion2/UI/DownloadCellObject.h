@@ -7,11 +7,15 @@
 //
 
 #import "CellObjectModel.h"
-#import "DownloadItemModel.h"
+#import "DownloadItemDelegate.h"
+#import "DownloaderSingleton.h"
+
 
 @class DownloadTableViewCell;
 
 @interface DownloadCellObject : CellObjectModel <DownloadItemDelegate>
+
+@property (readwrite, nonatomic) NSString *identifier;
 
 @property (readwrite, nonatomic, strong) NSString *title;
 
@@ -25,11 +29,7 @@
 
 @property (readwrite, nonatomic, weak) DownloadTableViewCell *cell;
 
-@property (readwrite, nonatomic, strong) DownloadItemModel *downloadItem;
-
 - (instancetype)init;
-
-- (instancetype)initWithDownloadItem:(DownloadItemModel *)downloadItem;
 
 - (void)pause;
 

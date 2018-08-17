@@ -20,7 +20,7 @@
  @param priority priority to set oder in download item
  @param completion callback block to return Download Item Model and error
  */
-- (void)createDownloadItemWithUrl:(NSString *)urlString filePath:(NSString *)filePath priority:(DownloadPriority)priority delegate:(id<DownloadItemDelegate>)delegate completion:(void (^)(NSUInteger identifier, NSError *error))completion;
+- (void)createDownloadItemWithUrl:(NSString *)urlString filePath:(NSString *)filePath priority:(DownloadPriority)priority delegate:(id<DownloadItemDelegate>)delegate completion:(void (^)(NSString *identifier, NSError *error))completion;
 
 /**
  Create a Download Item Model with default file path
@@ -29,7 +29,7 @@
  @param priority priority to set oder in download item
  @param completion callback block to return Download Item Model and error
  */
-- (void)createDownloadItemWithUrl:(NSString *)urlString priority:(DownloadPriority)priority delegate:(id<DownloadItemDelegate>)delegate completion:(void (^)(NSUInteger identifier, NSError *error))completion;
+- (void)createDownloadItemWithUrl:(NSString *)urlString priority:(DownloadPriority)priority delegate:(id<DownloadItemDelegate>)delegate completion:(void (^)(NSString *identifier, NSError *error))completion;
 
 /**
  Create a Download Item Model with default file path and medium priority
@@ -37,7 +37,7 @@
  @param urlString url link to file will download
  @param completion callback block to return Download Item Model and error
  */
-- (void)createDownloadItemWithUrl:(NSString *)urlString delegate:(id<DownloadItemDelegate>)delegate completion:(void (^)(NSUInteger identifier, NSError *error))completion;
+- (void)createDownloadItemWithUrl:(NSString *)urlString delegate:(id<DownloadItemDelegate>)delegate completion:(void (^)(NSString *identifier, NSError *error))completion;
 
 /**
  Cancel all download
@@ -69,7 +69,7 @@
  @param urlString is link to file need download
  @param completion callback block to return error
  */
-- (void)checkURL:(NSString*)urlString completion:(void (^)(NSError* error))completion;
+- (void)checkURL:(NSString *)urlString completion:(void (^)(NSError* error))completion;
 
 
 //action

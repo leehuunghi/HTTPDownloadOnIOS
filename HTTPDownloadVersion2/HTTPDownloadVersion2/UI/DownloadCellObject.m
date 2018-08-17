@@ -29,31 +29,6 @@
     return self;
 }
 
-- (instancetype)initWithDownloadItem:(DownloadItemModel *)downloadItem {
-    self = [self init];
-    if (self) {
-        _state = downloadItem.state;
-        if (downloadItem.filePath) {
-            _title = [downloadItem.filePath lastPathComponent];
-        } else {
-            _title = [downloadItem.url lastPathComponent];
-        }
-        _priority = downloadItem.downloadPriority;
-        _downloadItem = downloadItem;
-        
-        if (_downloadItem.totalBytesExpectedToWrite > 0) {
-            _progress = (float)_downloadItem.totalBytesWritten / _downloadItem.totalBytesExpectedToWrite;
-        }
-        
-        downloadItem.delegate = self;
-        if (downloadItem.state == DownloadStatePending) {
-            [downloadItem resume];
-        }
-        
-    }
-    return self;
-}
-
 - (NSUInteger)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
     return 80;
 }
@@ -134,22 +109,35 @@
 }
 
 - (void)pause {
-    [_downloadItem pause];
+    DownloaderModel *downloader = [DownloaderSingleton shareIntance].downloader;
+    [downloader pauseDownloadWithIdentifier:_identifier];
 }
 
 - (void)resume {
-    [_downloadItem resume];
+    DownloaderModel *downloader = [DownloaderSingleton shareIntance].downloader;
+    [downloader resumeDownloadWithIdentifier:_identifier];
 }
 
 - (void)cancel {
-    [_downloadItem cancel];
+    DownloaderModel *downloader = [DownloaderSingleton shareIntance].downloader;
+    [downloader cancelDownloadWithIdentifier:_identifier];
 }
 
 - (void)restart {
-    _state = DownloadStatePending;
-    self.progress = 0; 
-    [_downloadItem restart];
+    DownloaderModel *downloader = [DownloaderSingleton shareIntance].downloader;
+    [downloader restartDownloadWithIdentifier:_identifier];
 }
+
+- (void)openFile {
+    DownloaderModel *downloader = [DownloaderSingleton shareIntance].downloader;
+    [downloader openDownloadedFileWithIdentifier:_identifier];
+}
+
+- (void)removeFile {
+    DownloaderModel *downloader = [DownloaderSingleton shareIntance].downloader;
+    [downloader removeDownloadedFileWithIdentifier:_identifier];
+}
+
 
 - (void)upPriority {
     
@@ -159,31 +147,28 @@
     
 }
 
-- (void)openFile {
+
+#pragma mark - DownloadItemDelegate
+
+- (void)downloadStateDidUpdate:(DownloadState)state {
+    self.state = state;
+}
+
+- (void)downloadErrorWithError:(NSError *)error {
+    self.progressString = [NSString stringWithFormat:@"Error %ld", error.code];
+}
+
+- (void)downloadProgressDidUpdateWithTotalByteWritten:(int64_t)totalBytesWritten andTotalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
     
-}
-
-#pragma mark - delegate
-
-- (void)downloadStateDidUpdate {
-    if (_downloadItem) {
-        self.state = _downloadItem.state;
-    }
-}
-
-- (void)downloadProgressDidUpdate {
-    if (_state != DownloadStateDownloading || !_downloadItem) {
-        return;
-    }
-    if (_downloadItem.totalBytesExpectedToWrite > 0) {
-        self.progressString = [NSString stringWithFormat:@"%lld/%lld B", _downloadItem.totalBytesWritten, _downloadItem.totalBytesExpectedToWrite];
-        self.progress = (float)_downloadItem.totalBytesWritten / _downloadItem.totalBytesExpectedToWrite;
+    if (totalBytesExpectedToWrite > 0) {
+        self.progressString = [NSString stringWithFormat:@"%lld/%lld B", totalBytesWritten, totalBytesExpectedToWrite];
+        self.progress = (float)totalBytesWritten / totalBytesExpectedToWrite;
     } else {
-        self.progressString = [NSString stringWithFormat:@"%lld B", _downloadItem.totalBytesWritten];
+        self.progressString = [NSString stringWithFormat:@"%lld B", totalBytesWritten];
     }
 }
 
-# pragma constant
+#pragma mark - constant
 
 + (UIColor *)successColor {
     static UIColor *successColor;
