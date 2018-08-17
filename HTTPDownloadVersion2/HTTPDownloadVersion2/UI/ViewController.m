@@ -30,7 +30,6 @@
     
     [self loadCore];
     [self loadData];
-    [self loadUI];
 }
 
 - (void)didReceiveMemoryWarning {
@@ -39,19 +38,21 @@
 }
 
 - (void)loadCore {
-    _downloader = [DownloaderSingleton shareIntance].downloader;
+    _downloader = [Downloader new];
+    [DownloaderSingleton shareIntance].downloader = _downloader;
     
 }
 
 - (void)loadData {
-    NSMutableArray *cellObjects = [NSMutableArray new];
-//    NSArray *historyDownload = [_downloader loadData];
-//    for (DownloadItemModel *item in historyDownload) {
-//        DownloadCellObject *cellObject = [[DownloadCellObject alloc] initWithDownloadItem:item];
-//        [cellObjects insertObject:cellObject atIndex:0];
-//        item.delegate = cellObject;
-//    }
-    _downloadTableView.cellObjects = cellObjects;
+    
+    NSArray *historyDownload = [_downloader loadData];
+    for (NSString *identifier in historyDownload) {
+        DownloadCellObject *cellObject = [DownloadCellObject new];
+        cellObject.identifier = identifier;
+        cellObject.title = [_downloader getFileNameWithIdentifier:identifier];
+        [_downloader setDelegate:cellObject forIdentifier:identifier];
+        [_downloadTableView addCell:cellObject];
+    }
     
     self.staticArr = @[
                        @"http://www.vietnamvisaonentry.com/file/2014/06/coconut-tree.jpg",
@@ -70,10 +71,6 @@
                        @"https://speed.hetzner.de/10GB.bin"
                        ];
     _count = 0;
-    
-}
-
-- (void)loadUI {
     
 }
 

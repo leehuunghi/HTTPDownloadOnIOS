@@ -64,7 +64,7 @@
 - (NSArray *)loadData;
 
 /**
- check link url can download
+ Check link url can download
 
  @param urlString is link to file need download
  @param completion callback block to return error
@@ -72,7 +72,7 @@
 - (void)checkURL:(NSString *)urlString completion:(void (^)(NSError* error))completion;
 
 
-//action
+// Action
 - (void)resumeDownloadWithIdentifier:(NSString *)identifier;
 
 - (void)pauseDownloadWithIdentifier:(NSString *)identifier;
@@ -86,6 +86,8 @@
 - (void)removeDownloadedFileWithIdentifier:(NSString *)identifier;
 
 //
-- (void)setDelegateForIdentifier:(NSString *)identifier;
+- (NSString *)getFileNameWithIdentifier:(NSString *)identifier;
+
+- (void)setDelegate:(id<DownloadItemDelegate>)delegate forIdentifier:(NSString *)identifier;
 
 @end

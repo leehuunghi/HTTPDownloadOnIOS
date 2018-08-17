@@ -71,11 +71,11 @@
     
 }
 
-- (void)getFileNameWithIdentifier:(NSString *)identifier {
-    
+- (NSString *)getFileNameWithIdentifier:(NSString *)identifier {
+    return nil;
 }
 
-- (void)setDelegateForIdentifier:(NSString *)identifier {
+- (void)setDelegate:(id<DownloadItemDelegate>)delegate forIdentifier:(NSString *)identifier {
     
 }
 
