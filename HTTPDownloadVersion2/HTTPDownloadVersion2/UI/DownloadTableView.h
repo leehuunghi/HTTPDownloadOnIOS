@@ -21,8 +21,6 @@ static NSString *const DownloadErrorDomain = @"com.download.contact";
 
 @interface DownloadTableView : TableViewModel
 
-@property (strong, nonatomic, readwrite) NSMutableArray *downloadArray;
-
 @property (nonatomic, readwrite) NSError *error;
 
 - (void)addCell:(CellObjectModel *)cellObject;
