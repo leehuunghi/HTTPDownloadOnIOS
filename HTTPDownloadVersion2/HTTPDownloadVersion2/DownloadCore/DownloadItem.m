@@ -26,7 +26,9 @@
     self.totalBytesWritten = totalBytesWritten;
     self.totalBytesExpectedToWrite = totalBytesExpectedToWrite;
     for (id<DownloadItemDelegate> delegate in _downloadItemDelegates) {
-        [delegate downloadProgressDidUpdateWithTotalByteWritten:totalBytesWritten andTotalBytesExpectedToWrite:totalBytesExpectedToWrite];
+        if (delegate && [delegate respondsToSelector:@selector(downloadProgressDidUpdateWithTotalByteWritten:andTotalBytesExpectedToWrite:)]) {
+            [delegate downloadProgressDidUpdateWithTotalByteWritten:totalBytesWritten andTotalBytesExpectedToWrite:totalBytesExpectedToWrite];
+        }
     }
 }
 
@@ -68,10 +70,12 @@
 
 - (void)resume {
     [self.downloadTask resume];
+    [self getState];
 }
 
 - (void)pause {
     [self.downloadTask suspend];
+    [self getState];
 }
 
 - (void)cancel {

@@ -70,6 +70,10 @@
         case DownloadStateComplete:
             self.progress = 1.0;
             break;
+        case DownloadStateCancel:
+            self.title = @"cancel!";
+            self.progress = 0;
+            break;
         default:
             break;
     }
