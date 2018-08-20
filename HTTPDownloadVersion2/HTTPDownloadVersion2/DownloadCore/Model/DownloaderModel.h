@@ -29,7 +29,7 @@
  @param priority priority to set oder in download item
  @param completion callback block to return Download Item Model and error
  */
-- (void)createDownloadItemWithUrl:(NSString *)urlString priority:(DownloadPriority)priority delegate:(id<DownloadItemDelegate>)delegate completion:(void (^)(NSString *identifier, NSError *error))completion;
+- (void)downloadWithUrl:(NSString *)urlString priority:(DownloadPriority)priority delegate:(id<DownloadItemDelegate>)delegate completion:(void (^)(NSString *identifier, NSError *error))completion;
 
 /**
  Create a Download Item Model with default file path and medium priority

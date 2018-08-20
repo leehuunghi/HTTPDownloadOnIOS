@@ -132,7 +132,7 @@
 - (void)enqueueItem:(DownloadItem *)downloadItem {
     if (downloadItem) {
         __weak typeof(self) weakSelf = self;
-        dispatch_async(self.concurrentQueue, ^{
+        dispatch_barrier_async(self.concurrentQueue, ^{
             if (downloadItem.state == DownloadStatePending || downloadItem.state == DownloadStatePause) {
                 [weakSelf.priorityQueue addObject:downloadItem withPriority:downloadItem.downloadPriority];
                 [weakSelf dequeueItem];
@@ -226,7 +226,8 @@ totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
             }
         }
         __weak typeof(self) weakSelf = self;
-        dispatch_async(_concurrentQueue, ^{
+        dispatch_barrier_async(_concurrentQueue, ^{
+            weakSelf.downloadingCount--;
             [weakSelf.downloadItems removeObjectForKey:item.url];
             [self dequeueItem];
         });

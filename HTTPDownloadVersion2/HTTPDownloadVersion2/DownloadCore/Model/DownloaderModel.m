@@ -13,7 +13,7 @@
 - (void)createDownloadItemWithUrl:(NSString *)urlString filePath:(NSString *)filePath priority:(DownloadPriority)priority delegate:(id<DownloadItemDelegate>)delegate completion:(void (^)(NSString *identifier, NSError *error))completion {
 }
 
-- (void)createDownloadItemWithUrl:(NSString *)urlString priority:(DownloadPriority)priority delegate:(id<DownloadItemDelegate>)delegate completion:(void (^)(NSString *identifier, NSError *error))completion {
+- (void)downloadWithUrl:(NSString *)urlString priority:(DownloadPriority)priority delegate:(id<DownloadItemDelegate>)delegate completion:(void (^)(NSString *identifier, NSError *error))completion {
     [self createDownloadItemWithUrl:urlString filePath:nil priority:priority delegate:delegate completion:completion];
 }
 

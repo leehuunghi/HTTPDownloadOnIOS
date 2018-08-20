@@ -71,15 +71,9 @@
 
 - (void)pause {
     [self.downloadTask suspend];
-    for (id<DownloadItemDelegate> delegate in self.downloadItemDelegates) {
-        //        [delegate downloadErrorWithError:<#(NSError *)#>];
-    }
 }
 
 - (void)cancel {
-    for (id<DownloadItemDelegate> delegate in self.downloadItemDelegates) {
-//        [delegate downloadErrorWithError:<#(NSError *)#>];
-    }
     [self.downloadTask cancel];
 }
 
@@ -118,10 +112,16 @@
             self.state = DownloadStateComplete;
             break;
         default:
-            self.state =DownloadStateError;
+            self.state = DownloadStateError;
             break;
     }
     return self.state;
 };
+
+- (void)setState:(DownloadState)state {
+    for (id<DownloadItemDelegate> delegate in self.downloadItemDelegates) {
+        [delegate downloadStateDidUpdate:state];
+    }
+}
 
 @end

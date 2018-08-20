@@ -85,7 +85,7 @@
         cellObject.priority = priority;
         cellObject.title = [url lastPathComponent];
         [_downloadTableView addCell:cellObject];
-        [_downloader createDownloadItemWithUrl:url priority:priority delegate:cellObject completion:^(NSString *identifier, NSError *error) {
+        [_downloader downloadWithUrl:url priority:priority delegate:cellObject completion:^(NSString *identifier, NSError *error) {
             cellObject.identifier = identifier;
             if (error) {
                 

@@ -20,7 +20,8 @@ typedef NS_ENUM(NSUInteger, DownloadState) {
     DownloadStateDownloading,
     DownloadStatePause,
     DownloadStateComplete,
-    DownloadStateError
+    DownloadStateError,
+    DownloadStateCancel
 };
 
 #endif /* DownloadPriority_h */
