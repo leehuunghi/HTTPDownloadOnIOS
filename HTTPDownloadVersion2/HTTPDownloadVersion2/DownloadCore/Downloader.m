@@ -55,52 +55,47 @@
 - (void)createDownloadItemWithUrl:(NSString *)urlString filePath:(NSString *)filePath priority:(DownloadPriority)priority delegate:(id<DownloadItemDelegate>)delegate completion:(void (^)(NSString *identifier, NSError *error))completion {
     __weak typeof(self)weakSelf = self;
     __block DownloadItem *downloadItem;
-    __block NSString *identifier;
-    dispatch_sync(self.concurrentQueue, ^{
-        downloadItem = [weakSelf.downloadItems objectForKey:urlString];
-        identifier = downloadItem.url;
-    });
-    
-    if (downloadItem) {
-        if (completion) {
-            dispatch_barrier_async(self.concurrentQueue, ^{
-                [downloadItem.downloadItemDelegates addObject:delegate];
-            });
-            completion(identifier, nil);
-        }
-        return;
-    }
-    
-    DownloadItem *item = [DownloadItem new];
-    item.downloadState = DownloadItemStatePending;
-    item.downloadPriority = priority;
-    item.url = urlString;
-    item.filePath = filePath;
-    
+    NSString *identifier = urlString;
     if (completion) {
         completion(identifier, nil);
     }
     
-    [self checkURL:urlString completion:^(NSError *error) {
-        if (error) {
-            item.state = DownloadItemStateError;
-        } else {
-            NSObject* resumeData = [NSUserDefaults.standardUserDefaults objectForKey:urlString];
-            if (resumeData) {
-                if ([resumeData isKindOfClass:[NSData class]]) {
-                    [weakSelf.userDefaults removeObjectForKey:downloadItem.url];
-                    downloadItem.downloadTask = [weakSelf.session downloadTaskWithResumeData:(NSData*)resumeData];
-                }
+    dispatch_sync(self.concurrentQueue, ^{
+        downloadItem = [weakSelf.downloadItems objectForKey:urlString];
+    });
+    
+    if (downloadItem) {
+        dispatch_barrier_async(self.concurrentQueue, ^{
+            [downloadItem.downloadItemDelegates addObject:delegate];
+        });
+    } else {
+        DownloadItem *item = [DownloadItem new];
+        item.downloadState = DownloadItemStatePending;
+        item.downloadPriority = priority;
+        item.url = urlString;
+        item.filePath = filePath;
+        
+        [self checkURL:urlString completion:^(NSError *error) {
+            if (error) {
+                item.state = DownloadItemStateError;
             } else {
-                NSURL *url = [NSURL URLWithString:downloadItem.url];
-                downloadItem.downloadTask = [weakSelf.session downloadTaskWithURL:url];
+                NSObject* resumeData = [NSUserDefaults.standardUserDefaults objectForKey:urlString];
+                if (resumeData) {
+                    if ([resumeData isKindOfClass:[NSData class]]) {
+                        [weakSelf.userDefaults removeObjectForKey:downloadItem.url];
+                        downloadItem.downloadTask = [weakSelf.session downloadTaskWithResumeData:(NSData*)resumeData];
+                    }
+                } else {
+                    NSURL *url = [NSURL URLWithString:downloadItem.url];
+                    downloadItem.downloadTask = [weakSelf.session downloadTaskWithURL:url];
+                }
+                dispatch_async(self.concurrentQueue, ^{
+                    [weakSelf.downloadItems setObject:item forKey:urlString];
+                });
+                [self enqueueItem:item];
             }
-            dispatch_async(self.concurrentQueue, ^{
-                [weakSelf.downloadItems setObject:item forKey:urlString];
-            });
-            [self enqueueItem:item];
-        }
-    }];
+        }];
+    }
 }
 
 - (void)checkURL:(NSString*)urlString completion:(void (^)(NSError* error))completion {

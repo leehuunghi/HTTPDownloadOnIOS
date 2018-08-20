@@ -40,7 +40,6 @@
 - (void)loadCore {
     _downloader = [Downloader new];
     [DownloaderSingleton shareIntance].downloader = _downloader;
-    
 }
 
 - (void)loadData {
@@ -80,7 +79,6 @@
     if(_count >= [self.staticArr count]) _count = 0;
     //    _urlInputTextField.text = @"";
     if (url.length > 0) {
-       
         DownloadPriority priority = _prioritySegmented.selectedSegmentIndex;
         DownloadCellObject *cellObject = [DownloadCellObject new];
         cellObject.priority = priority;

@@ -14,7 +14,7 @@
 }
 
 - (void)createDownloadItemWithUrl:(NSString *)urlString priority:(DownloadPriority)priority delegate:(id<DownloadItemDelegate>)delegate completion:(void (^)(NSString *identifier, NSError *error))completion {
-    
+    [self createDownloadItemWithUrl:urlString filePath:nil priority:priority delegate:delegate completion:completion];
 }
 
 - (void)createDownloadItemWithUrl:(NSString *)urlString delegate:(id<DownloadItemDelegate>)delegate completion:(void (^)(NSString *identifier, NSError *error))completion {
