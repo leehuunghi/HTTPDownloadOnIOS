@@ -71,14 +71,14 @@
             });
         } else {
             DownloadItem *item = [DownloadItem new];
-            item.downloadState = DownloadItemStatePending;
+            item.state = DownloadStatePending;
             item.downloadPriority = priority;
             item.url = urlString;
             item.filePath = filePath;
             item.downloadItemDelegates = [[NSMutableArray alloc] initWithArray:@[delegate]];
             [self checkURL:urlString completion:^(NSError *error) {
                 if (error) {
-                    item.state = DownloadItemStateError;
+                    item.state = DownloadStateError;
                     for (id<DownloadItemDelegate>delegateItem in item.downloadItemDelegates) {
                         [delegateItem downloadErrorWithError:error];
                     }
@@ -211,17 +211,14 @@ totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
                     return;
                 }
                 default: {
-                    item.downloadState = DownloadItemStateError;
                     item.state = DownloadStateError;
                     break;
                 }
             }
         } else {
             if (httpRespone.statusCode/100==2) {
-                item.downloadState = DownloadItemStateComplete;
                 item.state = DownloadStateComplete;
             } else {
-                item.downloadState = DownloadItemStateError;
                 item.state = DownloadStateError;
             }
         }
@@ -328,7 +325,7 @@ totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
             __weak typeof(self) weakSelf = self;
             dispatch_async(_concurrentQueue, ^{
                 [weakSelf.downloadItems removeObjectForKey:URLString];
-                if (downloadItem.state == DownloadItemStatePending) {
+                if (downloadItem.state == DownloadStatePending) {
                     [weakSelf.priorityQueue removeObject:downloadItem withPriority:downloadItem.downloadPriority];
                 }
                 [downloadItem cancel];

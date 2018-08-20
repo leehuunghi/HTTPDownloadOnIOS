@@ -7,8 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "DownloadItemModel.h"
-#import "Model/DownloadItemDelegate.h"
+#import "DownloadItemDelegate.h"
 
 @class DownloadItem;
 
@@ -26,17 +25,37 @@
 
 @end
 
-typedef NS_ENUM(NSUInteger, DownloadItemState) {
-    DownloadItemStatePending = 0,
-    DownloadItemStateDownloading,
-    DownloadItemStatePause,
-    DownloadItemStateComplete,
-    DownloadItemStateError
-};
+@interface DownloadItem : NSObject
 
-@interface DownloadItem : DownloadItemModel
+/**
+ A string content url to file download
+ */
+@property (nonatomic, strong) NSString *url;
 
-@property (nonatomic) DownloadItemState downloadState;
+/**
+ Position and  to save file after downloaded
+ */
+@property (nonatomic, strong) NSString *filePath;
+
+/**
+ State of download
+ */
+@property (nonatomic) DownloadState state;
+
+/**
+ Priority queue contain task repair to download
+ */
+@property (nonatomic) DownloadPriority downloadPriority;
+
+/**
+ Total bytes downloaded and written
+ */
+@property (nonatomic) int64_t totalBytesWritten;
+
+/**
+ Total bytes of file download
+ */
+@property (nonatomic) int64_t totalBytesExpectedToWrite;
 
 @property (nonatomic, strong) NSURLSessionDownloadTask* downloadTask;
 

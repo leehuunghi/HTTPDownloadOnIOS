@@ -7,6 +7,7 @@
 //
 
 #import "DownloadItem.h"
+#import <UIKit/UIKit.h>
 
 #define kURL @"url"
 #define kFilePath @"filePath"
@@ -119,8 +120,11 @@
 };
 
 - (void)setState:(DownloadState)state {
+    _state = state;
     for (id<DownloadItemDelegate> delegate in self.downloadItemDelegates) {
-        [delegate downloadStateDidUpdate:state];
+        if (delegate && [delegate respondsToSelector:@selector(downloadStateDidUpdate:)]) {
+            [delegate downloadStateDidUpdate:state];
+        }
     }
 }
 

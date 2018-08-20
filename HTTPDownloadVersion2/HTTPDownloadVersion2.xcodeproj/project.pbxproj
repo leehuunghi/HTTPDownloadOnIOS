@@ -25,7 +25,6 @@
 		933AA2932119836600CE94A0 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 933AA2822119836600CE94A0 /* main.m */; };
 		933AA2942119836600CE94A0 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 933AA2832119836600CE94A0 /* Main.storyboard */; };
 		933AA2982119891800CE94A0 /* DownloaderModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 933AA2972119891800CE94A0 /* DownloaderModel.m */; };
-		933AA29E2119897600CE94A0 /* DownloadItemModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 933AA29D2119897600CE94A0 /* DownloadItemModel.m */; };
 		9386120E2126B35200E690A6 /* DownloaderSingleton.m in Sources */ = {isa = PBXBuildFile; fileRef = 9386120D2126B35200E690A6 /* DownloaderSingleton.m */; };
 /* End PBXBuildFile section */
 
@@ -63,8 +62,6 @@
 		933AA2832119836600CE94A0 /* Main.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Main.storyboard; sourceTree = "<group>"; };
 		933AA2962119891800CE94A0 /* DownloaderModel.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DownloaderModel.h; sourceTree = "<group>"; };
 		933AA2972119891800CE94A0 /* DownloaderModel.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DownloaderModel.m; sourceTree = "<group>"; };
-		933AA29C2119897600CE94A0 /* DownloadItemModel.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DownloadItemModel.h; sourceTree = "<group>"; };
-		933AA29D2119897600CE94A0 /* DownloadItemModel.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DownloadItemModel.m; sourceTree = "<group>"; };
 		9386120B21269BB800E690A6 /* DownloadItemDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DownloadItemDelegate.h; sourceTree = "<group>"; };
 		9386120C2126B35200E690A6 /* DownloaderSingleton.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DownloaderSingleton.h; sourceTree = "<group>"; };
 		9386120D2126B35200E690A6 /* DownloaderSingleton.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DownloaderSingleton.m; sourceTree = "<group>"; };
@@ -147,8 +144,6 @@
 			children = (
 				933AA2962119891800CE94A0 /* DownloaderModel.h */,
 				933AA2972119891800CE94A0 /* DownloaderModel.m */,
-				933AA29C2119897600CE94A0 /* DownloadItemModel.h */,
-				933AA29D2119897600CE94A0 /* DownloadItemModel.m */,
 				933AA27A2119836600CE94A0 /* PriorityQueue.h */,
 				933AA27B2119836600CE94A0 /* PriorityQueue.m */,
 				A35C82972119AECF002D42B5 /* DownloadEnumType.h */,
@@ -274,7 +269,6 @@
 				933AA28C2119836600CE94A0 /* TableViewModel.m in Sources */,
 				933AA2872119836600CE94A0 /* InfomationTableViewObject.m in Sources */,
 				9386120E2126B35200E690A6 /* DownloaderSingleton.m in Sources */,
-				933AA29E2119897600CE94A0 /* DownloadItemModel.m in Sources */,
 				933AA2842119836600CE94A0 /* DownloadCellObject.m in Sources */,
 				933AA2882119836600CE94A0 /* InformationTableViewCell.m in Sources */,
 				933AA2932119836600CE94A0 /* main.m in Sources */,
