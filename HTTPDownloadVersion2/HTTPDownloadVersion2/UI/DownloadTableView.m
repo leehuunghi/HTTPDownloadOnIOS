@@ -19,14 +19,7 @@
 
 @synthesize cellObjects = _cellObjects;
 
-- (instancetype)init
-{
-    self = [super init];
-    if (self) {
-        _cellObjects = [NSMutableArray new];
-    }
-    return self;
-}
+
 
 - (void)setCellObjects:(NSMutableArray *)cellObjects {
     _cellObjects = cellObjects;

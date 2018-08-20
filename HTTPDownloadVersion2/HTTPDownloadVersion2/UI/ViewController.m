@@ -40,6 +40,7 @@
 - (void)loadCore {
     _downloader = [Downloader new];
     [DownloaderSingleton shareIntance].downloader = _downloader;
+    _downloadTableView.cellObjects = [NSMutableArray new];
 }
 
 - (void)loadData {
@@ -83,6 +84,7 @@
         DownloadCellObject *cellObject = [DownloadCellObject new];
         cellObject.priority = priority;
         cellObject.title = [url lastPathComponent];
+        [_downloadTableView addCell:cellObject];
         [_downloader createDownloadItemWithUrl:url priority:priority delegate:cellObject completion:^(NSString *identifier, NSError *error) {
             cellObject.identifier = identifier;
             if (error) {
