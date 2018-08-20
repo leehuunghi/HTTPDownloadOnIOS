@@ -54,9 +54,8 @@
 }
 
 - (void)setProgressString:(NSString *)progressString {
-    if (_state == DownloadStateDownloading) {
-        _progressString = progressString;
-    }
+
+    _progressString = progressString;
     if (_cell) {
         __weak __typeof(self) weakSelf = self;
         dispatch_async(dispatch_get_main_queue(), ^{
