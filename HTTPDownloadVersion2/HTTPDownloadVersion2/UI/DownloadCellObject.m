@@ -159,7 +159,6 @@
 }
 
 - (void)downloadProgressDidUpdateWithTotalByteWritten:(int64_t)totalBytesWritten andTotalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
-    
     if (totalBytesExpectedToWrite > 0) {
         self.progressString = [NSString stringWithFormat:@"%lld/%lld B", totalBytesWritten, totalBytesExpectedToWrite];
         self.progress = (float)totalBytesWritten / totalBytesExpectedToWrite;
