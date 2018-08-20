@@ -241,6 +241,10 @@
                                                             <nil key="textColor"/>
                                                             <nil key="highlightedColor"/>
                                                         </label>
+                                                        <view contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="tOK-Ny-acd">
+                                                            <rect key="frame" x="15" y="-9" width="240" height="128"/>
+                                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                                        </view>
                                                     </subviews>
                                                     <constraints>
                                                         <constraint firstItem="Sjc-kt-gbe" firstAttribute="bottom" secondItem="agq-ZH-dj6" secondAttribute="bottomMargin" id="34i-rw-Dda"/>
