@@ -6,7 +6,6 @@
 //  Copyright © 2018 CPU11360. All rights reserved.
 //
 
-#import "DownloadItemModel.h"
 #import "DownloadItemDelegate.h"
 
 

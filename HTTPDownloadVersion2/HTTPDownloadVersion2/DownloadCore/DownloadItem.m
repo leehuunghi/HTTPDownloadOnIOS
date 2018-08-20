@@ -7,6 +7,7 @@
 //
 
 #import "DownloadItem.h"
+#import <UIKit/UIKit.h>
 
 #define kURL @"url"
 #define kFilePath @"filePath"
@@ -71,15 +72,9 @@
 
 - (void)pause {
     [self.downloadTask suspend];
-    for (id<DownloadItemDelegate> delegate in self.downloadItemDelegates) {
-        //        [delegate downloadErrorWithError:<#(NSError *)#>];
-    }
 }
 
 - (void)cancel {
-    for (id<DownloadItemDelegate> delegate in self.downloadItemDelegates) {
-//        [delegate downloadErrorWithError:<#(NSError *)#>];
-    }
     [self.downloadTask cancel];
 }
 
@@ -123,5 +118,14 @@
     }
     return self.state;
 };
+
+- (void)setState:(DownloadState)state {
+    _state = state;
+    for (id<DownloadItemDelegate> delegate in self.downloadItemDelegates) {
+        if (delegate && [delegate respondsToSelector:@selector(downloadStateDidUpdate:)]) {
+            [delegate downloadStateDidUpdate:state];
+        }
+    }
+}
 
 @end
