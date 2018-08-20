@@ -24,11 +24,9 @@
 - (void)updateProgressWithTotalBytesWritten:(int64_t)totalBytesWritten andTotalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
     self.totalBytesWritten = totalBytesWritten;
     self.totalBytesExpectedToWrite = totalBytesExpectedToWrite;
-}
-
-- (void)reallyResume {
-    [self.downloadTask resume];
-    self.state = DownloadStateDownloading;
+    for (id<DownloadItemDelegate> delegate in _downloadItemDelegates) {
+        [delegate downloadProgressDidUpdateWithTotalByteWritten:totalBytesWritten andTotalBytesExpectedToWrite:totalBytesExpectedToWrite];
+    }
 }
 
 #pragma mark - code/decode NSKeyed
@@ -68,30 +66,20 @@
 #pragma mark - implement DownloadItemModel
 
 - (void)resume {
-    self.state = DownloadStatePending;
-    [self.downloaderDelegate itemWillStartDownload:self];
+    [self.downloadTask resume];
 }
 
 - (void)pause {
-    if (self.downloadTask.state != NSURLSessionTaskStateSuspended) {
-        [self.downloadTask suspend];
-        self.state = DownloadStatePause;
-        if (self.downloadTask.state == NSURLSessionTaskStateSuspended) {
-            [self.downloaderDelegate itemWillPauseDownload:self];
-        }
-    }
+    [self.downloadTask suspend];
 }
 
 - (void)cancel {
-    [self.downloaderDelegate itemWillCancelDownload:self];
     [self.downloadTask cancel];
 }
 
 - (void)restart {
-    [self pause];
     [self.downloadTask cancel];
     self.downloadTask = nil;
-    [self resume];
 }
 
 - (void)open {
@@ -109,5 +97,25 @@
         }
     }
 }
+
+- (DownloadState)getState {
+    switch (self.downloadTask.state) {
+        case NSURLSessionTaskStateRunning:
+            self.state = DownloadStateDownloading;
+            break;
+        case NSURLSessionTaskStateSuspended:
+            self.state = DownloadStatePause;
+            break;
+        case NSURLSessionTaskStateCanceling:
+            break;
+        case NSURLSessionTaskStateCompleted:
+            self.state = DownloadStateComplete;
+            break;
+        default:
+            self.state =DownloadStateError;
+            break;
+    }
+    return self.state;
+};
 
 @end

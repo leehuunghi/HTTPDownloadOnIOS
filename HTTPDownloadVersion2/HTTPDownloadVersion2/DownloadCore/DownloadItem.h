@@ -8,6 +8,7 @@
 
 #import <Foundation/Foundation.h>
 #import "DownloadItemModel.h"
+#import "DownloadItemDelegate.h"
 
 @class DownloadItem;
 
@@ -39,11 +40,15 @@ typedef NS_ENUM(NSUInteger, DownloadItemState) {
 
 @property (nonatomic, strong) NSURLSessionDownloadTask* downloadTask;
 
+@property (nonatomic) NSMutableArray<id<DownloadItemDelegate>> *downloadItemDelegates;
+
 @property (nonatomic, retain) id<DownloaderDelegate> downloaderDelegate;
 
 - (void)updateProgressWithTotalBytesWritten:(int64_t)totalBytesWritten andTotalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite;
 
-- (void)reallyResume;
+- (void)resume;
+
+- (void)pause;
 
 - (NSData *)transToData;
 
