@@ -90,7 +90,7 @@
                             item.downloadTask = [weakSelf.session downloadTaskWithResumeData:(NSData*)resumeData];
                         }
                     } else {
-                        NSURL *url = [NSURL URLWithString:downloadItem.url];
+                        NSURL *url = [NSURL URLWithString:urlString];
                         item.downloadTask = [weakSelf.session downloadTaskWithURL:url];
                     }
                     dispatch_async(self.concurrentQueue, ^{
