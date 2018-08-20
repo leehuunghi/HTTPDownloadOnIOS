@@ -19,6 +19,15 @@
 
 @synthesize cellObjects = _cellObjects;
 
+- (instancetype)init
+{
+    self = [super init];
+    if (self) {
+        _cellObjects = [NSMutableArray new];
+    }
+    return self;
+}
+
 - (void)setCellObjects:(NSMutableArray *)cellObjects {
     _cellObjects = cellObjects;
     
@@ -61,9 +70,10 @@
 }
 
 - (void)addCell:(CellObjectModel *)cellObject {
-    if (cellObject) {
-        [_cellObjects insertObject:cellObject atIndex:0];
+    if (!cellObject) {
+        return;
     }
+    [_cellObjects insertObject:cellObject atIndex:0];
     __weak __typeof(self) weakSelf = self;
     dispatch_async(dispatch_get_main_queue(), ^{
         [weakSelf insertRowsAtIndexPaths:@[[DownloadTableView headIndexPath]] withRowAnimation:UITableViewRowAnimationMiddle];
@@ -74,7 +84,6 @@
             }
         }
     });
-
 }
 
 - (void)removeCell:(CellObjectModel *)cellObject {
