@@ -8,7 +8,7 @@
 
 #import <Foundation/Foundation.h>
 #import "DownloadItemModel.h"
-#import "DownloadItemDelegate.h"
+#import "Model/DownloadItemDelegate.h"
 
 @class DownloadItem;
 
@@ -49,6 +49,8 @@ typedef NS_ENUM(NSUInteger, DownloadItemState) {
 - (void)resume;
 
 - (void)pause;
+
+- (void)cancel;
 
 - (NSData *)transToData;
 

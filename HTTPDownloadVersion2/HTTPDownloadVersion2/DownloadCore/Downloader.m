@@ -124,8 +124,10 @@
     if (downloadItem) {
         __weak typeof(self) weakSelf = self;
         dispatch_async(self.concurrentQueue, ^{
-            [weakSelf.priorityQueue addObject:downloadItem withPriority:downloadItem.downloadPriority];
-            [weakSelf dequeueItem];
+            if (downloadItem.state == DownloadStatePending || downloadItem.state == DownloadStatePause) {
+                [weakSelf.priorityQueue addObject:downloadItem withPriority:downloadItem.downloadPriority];
+                [weakSelf dequeueItem];
+            }
         });
     }
 }
@@ -320,13 +322,22 @@ totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
                 if (downloadItem.state == DownloadItemStatePending) {
                     [weakSelf.priorityQueue removeObject:downloadItem withPriority:downloadItem.downloadPriority];
                 }
+                [downloadItem cancel];
             });
         }
     }
 }
 
 - (void)restartDownloadWithIdentifier:(NSString *)URLString {
-    
+    if (URLString && [URLString isKindOfClass:[NSString class]]) {
+        DownloadItem* downloadItem = [self.downloadItems objectForKey:URLString];
+        if (downloadItem) {
+            __weak typeof(self) weakSelf = self;
+            dispatch_async(_concurrentQueue, ^{
+                [downloadItem.downloadTask cancel];
+            });
+        }
+    }
 }
 
 - (void)openDownloadedFileWithIdentifier:(NSString *)URLString {

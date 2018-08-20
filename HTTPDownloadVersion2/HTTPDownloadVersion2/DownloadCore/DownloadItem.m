@@ -71,9 +71,15 @@
 
 - (void)pause {
     [self.downloadTask suspend];
+    for (id<DownloadItemDelegate> delegate in self.downloadItemDelegates) {
+        //        [delegate downloadErrorWithError:<#(NSError *)#>];
+    }
 }
 
 - (void)cancel {
+    for (id<DownloadItemDelegate> delegate in self.downloadItemDelegates) {
+//        [delegate downloadErrorWithError:<#(NSError *)#>];
+    }
     [self.downloadTask cancel];
 }
 
