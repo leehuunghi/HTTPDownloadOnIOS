@@ -83,8 +83,10 @@
         DownloadCellObject *cellObject = [DownloadCellObject new];
         cellObject.priority = priority;
         cellObject.title = [url lastPathComponent];
+        __weak typeof (self) weakSelf = self;
         [_downloader createDownloadItemWithUrl:url priority:priority delegate:cellObject completion:^(NSString *identifier, NSError *error) {
             cellObject.identifier = identifier;
+            [weakSelf.downloadTableView addCell:cellObject];
             if (error) {
                 
             }

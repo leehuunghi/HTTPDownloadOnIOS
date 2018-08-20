@@ -74,10 +74,7 @@
             }
         }
     });
-    
-    
-    
-    
+
 }
 
 - (void)removeCell:(CellObjectModel *)cellObject {
