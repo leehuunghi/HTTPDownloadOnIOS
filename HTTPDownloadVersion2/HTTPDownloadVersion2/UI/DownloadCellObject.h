@@ -23,7 +23,7 @@
 
 @property (readwrite, nonatomic) float progress;
 
-@property (nonatomic) DownloadPriority priority;
+@property (readwrite, nonatomic) DownloadPriority priority;
 
 @property (readwrite, nonatomic) DownloadState state;
 

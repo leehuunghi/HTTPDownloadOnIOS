@@ -13,15 +13,17 @@
 @interface DownloadTableView()
 
 @property (strong, nonatomic) InfomationTableViewObject *infoObject;
+
+@property (strong, nonatomic) NSMutableArray<CellObjectModel *> *originCellObjects;
+
 @end
 
 @implementation DownloadTableView
 
 @synthesize cellObjects = _cellObjects;
 
-
-
 - (void)setCellObjects:(NSMutableArray *)cellObjects {
+    _originCellObjects = cellObjects;
     _cellObjects = cellObjects;
     
     self.separatorStyle = UITableViewCellSeparatorStyleNone;
@@ -30,14 +32,9 @@
     
     if (!_cellObjects) {
         _cellObjects = [NSMutableArray new];
+        _originCellObjects = [NSMutableArray new];
     }
-    if (_cellObjects.count == 0) {
-        _error = [NSError errorWithDomain:DownloadErrorDomain code:DownloadErrorCodeEmpty userInfo:nil];
-        [self errorCellWillDisplay];
-    }
-    else {
-        [self reloadData];
-    }
+    [self reloadData];
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
@@ -66,12 +63,25 @@
     if (!cellObject) {
         return;
     }
+    if (!_cellObjects) {
+        _cellObjects = [NSMutableArray new];
+    }
+    if (!_originCellObjects) {
+        _originCellObjects = [NSMutableArray new];
+    }
+    
     [_cellObjects insertObject:cellObject atIndex:0];
+    if (_cellObjects != _originCellObjects) {
+        [_originCellObjects insertObject:cellObject atIndex:0];
+    }
+    
+    
     __weak __typeof(self) weakSelf = self;
     dispatch_async(dispatch_get_main_queue(), ^{
         [weakSelf insertRowsAtIndexPaths:@[[DownloadTableView headIndexPath]] withRowAnimation:UITableViewRowAnimationMiddle];
         if (weakSelf.error) {
-            if (weakSelf.error.code == DownloadErrorCodeEmpty) {
+            if (weakSelf.error.code == DownloadErrorCodeEmpty
+                || weakSelf.error.code == DownloadErrorCodeFilterEmpty) {
                 weakSelf.error = nil;
                 [self removeCell:weakSelf.infoObject];
             }
@@ -83,19 +93,35 @@
     NSUInteger index = [_cellObjects indexOfObject:cellObject];
     if (index < _cellObjects.count) {
         [_cellObjects removeObjectAtIndex:index];
+        if (_cellObjects != _originCellObjects) {
+            [_originCellObjects removeObject:cellObject];
+        }
         __weak __typeof(self) weakSelf = self;
         dispatch_async(dispatch_get_main_queue(), ^{
             [weakSelf deleteRowsAtIndexPaths:@[[NSIndexPath indexPathForRow:index inSection:0]] withRowAnimation:UITableViewRowAnimationBottom];
-            if (weakSelf.cellObjects.count == 0) {
-                weakSelf.error = [NSError errorWithDomain:DownloadErrorDomain code:DownloadErrorCodeEmpty userInfo:nil];
-                [weakSelf errorCellWillDisplay];
-            }
+            [weakSelf checkEmpty];
         });
     } else {
         
     }
 }
 
+- (void)reloadData {
+    [super reloadData];
+    [self checkEmpty];
+}
+
+- (void)checkEmpty {
+    if (_cellObjects.count == 0) {
+        NSUInteger errorCode =  DownloadErrorCodeEmpty;
+        if (_originCellObjects.count == 0) {
+            _cellObjects = [NSMutableArray new];
+            errorCode = DownloadErrorCodeFilterEmpty;
+        }
+        _error = [NSError errorWithDomain:DownloadErrorDomain code:errorCode userInfo:nil];
+        [self errorCellWillDisplay];
+    }
+}
 
 - (void)errorCellWillDisplay {
     if (!_error) {
@@ -108,6 +134,9 @@
     switch (_error.code) {
         case DownloadErrorCodeEmpty:
             _infoObject.messange = @"History download is empty";
+            break;
+        case DownloadErrorCodeFilterEmpty:
+            _infoObject.messange = @"Empty";
             break;
         default:
             _infoObject.messange = [NSString stringWithFormat:@"Error: %ld", _error.code];
@@ -136,6 +165,23 @@
 //            [weakSelf moveRowAtIndexPath:[DownloadTableView indexPathForIndex:index] toIndexPath:[DownloadTableView headIndexPath]];
 //        });
 //    }
+}
+
+#pragma mark - filter
+
+- (void)filterWithCondition:(BOOL (^)(CellObjectModel *cellObject))condition {
+    if (condition) {
+        _cellObjects = [NSMutableArray new];
+        for (CellObjectModel *object in _originCellObjects) {
+            if (condition(object)) {
+                [_cellObjects addObject:object];
+            }
+        }
+    } else {
+        _cellObjects = _originCellObjects;
+    }
+    [self reloadData];
+    
 }
 
 #pragma mark - constant

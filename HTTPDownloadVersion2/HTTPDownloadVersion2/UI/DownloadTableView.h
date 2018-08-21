@@ -13,6 +13,7 @@
 typedef NS_ENUM(NSUInteger, DownloadErrorCode) {
     DownloadErrorCodeNone = 0,
     DownloadErrorCodeEmpty = 100,
+    DownloadErrorCodeFilterEmpty = 101,
     DownloadErrorCodeUnknow
 };
 
@@ -28,5 +29,7 @@ static NSString *const DownloadErrorDomain = @"com.download.contact";
 - (void)removeCell:(CellObjectModel *)cellObject;
 
 - (void)moveCellToHead:(CellObjectModel *)cellObject;
+
+- (void)filterWithCondition:(BOOL (^)(CellObjectModel *cellObject))condition;
 
 @end

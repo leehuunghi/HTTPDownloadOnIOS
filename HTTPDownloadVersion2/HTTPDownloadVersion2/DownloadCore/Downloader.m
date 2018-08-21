@@ -64,7 +64,7 @@
             DownloadItem *downloadItem  = [weakSelf.downloadItems objectForKey:urlString];
             NSLog(@"%@",downloadItem);
             if (downloadItem) {
-                [downloadItem.downloadItemDelegates addObject:delegate];
+                [downloadItem addDelegate:delegate];
             } else {
                 downloadItem = [DownloadItem new];
                 downloadItem.state = DownloadStatePending;
@@ -334,7 +334,6 @@ totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
     if (URLString && [URLString isKindOfClass:[NSString class]]) {
         DownloadItem* downloadItem = [self.downloadItems objectForKey:URLString];
         if (downloadItem) {
-            __weak typeof(self) weakSelf = self;
             dispatch_async(_concurrentQueue, ^{
                 [downloadItem cancel];
             });

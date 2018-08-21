@@ -132,4 +132,16 @@
     }
 }
 
+- (void)addDelegate:(id<DownloadItemDelegate>)delegate {
+    if (delegate) {
+        if ([delegate respondsToSelector:@selector(downloadStateDidUpdate:)]) {
+            [delegate downloadStateDidUpdate:_state];
+        }
+        if ([delegate respondsToSelector:@selector(downloadProgressDidUpdateWithTotalByteWritten:andTotalBytesExpectedToWrite:)]) {
+            [delegate downloadProgressDidUpdateWithTotalByteWritten:_totalBytesWritten andTotalBytesExpectedToWrite:_totalBytesExpectedToWrite];
+        }
+    }
+    [_downloadItemDelegates addObject:delegate];
+}
+
 @end

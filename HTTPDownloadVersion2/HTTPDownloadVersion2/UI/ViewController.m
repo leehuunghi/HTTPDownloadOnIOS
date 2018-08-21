@@ -80,7 +80,7 @@
     if(_count >= [self.staticArr count]) _count = 0;
     //    _urlInputTextField.text = @"";
     if (url.length > 0) {
-        DownloadPriority priority = _prioritySegmented.selectedSegmentIndex;
+        DownloadPriority priority = _prioritySegmented.selectedSegmentIndex % 3;
         DownloadCellObject *cellObject = [DownloadCellObject new];
         cellObject.priority = priority;
         cellObject.title = [url lastPathComponent];
@@ -102,6 +102,22 @@
         }
     }
     return [url substringFromIndex:startPoint];
+}
+
+- (IBAction)changeSegment:(id)sender {
+    __weak __typeof(self) weakSelf = self;
+    if (_prioritySegmented.selectedSegmentIndex < 3) {
+        [_downloadTableView filterWithCondition:^BOOL(CellObjectModel *cellObject) {
+            if (![cellObject isKindOfClass:[DownloadCellObject class]]) {
+                return NO;
+            }
+            DownloadCellObject *object = (DownloadCellObject *)cellObject;
+            return object.priority == weakSelf.prioritySegmented.selectedSegmentIndex;
+        }];
+    } else {
+        [_downloadTableView filterWithCondition:nil];
+    }
+    
 }
 
 - (IBAction)quitItemTouch:(id)sender {

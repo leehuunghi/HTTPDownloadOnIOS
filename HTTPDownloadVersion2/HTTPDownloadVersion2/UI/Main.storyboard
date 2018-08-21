@@ -87,13 +87,17 @@
                                                         <nil key="textColor"/>
                                                         <nil key="highlightedColor"/>
                                                     </label>
-                                                    <segmentedControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="plain" selectedSegmentIndex="1" translatesAutoresizingMaskIntoConstraints="NO" id="heR-M5-NJI">
+                                                    <segmentedControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="plain" selectedSegmentIndex="3" translatesAutoresizingMaskIntoConstraints="NO" id="heR-M5-NJI">
                                                         <rect key="frame" x="65" y="0.0" width="216" height="27"/>
                                                         <segments>
                                                             <segment title="Low"/>
                                                             <segment title="Medium"/>
                                                             <segment title="High"/>
+                                                            <segment title="All"/>
                                                         </segments>
+                                                        <connections>
+                                                            <action selector="changeSegment:" destination="5Hh-lI-p3W" eventType="valueChanged" id="qUL-SI-vGQ"/>
+                                                        </connections>
                                                     </segmentedControl>
                                                 </subviews>
                                             </stackView>
