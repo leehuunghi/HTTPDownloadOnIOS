@@ -20,10 +20,16 @@
 }
 */
 
-- (void)setCellObjects:(NSMutableArray *)cellObjects {
-    _cellObjects = cellObjects;
-    self.dataSource = self;
-    self.delegate = self;
+- (void)reloadData {
+    if (!self.delegate) {
+        self.delegate = self;
+    }
+    
+    if (!self.dataSource) {
+        self.dataSource = self;
+    }
+    
+    [super reloadData];
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {

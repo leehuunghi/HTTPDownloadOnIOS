@@ -40,7 +40,6 @@
 - (void)loadCore {
     _downloader = [Downloader new];
     [DownloaderSingleton shareIntance].downloader = _downloader;
-    _downloadTableView.cellObjects = [NSMutableArray new];
 }
 
 - (void)loadData {
