@@ -355,14 +355,11 @@ totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
 - (void)setDelegateForIdentifier:(NSString *)identifier {
 }
 
-- (void)setDownloadingCount:(NSUInteger)downloadingCount {
-    NSLog(@"%lu", (unsigned long)downloadingCount);
-}
-
 - (void)increaseDownloadingCount {
     __weak typeof(self) weakSelf = self;
     dispatch_barrier_async(_concurrentQueue, ^{
         if (weakSelf.downloadingCount < weakSelf.limitDownloadTask) {
+            NSLog(@"t tang ne nha ahihi");
             weakSelf.downloadingCount++;
         }
     });
@@ -372,9 +369,15 @@ totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
     __weak typeof(self) weakSelf = self;
     dispatch_barrier_async(_concurrentQueue, ^{
         if (weakSelf.downloadingCount > 0) {
+            NSLog(@"t giam ne nha ahihi");
             weakSelf.downloadingCount--;
         }
     });
+}
+
+- (void)setDownloadingCount:(NSUInteger)downloadingCount {
+    _downloadingCount = downloadingCount;
+    NSLog(@"Count Downloading: %lu", (unsigned long)downloadingCount);
 }
 
 @end
