@@ -63,7 +63,7 @@
         dispatch_barrier_async(self.concurrentQueue, ^{
             DownloadItem *downloadItem  = [weakSelf.downloadItems objectForKey:urlString];
             if (downloadItem) {
-                [downloadItem.downloadItemDelegates addObject:delegate];
+                [downloadItem addDelegate:delegate];
             } else {
                 downloadItem = [DownloadItem new];
                 downloadItem.state = DownloadStatePending;

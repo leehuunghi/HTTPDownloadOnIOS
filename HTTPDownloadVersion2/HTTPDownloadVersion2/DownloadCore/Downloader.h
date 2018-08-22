@@ -11,6 +11,6 @@
 #import "PriorityQueue.h"
 
 
-@interface Downloader : DownloaderModel <DownloaderDelegate, NSURLSessionDownloadDelegate>
+@interface Downloader : DownloaderModel <NSURLSessionDownloadDelegate>
 
 @end

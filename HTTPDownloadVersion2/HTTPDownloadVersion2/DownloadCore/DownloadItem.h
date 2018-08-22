@@ -11,19 +11,6 @@
 
 @class DownloadItem;
 
-@protocol DownloaderDelegate <NSObject>
-
-@optional
-
-- (void)itemWillStartDownload:(DownloadItem *)downloadItem;
-
-- (void)itemWillFinishDownload:(DownloadItem *)downloadItem;
-
-- (void)itemWillPauseDownload:(DownloadItem *)downloadItem;
-
-- (void)itemWillCancelDownload:(DownloadItem *)downloadItem;
-
-@end
 
 @interface DownloadItem : NSObject
 
@@ -61,8 +48,6 @@
 
 @property (nonatomic) NSMutableArray<id<DownloadItemDelegate>> *downloadItemDelegates;
 
-@property (nonatomic, retain) id<DownloaderDelegate> downloaderDelegate;
-
 - (void)updateProgressWithTotalBytesWritten:(int64_t)totalBytesWritten andTotalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite;
 
 - (void)resume;
@@ -74,6 +59,8 @@
 - (NSData *)transToData;
 
 - (instancetype)initWithData:(NSData *)data;
+
+- (void)addDelegate:(id<DownloadItemDelegate>)delegate;
 
 @end
 
