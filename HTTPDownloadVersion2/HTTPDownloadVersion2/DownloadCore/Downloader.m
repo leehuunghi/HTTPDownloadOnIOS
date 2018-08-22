@@ -62,7 +62,6 @@
         
         dispatch_barrier_async(self.concurrentQueue, ^{
             DownloadItem *downloadItem  = [weakSelf.downloadItems objectForKey:urlString];
-            NSLog(@"%@",downloadItem);
             if (downloadItem) {
                 [downloadItem.downloadItemDelegates addObject:delegate];
             } else {
@@ -138,18 +137,18 @@
 }
 
 - (void)dequeueItem {
-    if (self.downloadingCount < self.limitDownloadTask && self.priorityQueue.count > 0) {
-        NSLog(@"%lu %ld",(unsigned long)self.downloadingCount, (long)[self.priorityQueue count]);
-        DownloadItem *item = (DownloadItem *)[self.priorityQueue dequeue];
-        if (item) {
-            [self.priorityQueue removeObject];
-            __weak typeof(self) weakSelf = self;
-            dispatch_barrier_async(self.concurrentQueue, ^{
-                weakSelf.downloadingCount++;
-            });
-            [item resume];
+    dispatch_barrier_async(_concurrentQueue, ^{
+        if (self.downloadingCount < self.limitDownloadTask && self.priorityQueue.count > 0) {
+            NSLog(@"In: %lu %ld",(unsigned long)self.downloadingCount, (long)[self.priorityQueue count]);
+            DownloadItem *item = (DownloadItem *)[self.priorityQueue dequeue];
+            if (item) {
+                NSLog(@"%lu %ld",(unsigned long)self.downloadingCount, (long)[self.priorityQueue count]);
+                [self.priorityQueue removeObject];
+                [self increaseDownloadingCount];
+                [item resume];
+            }
         }
-    }
+    });
 }
 
 #pragma mark - NSURLSessionDownloadDelegate
@@ -231,11 +230,9 @@ totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
                 item.state = DownloadStateError;
             }
         }
-        __weak typeof(self) weakSelf = self;
-        dispatch_barrier_async(_concurrentQueue, ^{
-            weakSelf.downloadingCount--;
-            [self dequeueItem];
-        });
+        [self decreaseDownloadingCount];
+        [self dequeueItem];
+
     } else {
         if (item.url == task.originalRequest.URL.absoluteString) {
             item.downloadTask = (NSURLSessionDownloadTask *)task;
@@ -319,11 +316,8 @@ totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
         if (downloadItem) {
             if (downloadItem.state == DownloadStateDownloading) {
                 [downloadItem pause];
-                __weak typeof(self) weakSelf = self;
-                dispatch_async(_concurrentQueue, ^{
-                    weakSelf.downloadingCount--;
-                    [weakSelf dequeueItem];
-                });
+                [self decreaseDownloadingCount];
+                [self dequeueItem];
             }
         }
         
@@ -334,7 +328,6 @@ totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
     if (URLString && [URLString isKindOfClass:[NSString class]]) {
         DownloadItem* downloadItem = [self.downloadItems objectForKey:URLString];
         if (downloadItem) {
-            __weak typeof(self) weakSelf = self;
             dispatch_async(_concurrentQueue, ^{
                 [downloadItem cancel];
             });
@@ -363,8 +356,25 @@ totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
 }
 
 - (void)setDownloadingCount:(NSUInteger)downloadingCount {
-    _downloadingCount = downloadingCount;
     NSLog(@"%lu", (unsigned long)downloadingCount);
+}
+
+- (void)increaseDownloadingCount {
+    __weak typeof(self) weakSelf = self;
+    dispatch_barrier_async(_concurrentQueue, ^{
+        if (weakSelf.downloadingCount < weakSelf.limitDownloadTask) {
+            weakSelf.downloadingCount++;
+        }
+    });
+}
+
+- (void)decreaseDownloadingCount {
+    __weak typeof(self) weakSelf = self;
+    dispatch_barrier_async(_concurrentQueue, ^{
+        if (weakSelf.downloadingCount > 0) {
+            weakSelf.downloadingCount--;
+        }
+    });
 }
 
 @end
