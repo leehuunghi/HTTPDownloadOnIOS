@@ -19,6 +19,8 @@
 
 - (void)removeObject;
 
+- (void)removeObject:(dispatch_queue_t)queue;
+
 - (NSInteger)count;
 
 - (void)setPriorityForObject:(id)object withPriority:(DownloadPriority)priority;

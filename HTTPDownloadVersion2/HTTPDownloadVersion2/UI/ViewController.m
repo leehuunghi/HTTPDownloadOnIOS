@@ -43,8 +43,9 @@
 }
 
 - (void)loadData {
-    
-    NSArray *historyDownload = [_downloader loadData];
+    NSArray *historyDownload = [NSArray new];
+
+//    NSArray *historyDownload = [_downloader loadData];
     for (NSString *identifier in historyDownload) {
         DownloadCellObject *cellObject = [DownloadCellObject new];
         cellObject.identifier = identifier;
