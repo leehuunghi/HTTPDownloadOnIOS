@@ -74,29 +74,34 @@
                 downloadItem.filePath = filePath;
                 downloadItem.downloadItemDelegates = [[NSMutableArray alloc] initWithArray:@[delegate]];
                 [weakSelf.downloadItems setObject:downloadItem forKey:urlString];
-                [weakSelf checkURL:urlString completion:^(NSError *error) {
-                    if (error) {
-                        downloadItem.state = DownloadStateError;
-                        for (id<DownloadItemDelegate>delegateItem in downloadItem.downloadItemDelegates) {
-                            [delegateItem downloadErrorWithError:error];
-                        }
-                    } else {
-                        NSObject* resumeData = [NSUserDefaults.standardUserDefaults objectForKey:urlString];
-                        if (resumeData) {
-                            if ([resumeData isKindOfClass:[NSData class]]) {
-                                [weakSelf.resumeDataDictionnary removeObjectForKey:downloadItem.url];
-                                downloadItem.downloadTask = [weakSelf.session downloadTaskWithResumeData:(NSData*)resumeData];
-                            }
-                        } else {
-                            NSURL *url = [NSURL URLWithString:urlString];
-                            downloadItem.downloadTask = [weakSelf.session downloadTaskWithURL:url];
-                        }
-                        [weakSelf enqueueItem:downloadItem];
-                    }
-                }];
+                [weakSelf checkAndEnqueueDownloadItem:downloadItem];
             }
         });
     }
+}
+
+- (void)checkAndEnqueueDownloadItem:(DownloadItem *)downloadItem {
+    __weak typeof(self)weakSelf = self;
+    [self checkURL:downloadItem.url completion:^(NSError *error) {
+        if (error) {
+            downloadItem.state = DownloadStateError;
+            for (id<DownloadItemDelegate>delegateItem in downloadItem.downloadItemDelegates) {
+                [delegateItem downloadErrorWithError:error];
+            }
+        } else {
+            NSData* resumeData = [weakSelf.resumeDataDictionnary objectForKey:downloadItem.url];
+            if (resumeData) {
+                if ([resumeData isKindOfClass:[NSData class]]) {
+                    [weakSelf.resumeDataDictionnary removeObjectForKey:downloadItem.url];
+                    downloadItem.downloadTask = [weakSelf.session downloadTaskWithResumeData:resumeData];
+                }
+            } else {
+                NSURL *url = [NSURL URLWithString:downloadItem.url];
+                downloadItem.downloadTask = [weakSelf.session downloadTaskWithURL:url];
+            }
+            [self enqueueItem:downloadItem];
+        }
+    }];
 }
 
 - (void)checkURL:(NSString*)urlString completion:(void (^)(NSError* error))completion {
@@ -370,7 +375,6 @@ totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
                 [self dequeueItem];
             }
         }
-        
     }
 }
 
@@ -390,6 +394,9 @@ totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
         DownloadItem* downloadItem = [self.downloadItems objectForKey:URLString];
         if (downloadItem) {
             [downloadItem.downloadTask cancel];
+            downloadItem.downloadTask = nil;
+            downloadItem.state = DownloadStatePending;
+            [self checkAndEnqueueDownloadItem:downloadItem];
         }
     }
 }

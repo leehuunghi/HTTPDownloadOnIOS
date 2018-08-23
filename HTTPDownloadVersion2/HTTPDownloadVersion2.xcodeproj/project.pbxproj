@@ -16,7 +16,6 @@
 		933AA28A2119836600CE94A0 /* CellObjectModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 933AA26F2119836600CE94A0 /* CellObjectModel.m */; };
 		933AA28B2119836600CE94A0 /* TableViewCellModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 933AA2712119836600CE94A0 /* TableViewCellModel.m */; };
 		933AA28C2119836600CE94A0 /* TableViewModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 933AA2732119836600CE94A0 /* TableViewModel.m */; };
-		933AA28D2119836600CE94A0 /* Downloader.m in Sources */ = {isa = PBXBuildFile; fileRef = 933AA2762119836600CE94A0 /* Downloader.m */; };
 		933AA28E2119836600CE94A0 /* DownloadItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 933AA2782119836600CE94A0 /* DownloadItem.m */; };
 		933AA28F2119836600CE94A0 /* PriorityQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = 933AA27B2119836600CE94A0 /* PriorityQueue.m */; };
 		933AA2902119836600CE94A0 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 933AA27E2119836600CE94A0 /* AppDelegate.m */; };
@@ -26,6 +25,7 @@
 		933AA2942119836600CE94A0 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 933AA2832119836600CE94A0 /* Main.storyboard */; };
 		933AA2982119891800CE94A0 /* DownloaderModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 933AA2972119891800CE94A0 /* DownloaderModel.m */; };
 		9386120E2126B35200E690A6 /* DownloaderSingleton.m in Sources */ = {isa = PBXBuildFile; fileRef = 9386120D2126B35200E690A6 /* DownloaderSingleton.m */; };
+		9386120F212E9DFC00E690A6 /* Downloader.m in Sources */ = {isa = PBXBuildFile; fileRef = 933AA2762119836600CE94A0 /* Downloader.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -266,13 +266,13 @@
 				933AA28A2119836600CE94A0 /* CellObjectModel.m in Sources */,
 				933AA2902119836600CE94A0 /* AppDelegate.m in Sources */,
 				933AA2982119891800CE94A0 /* DownloaderModel.m in Sources */,
+				9386120F212E9DFC00E690A6 /* Downloader.m in Sources */,
 				933AA28C2119836600CE94A0 /* TableViewModel.m in Sources */,
 				933AA2872119836600CE94A0 /* InfomationTableViewObject.m in Sources */,
 				9386120E2126B35200E690A6 /* DownloaderSingleton.m in Sources */,
 				933AA2842119836600CE94A0 /* DownloadCellObject.m in Sources */,
 				933AA2882119836600CE94A0 /* InformationTableViewCell.m in Sources */,
 				933AA2932119836600CE94A0 /* main.m in Sources */,
-				933AA28D2119836600CE94A0 /* Downloader.m in Sources */,
 				933AA28B2119836600CE94A0 /* TableViewCellModel.m in Sources */,
 				933AA28F2119836600CE94A0 /* PriorityQueue.m in Sources */,
 				933AA2862119836600CE94A0 /* DownloadTableViewCell.m in Sources */,
