@@ -143,6 +143,10 @@
 }
 
 - (void)addDelegate:(id<DownloadItemDelegate>)delegate {
+    if (!_downloadItemDelegates) {
+        _downloadItemDelegates = [NSMutableArray new];
+    }
+    
     if (delegate) {
         
         if ([delegate respondsToSelector:@selector(shouldUpdatePriority:)]) {

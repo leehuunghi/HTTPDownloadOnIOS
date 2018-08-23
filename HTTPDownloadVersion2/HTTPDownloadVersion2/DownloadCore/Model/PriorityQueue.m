@@ -149,5 +149,19 @@
     }
 }
 
+- (void)removeObject:(dispatch_queue_t)queue {
+    __weak typeof(self)weakSelf = self;
+    dispatch_barrier_async(queue, ^{
+        if ([weakSelf.arrayHigh count]) {
+            [weakSelf.arrayHigh removeLastObject];
+        } else if ([weakSelf.arrayMedium count]) {
+            [weakSelf.arrayMedium removeLastObject];
+        } else if ([weakSelf.arrayLow count]) {
+            [weakSelf.arrayLow removeLastObject];
+        } else {
+            NSLog(@"Nothing in queue for remove!");
+        }
+    });
+}
 
 @end

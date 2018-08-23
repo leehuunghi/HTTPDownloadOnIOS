@@ -13,6 +13,7 @@
 #define kDownLoadDataFileName @"downloadData.dat"
 
 #import "Downloader.h"
+#import "WrapperMutableDictionary.h"
 
 @interface Downloader()
 
@@ -24,7 +25,7 @@
 
 @property (nonatomic, strong) NSMutableDictionary *downloadItems;
 
-@property (nonatomic, strong) dispatch_queue_t concurrentQueue;
+@property (nonatomic, strong) dispatch_queue_t serialQueue;
 
 @property (nonatomic) NSUInteger limitDownloadTask;
 
@@ -40,16 +41,16 @@
     self = [super init];
     if (self) {
         _downloadItems = [[NSMutableDictionary alloc] init];
-        [self readFromFile];
         _configuration = [NSURLSessionConfiguration backgroundSessionConfigurationWithIdentifier:@"download.background"];
         [_configuration setDiscretionary:YES];
         [_configuration setSessionSendsLaunchEvents:YES];
         
         _session = [NSURLSession sessionWithConfiguration:self.configuration delegate:self delegateQueue:nil];
         _priorityQueue = [PriorityQueue new];
-        _concurrentQueue = dispatch_queue_create("concurrent_queue_downloader", DISPATCH_QUEUE_CONCURRENT);
+        _serialQueue = dispatch_queue_create("serial_queue_downloader", DISPATCH_QUEUE_SERIAL);
         _limitDownloadTask = 2;
         _downloadingCount = 0;
+        [self readFromFile];
     }
     return self;
 }
@@ -62,7 +63,7 @@
             completion(identifier, nil);
         }
         
-        dispatch_barrier_async(self.concurrentQueue, ^{
+        dispatch_async(self.serialQueue, ^{
             DownloadItem *downloadItem  = [weakSelf.downloadItems objectForKey:urlString];
             if (downloadItem) {
                 [downloadItem addDelegate:delegate];
@@ -133,9 +134,9 @@
 - (void)enqueueItem:(DownloadItem *)downloadItem {
     if (downloadItem) {
         __weak typeof(self) weakSelf = self;
-        dispatch_barrier_async(self.concurrentQueue, ^{
+        dispatch_async(self.serialQueue, ^{
             if (downloadItem.state == DownloadStatePending || downloadItem.state == DownloadStatePause) {
-                downloadItem.state = DownloadStateDownloading;
+                downloadItem.state = DownloadStatePending;
                 [weakSelf.priorityQueue addObject:downloadItem withPriority:downloadItem.downloadPriority];
                 [weakSelf dequeueItem];
             }
@@ -144,15 +145,16 @@
 }
 
 - (void)dequeueItem {
-    dispatch_barrier_async(_concurrentQueue, ^{
+    __weak typeof(self) weakSelf = self;
+    dispatch_async(_serialQueue, ^{
         if (self.downloadingCount < self.limitDownloadTask && self.priorityQueue.count > 0) {
-            NSLog(@"In: %lu %ld",(unsigned long)self.downloadingCount, (long)[self.priorityQueue count]);
-            DownloadItem *item = (DownloadItem *)[self.priorityQueue dequeue];
+            NSLog(@"In: %lu %ld",(unsigned long)self.downloadingCount, (long)[weakSelf.priorityQueue count]);
+            DownloadItem *item = (DownloadItem *)[weakSelf.priorityQueue dequeue];
             if (item) {
-                NSLog(@"%lu %ld",(unsigned long)self.downloadingCount, (long)[self.priorityQueue count]);
-                [self.priorityQueue removeObject];
-                [self increaseDownloadingCount];
+                [weakSelf.priorityQueue removeObject:weakSelf.serialQueue];
+                [weakSelf increaseDownloadingCount];
                 [item resume];
+                NSLog(@"Resume: %lu %ld",(unsigned long)weakSelf.downloadingCount, (long)[self.priorityQueue count]);
             }
         }
     });
@@ -163,17 +165,18 @@
 - (void)URLSession:(NSURLSession *)session downloadTask:(NSURLSessionDownloadTask *)downloadTask didWriteData:(int64_t)bytesWritten
  totalBytesWritten:(int64_t)totalBytesWritten
 totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
-    __block DownloadItem *item;
-    dispatch_sync(self.concurrentQueue, ^{
-        item = [self.downloadItems objectForKey:downloadTask.originalRequest.URL.absoluteString];
-    });
-    if (item) {
-        if (item.downloadTask) {
-            [item updateProgressWithTotalBytesWritten:totalBytesWritten andTotalBytesExpectedToWrite:totalBytesExpectedToWrite];
-        } else {
-            item.downloadTask = downloadTask;
+    __weak typeof(self) weakSelf = self;
+    dispatch_async(_serialQueue, ^{
+        DownloadItem *item = [weakSelf.downloadItems objectForKey:downloadTask.originalRequest.URL.absoluteString];
+        if (item) {
+            if (item.downloadTask) {
+                [item updateProgressWithTotalBytesWritten:totalBytesWritten andTotalBytesExpectedToWrite:totalBytesExpectedToWrite];
+            } else {
+                [self increaseDownloadingCount];
+                item.downloadTask = downloadTask;
+            }
         }
-    }
+    });
 }
 
 - (void)URLSession:(nonnull NSURLSession *)session downloadTask:(nonnull NSURLSessionDownloadTask *)downloadTask didFinishDownloadingToURL:(nonnull NSURL *)location {
@@ -183,68 +186,66 @@ totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
     
     [NSFileManager.defaultManager moveItemAtURL:location toURL:documentsURL error:nil];
     
-    __block DownloadItem *item;
-    dispatch_sync(self.concurrentQueue, ^{
-        item = [self.downloadItems objectForKey:downloadTask.originalRequest.URL.absoluteString];
+    __weak typeof(self) weakSelf = self;
+    dispatch_async(_serialQueue, ^{
+        DownloadItem *item = [weakSelf.downloadItems objectForKey:downloadTask.originalRequest.URL.absoluteString];
+        if (item) {
+            item.filePath = documentsURL.absoluteString;
+        }
     });
-    if (item) {
-        item.filePath = documentsURL.absoluteString;
-    }
 }
 
 - (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didCompleteWithError:(NSError *)error {
-    __block DownloadItem *item;
-    dispatch_sync(self.concurrentQueue, ^{
-        item = [self.downloadItems objectForKey:task.originalRequest.URL.absoluteString];
-    });
-    
-    if (item.downloadTask == task) {
-        NSHTTPURLResponse *httpRespone = (NSHTTPURLResponse *)task.response;
-        if (error) {
-            switch (error.code) {
-                case NSURLErrorCancelled: {
-                    __weak typeof(self)weakSelf = self;
-                    dispatch_barrier_async(_concurrentQueue, ^{
-                        [weakSelf.downloadItems removeObjectForKey:item.url];
-                        if (item.state == DownloadStateDownloading && item.downloadTask.state == NSURLSessionTaskStateSuspended) {
-                            [weakSelf.priorityQueue removeObject:item withPriority:item.downloadPriority];
-                        } else if (item.state == DownloadStatePause) {
-                            return;
-                        }
-                    });
-                    break;
+    __weak typeof(self) weakSelf = self;
+    dispatch_async(_serialQueue, ^{
+        DownloadItem *item = [self.downloadItems objectForKey:task.originalRequest.URL.absoluteString];
+        if (item.downloadTask == task) {
+            NSHTTPURLResponse *httpRespone = (NSHTTPURLResponse *)task.response;
+            if (error) {
+                switch (error.code) {
+                    case NSURLErrorCancelled: {
+                        __weak typeof(self)weakSelf = self;
+                        dispatch_async(weakSelf.serialQueue, ^{
+                            [weakSelf.downloadItems removeObjectForKey:item.url];
+                            if (item.state == DownloadStateDownloading && item.downloadTask.state == NSURLSessionTaskStateSuspended) {
+                                [weakSelf.priorityQueue removeObject:item withPriority:item.downloadPriority];
+                            } else if (item.state == DownloadStatePause) {
+                                return;
+                            }
+                        });
+                        break;
+                    }
+                    case NSURLErrorTimedOut: {
+                        NSData* resumeData = [error.userInfo objectForKey:NSURLSessionDownloadTaskResumeData];
+                        item.downloadTask = [weakSelf.session downloadTaskWithResumeData:resumeData];
+                        return;
+                    }
+                    case NSURLErrorNetworkConnectionLost: {
+                        NSData* resumeData = [error.userInfo objectForKey:NSURLSessionDownloadTaskResumeData];
+                        item.downloadTask = [weakSelf.session downloadTaskWithResumeData:resumeData];
+                        [item.downloadTask resume];
+                        return;
+                    }
+                    default: {
+                        item.state = DownloadStateError;
+                        break;
+                    }
                 }
-                case NSURLErrorTimedOut: {
-                    NSData* resumeData = [error.userInfo objectForKey:NSURLSessionDownloadTaskResumeData];
-                    item.downloadTask = [_session downloadTaskWithResumeData:resumeData];
-                    return;
-                }
-                case NSURLErrorNetworkConnectionLost: {
-                    NSData* resumeData = [error.userInfo objectForKey:NSURLSessionDownloadTaskResumeData];
-                    item.downloadTask = [_session downloadTaskWithResumeData:resumeData];
-                    [item.downloadTask resume];
-                    return;
-                }
-                default: {
-                    item.state = DownloadStateError;
-                    break;
-                }
-            }
-        } else {
-            if (httpRespone.statusCode/100==2) {
-                item.state = DownloadStateComplete;
             } else {
-                item.state = DownloadStateError;
+                if (httpRespone.statusCode >= 200 && httpRespone.statusCode <= 299) {
+                    item.state = DownloadStateComplete;
+                } else {
+                    item.state = DownloadStateError;
+                }
+            }
+            [self decreaseDownloadingCount];
+            [self dequeueItem];
+        } else {
+            if (item.url == task.originalRequest.URL.absoluteString) {
+                item.downloadTask = (NSURLSessionDownloadTask *)task;
             }
         }
-        [self decreaseDownloadingCount];
-        [self dequeueItem];
-
-    } else {
-        if (item.url == task.originalRequest.URL.absoluteString) {
-            item.downloadTask = (NSURLSessionDownloadTask *)task;
-        }
-    }
+    });
 }
 
 - (void)saveData:(void(^)(void))completion {
@@ -330,6 +331,9 @@ totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
         for (NSData *data in array) {
             DownloadItem *item = [[DownloadItem alloc] initWithData:data];
             [_downloadItems setObject:item forKey:item.url];
+            if (item.state == DownloadStatePending) {
+                [self enqueueItem:item];
+            }
         }
     }
 }
@@ -357,11 +361,13 @@ totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
 
 - (void)resumeDownloadWithIdentifier:(NSString *)URLString {
     if (URLString && [URLString isKindOfClass:[NSString class]]) {
-        __block DownloadItem *downloadItem;
-        dispatch_sync(self.concurrentQueue, ^{
-            downloadItem = [self.downloadItems objectForKey:URLString];
+        __weak typeof(self) weakSelf = self;
+        DownloadItem *downloadItem = [self.downloadItems objectForKey:URLString];
+        dispatch_async(_serialQueue, ^{
+            if (downloadItem.state != DownloadStateDownloading) {
+                [weakSelf enqueueItem:downloadItem];
+            }
         });
-        [self enqueueItem:downloadItem];
     }
 }
 
@@ -369,11 +375,16 @@ totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
     if (URLString && [URLString isKindOfClass:[NSString class]]) {
         DownloadItem* downloadItem = [self.downloadItems objectForKey:URLString];
         if (downloadItem) {
-            if (downloadItem.state == DownloadStateDownloading) {
-                [downloadItem pause];
-                [self decreaseDownloadingCount];
-                [self dequeueItem];
-            }
+            __weak typeof(self) weakSelf = self;
+            dispatch_async(_serialQueue, ^{
+                if (downloadItem.state == DownloadStateDownloading) {
+                    if (downloadItem.downloadTask.state == NSURLSessionTaskStateRunning) {
+                        [weakSelf decreaseDownloadingCount];
+                    }
+                    [downloadItem pause];
+                    [weakSelf dequeueItem];
+                }
+            });
         }
     }
 }
@@ -382,7 +393,7 @@ totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
     if (URLString && [URLString isKindOfClass:[NSString class]]) {
         DownloadItem* downloadItem = [self.downloadItems objectForKey:URLString];
         if (downloadItem) {
-            dispatch_async(_concurrentQueue, ^{
+            dispatch_async(_serialQueue, ^{
                 [downloadItem cancel];
             });
         }
@@ -420,9 +431,8 @@ totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
 
 - (void)increaseDownloadingCount {
     __weak typeof(self) weakSelf = self;
-    dispatch_barrier_async(_concurrentQueue, ^{
+    dispatch_async(_serialQueue, ^{
         if (weakSelf.downloadingCount < weakSelf.limitDownloadTask) {
-            NSLog(@"t tang ne nha ahihi");
             weakSelf.downloadingCount++;
         }
     });
@@ -430,9 +440,8 @@ totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
 
 - (void)decreaseDownloadingCount {
     __weak typeof(self) weakSelf = self;
-    dispatch_barrier_async(_concurrentQueue, ^{
+    dispatch_async(_serialQueue, ^{
         if (weakSelf.downloadingCount > 0) {
-            NSLog(@"t giam ne nha ahihi");
             weakSelf.downloadingCount--;
         }
     });

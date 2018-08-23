@@ -63,7 +63,6 @@
 		933AA2962119891800CE94A0 /* DownloaderModel.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DownloaderModel.h; sourceTree = "<group>"; };
 		933AA2972119891800CE94A0 /* DownloaderModel.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DownloaderModel.m; sourceTree = "<group>"; };
 		9386120B21269BB800E690A6 /* DownloadItemDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DownloadItemDelegate.h; sourceTree = "<group>"; };
-		9386120C2126B35200E690A6 /* DownloaderSingleton.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DownloaderSingleton.h; sourceTree = "<group>"; };
 		9386120D2126B35200E690A6 /* DownloaderSingleton.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DownloaderSingleton.m; sourceTree = "<group>"; };
 		A35C824721193986002D42B5 /* HTTPDownloadVersion2.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HTTPDownloadVersion2.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A35C825821193989002D42B5 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -273,6 +272,7 @@
 				933AA2842119836600CE94A0 /* DownloadCellObject.m in Sources */,
 				933AA2882119836600CE94A0 /* InformationTableViewCell.m in Sources */,
 				933AA2932119836600CE94A0 /* main.m in Sources */,
+				A301CCC6212E9E0200FD3D57 /* Downloader.m in Sources */,
 				933AA28B2119836600CE94A0 /* TableViewCellModel.m in Sources */,
 				933AA28F2119836600CE94A0 /* PriorityQueue.m in Sources */,
 				933AA2862119836600CE94A0 /* DownloadTableViewCell.m in Sources */,
