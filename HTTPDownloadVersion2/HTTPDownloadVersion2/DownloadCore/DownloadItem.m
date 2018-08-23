@@ -22,6 +22,15 @@
 
 @implementation DownloadItem
 
+- (instancetype)init
+{
+    self = [super init];
+    if (self) {
+        _downloadItemDelegates = [NSMutableArray new];
+    }
+    return self;
+}
+
 - (void)updateProgressWithTotalBytesWritten:(int64_t)totalBytesWritten andTotalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
     self.totalBytesWritten = totalBytesWritten;
     self.totalBytesExpectedToWrite = totalBytesExpectedToWrite;
@@ -38,12 +47,13 @@
     self = [super init];
     if (self != NULL)
     {
-        self.url = [coder decodeObjectForKey:kURL];
-        self.filePath = [coder decodeObjectForKey:kFilePath];
-        self.state = [coder decodeIntegerForKey:kState];
-        self.downloadPriority = [coder decodeIntegerForKey:kPriority];
-        self.totalBytesWritten = [coder decodeIntegerForKey:kWritten];
-        self.totalBytesExpectedToWrite = [coder decodeIntegerForKey:kExpected];
+        _url = [coder decodeObjectForKey:kURL];
+        _filePath = [coder decodeObjectForKey:kFilePath];
+        _state = [coder decodeIntegerForKey:kState];
+        _downloadPriority = [coder decodeIntegerForKey:kPriority];
+        _totalBytesWritten = [coder decodeIntegerForKey:kWritten];
+        _totalBytesExpectedToWrite = [coder decodeIntegerForKey:kExpected];
+        
     }
     return self;
 }
@@ -134,6 +144,11 @@
 
 - (void)addDelegate:(id<DownloadItemDelegate>)delegate {
     if (delegate) {
+        
+        if ([delegate respondsToSelector:@selector(shouldUpdatePriority:)]) {
+            [delegate shouldUpdatePriority:_downloadPriority];
+        }
+        
         if ([delegate respondsToSelector:@selector(downloadStateDidUpdate:)]) {
             [delegate downloadStateDidUpdate:_state];
         }

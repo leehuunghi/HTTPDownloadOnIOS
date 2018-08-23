@@ -16,33 +16,31 @@
 
 @property (strong, nonatomic) NSMutableArray<CellObjectModel *> *originCellObjects;
 
+@property (strong, nonatomic) dispatch_queue_t queue;
+
 @end
 
 @implementation DownloadTableView
 
 @synthesize cellObjects = _cellObjects;
 
-- (dispatch_queue_t)getQueue {
-    static dispatch_queue_t queue;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        queue = dispatch_queue_create("download_table_queue", DISPATCH_QUEUE_SERIAL);
-    });
-    return queue;
+- (void)configDefault {
+    _queue = dispatch_queue_create("download_table_queue", DISPATCH_QUEUE_SERIAL);
+    _cellObjects = [NSMutableArray new];
+    _originCellObjects = [NSMutableArray new];
+    self.dataSource = self;
+    self.delegate = self;
+    self.separatorStyle = UITableViewCellSeparatorStyleNone;
 }
 
 - (void)setCellObjects:(NSMutableArray *)cellObjects {
+    if (!cellObjects) {
+        return;
+    }
+    
     _originCellObjects = cellObjects;
     _cellObjects = cellObjects;
     
-    self.separatorStyle = UITableViewCellSeparatorStyleNone;
-    self.dataSource = self;
-    self.delegate = self;
-    
-    if (!_cellObjects) {
-        _cellObjects = [NSMutableArray new];
-        _originCellObjects = [NSMutableArray new];
-    }
     [self reloadData];
 }
 
@@ -80,12 +78,15 @@
     }
     
     __weak __typeof(self)weakSelf = self;
-    dispatch_async([self getQueue], ^{
+    dispatch_async(_queue, ^{
         [weakSelf.cellObjects insertObject:cellObject atIndex:0];
         [weakSelf.originCellObjects insertObject:cellObject atIndex:0];
         
         dispatch_async(dispatch_get_main_queue(), ^{
-            [weakSelf insertRowsAtIndexPaths:@[[DownloadTableView headIndexPath]] withRowAnimation:UITableViewRowAnimationMiddle];
+            if (weakSelf.cellObjects.count > [self numberOfRowsInSection:0]) {
+                [weakSelf insertRowsAtIndexPaths:@[[DownloadTableView headIndexPath]] withRowAnimation:UITableViewRowAnimationMiddle];
+            }
+            
             if (weakSelf.error) {
                 if (weakSelf.error.code == DownloadErrorCodeEmpty
                     || weakSelf.error.code == DownloadErrorCodeFilterEmpty) {
@@ -101,7 +102,7 @@
     NSUInteger index = [_cellObjects indexOfObject:cellObject];
     if (index < _cellObjects.count) {
         __weak __typeof(self) weakSelf = self;
-        dispatch_async([self getQueue], ^{
+        dispatch_async(_queue, ^{
             [weakSelf.cellObjects removeObjectAtIndex:index];
             [weakSelf.originCellObjects removeObject:cellObject];
             
@@ -156,7 +157,7 @@
     }
     
     __weak __typeof(self) weakSelf = self;
-    dispatch_async([self getQueue], ^{
+    dispatch_async(_queue, ^{
         [weakSelf.cellObjects insertObject:weakSelf.infoObject atIndex:0];
         [self reloadData];
 //        dispatch_async(dispatch_get_main_queue(), ^{

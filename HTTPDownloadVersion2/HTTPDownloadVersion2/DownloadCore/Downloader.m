@@ -8,6 +8,9 @@
 
 #define kSaveKeyUserDefaut @"download_array_data"
 
+#define kDownLoadListFileName @"downloadList.dat"
+
+#define kDownLoadDataFileName @"downloadData.dat"
 
 #import "Downloader.h"
 #import "WrapperMutableDictionary.h"
@@ -20,7 +23,7 @@
 
 @property (nonatomic, strong) PriorityQueue *priorityQueue;
 
-@property (nonatomic, strong) WrapperMutableDictionary *downloadItems;
+@property (nonatomic, strong) NSMutableDictionary *downloadItems;
 
 @property (nonatomic, strong) dispatch_queue_t serialQueue;
 
@@ -28,7 +31,7 @@
 
 @property (nonatomic) NSUInteger downloadingCount;
 
-@property (nonatomic, strong) NSUserDefaults *userDefaults;
+@property (nonatomic, strong) NSMutableDictionary *resumeDataDictionnary;
 
 @end
 
@@ -37,9 +40,8 @@
 - (instancetype)init {
     self = [super init];
     if (self) {
-        _userDefaults = [NSUserDefaults new];
-        _downloadItems = [[WrapperMutableDictionary alloc] init];
-        [self loadDataFromUserDefault];
+        _downloadItems = [[NSMutableDictionary alloc] init];
+        [self readFromFile];
         _configuration = [NSURLSessionConfiguration backgroundSessionConfigurationWithIdentifier:@"download.background"];
         [_configuration setDiscretionary:YES];
         [_configuration setSessionSendsLaunchEvents:YES];
@@ -83,7 +85,7 @@
                         NSObject* resumeData = [NSUserDefaults.standardUserDefaults objectForKey:urlString];
                         if (resumeData) {
                             if ([resumeData isKindOfClass:[NSData class]]) {
-                                [weakSelf.userDefaults removeObjectForKey:downloadItem.url];
+                                [weakSelf.resumeDataDictionnary removeObjectForKey:downloadItem.url];
                                 downloadItem.downloadTask = [weakSelf.session downloadTaskWithResumeData:(NSData*)resumeData];
                             }
                         } else {
@@ -232,64 +234,112 @@ totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
 }
 
 - (void)saveData:(void(^)(void))completion {
-    [self saveDataToUserDefault];
-    NSMutableArray* suspendedDownloads = [NSMutableArray new];
+    [self writeToFile];
+    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory,
+                                                         NSUserDomainMask, YES);
+    if ([paths count] == 0) {
+        return completion();
+    }
+    NSString *filePath = [[paths objectAtIndex:0]
+                          stringByAppendingPathComponent:kDownLoadDataFileName];
+    dispatch_queue_t sQueue = dispatch_queue_create("download_save", DISPATCH_QUEUE_SERIAL);
+    NSMutableDictionary *dict = [NSMutableDictionary new];
+    __block NSUInteger count = 0;
+    __weak __typeof(self) weakSelf = self;
+    
     for (DownloadItem* download in [_downloadItems allValues]) {
         if (download.downloadTask.state == NSURLSessionTaskStateSuspended) {
-            [suspendedDownloads addObject:download];
-        }
-    }
-    if (suspendedDownloads.count == 0) {
-        if (completion) {
-            completion();
-        }
-    }
-    for (DownloadItem* download in suspendedDownloads) {
-        [download.downloadTask cancelByProducingResumeData:^(NSData * _Nullable resumeData) {
-            if (resumeData) {
-                [NSUserDefaults.standardUserDefaults setObject:resumeData forKey:download.url];
-            }
-            @synchronized (suspendedDownloads) {
-                [suspendedDownloads removeObject:download];
-                if (suspendedDownloads.count == 0) {
-                    if (completion) {
-                        completion();
-                    }
+            [download.downloadTask cancelByProducingResumeData:^(NSData * _Nullable resumeData) {
+                if (resumeData) {
+                    dispatch_async(sQueue, ^{
+                        [dict setObject:resumeData forKey:download.url];
+                    });
                 }
+                ++count;
+                if (count == weakSelf.downloadItems.count) {
+                    dispatch_async(sQueue, ^{
+                        [dict writeToFile:filePath atomically:YES];
+                        completion();
+                    });
+                }
+            }];
+        } else {
+            ++count;
+            if (count == weakSelf.downloadItems.count) {
+                dispatch_async(sQueue, ^{
+                    [dict writeToFile:filePath atomically:YES];
+                    completion();
+                });
             }
-        }];
+        }
+        
     }
+}
+
+- (NSArray *)loadData {
+    if (_downloadItems) {
+        [self readFromFile];
+    }
+    return _downloadItems.allKeys;
 }
 
 #pragma mark - private
 
-- (void)saveDataToUserDefault {
+- (void)writeToFile {
     NSMutableArray *downloadDataArray = [NSMutableArray new];
     for (DownloadItem *item in [_downloadItems allValues]) {
         [downloadDataArray addObject:[item transToData]];
     }
     
-    [_userDefaults setObject:downloadDataArray forKey:kSaveKeyUserDefaut];
-    [_userDefaults synchronize];
+    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+    
+    if ([paths count] > 0) {
+        NSString *filePath = [[paths objectAtIndex:0]
+                     stringByAppendingPathComponent:kDownLoadListFileName];
+        
+        [downloadDataArray writeToFile:filePath atomically:YES];
+    }
 }
 
-- (void)loadDataFromUserDefault {
-    NSArray *array = [_userDefaults objectForKey:kSaveKeyUserDefaut];
-    for (NSData *data in array) {
-        DownloadItem *item = [[DownloadItem alloc] initWithData:data];
-        [_downloadItems setObject:item forKey:item.url];
-        if (item.state == DownloadStateDownloading) {
-            _downloadingCount++;
+- (void)readFromFile {
+    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+    
+    if ([paths count] > 0) {
+        NSString *filePath = [[paths objectAtIndex:0]
+                              stringByAppendingPathComponent:kDownLoadDataFileName];
+        _resumeDataDictionnary = [NSMutableDictionary dictionaryWithContentsOfFile:filePath];
+        
+        filePath = [[paths objectAtIndex:0]
+                    stringByAppendingPathComponent:kDownLoadListFileName];
+        NSArray *array = [NSArray arrayWithContentsOfFile:filePath];
+        
+        for (NSData *data in array) {
+            DownloadItem *item = [[DownloadItem alloc] initWithData:data];
+            [_downloadItems setObject:item forKey:item.url];
         }
     }
 }
 
-- (NSMutableDictionary *)loadData {
-    if (_downloadItems) {
-        [self loadDataFromUserDefault];
-    }
-    return _downloadItems;
-}
+//- (void)saveDataToUserDefault {
+//    NSMutableArray *downloadDataArray = [NSMutableArray new];
+//    for (DownloadItem *item in [_downloadItems allValues]) {
+//        [downloadDataArray addObject:[item transToData]];
+//    }
+//
+//    [_userDefaults setObject:downloadDataArray forKey:kSaveKeyUserDefaut];
+//    [_userDefaults synchronize];
+//}
+//
+//- (void)loadDataFromUserDefault {
+//    NSArray *array = [_userDefaults objectForKey:kSaveKeyUserDefaut];
+//    for (NSData *data in array) {
+//        DownloadItem *item = [[DownloadItem alloc] initWithData:data];
+//        [_downloadItems setObject:item forKey:item.url];
+//        if (item.state == DownloadStateDownloading) {
+//            _downloadingCount++;
+//        }
+//    }
+//}
 
 - (void)resumeDownloadWithIdentifier:(NSString *)URLString {
     if (URLString && [URLString isKindOfClass:[NSString class]]) {
@@ -349,7 +399,13 @@ totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
     
 }
 
-- (void)setDelegateForIdentifier:(NSString *)identifier {
+- (void)setDelegate:(id<DownloadItemDelegate>)delegate forIdentifier:(NSString *)identifier {
+    DownloadItem *item = [_downloadItems objectForKey:identifier];
+    [item addDelegate:delegate];
+}
+
+- (NSString *)getFileNameWithIdentifier:(NSString *)identifier {
+    return identifier.lastPathComponent;
 }
 
 - (void)increaseDownloadingCount {

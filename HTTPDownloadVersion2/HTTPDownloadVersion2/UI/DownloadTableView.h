@@ -24,6 +24,8 @@ static NSString *const DownloadErrorDomain = @"com.download.contact";
 
 @property (nonatomic, readwrite) NSError *error;
 
+- (void)configDefault;
+
 - (void)addCell:(CellObjectModel *)cellObject;
 
 - (void)removeCell:(CellObjectModel *)cellObject;
