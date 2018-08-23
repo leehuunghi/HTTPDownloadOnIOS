@@ -13,7 +13,6 @@
 #define kDownLoadDataFileName @"downloadData.dat"
 
 #import "Downloader.h"
-#import "WrapperMutableDictionary.h"
 
 @interface Downloader()
 
@@ -333,6 +332,9 @@ totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
             [_downloadItems setObject:item forKey:item.url];
             if (item.state == DownloadStatePending) {
                 [self enqueueItem:item];
+            } else if (item.state == DownloadStatePause) {
+                NSData *resumeData = [_resumeDataDictionnary objectForKey:item.url];
+                item.downloadTask = [_session downloadTaskWithResumeData:resumeData];
             }
         }
     }
