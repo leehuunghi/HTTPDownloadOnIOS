@@ -16,7 +16,6 @@
 		933AA28A2119836600CE94A0 /* CellObjectModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 933AA26F2119836600CE94A0 /* CellObjectModel.m */; };
 		933AA28B2119836600CE94A0 /* TableViewCellModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 933AA2712119836600CE94A0 /* TableViewCellModel.m */; };
 		933AA28C2119836600CE94A0 /* TableViewModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 933AA2732119836600CE94A0 /* TableViewModel.m */; };
-		933AA28D2119836600CE94A0 /* Downloader.m in Sources */ = {isa = PBXBuildFile; fileRef = 933AA2762119836600CE94A0 /* Downloader.m */; };
 		933AA28E2119836600CE94A0 /* DownloadItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 933AA2782119836600CE94A0 /* DownloadItem.m */; };
 		933AA28F2119836600CE94A0 /* PriorityQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = 933AA27B2119836600CE94A0 /* PriorityQueue.m */; };
 		933AA2902119836600CE94A0 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 933AA27E2119836600CE94A0 /* AppDelegate.m */; };
@@ -27,6 +26,7 @@
 		933AA2982119891800CE94A0 /* DownloaderModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 933AA2972119891800CE94A0 /* DownloaderModel.m */; };
 		9386120E2126B35200E690A6 /* DownloaderSingleton.m in Sources */ = {isa = PBXBuildFile; fileRef = 9386120D2126B35200E690A6 /* DownloaderSingleton.m */; };
 		A301CCC4212E4E1F00FD3D57 /* WrapperMutableDictionary.m in Sources */ = {isa = PBXBuildFile; fileRef = A301CCC3212E4E1F00FD3D57 /* WrapperMutableDictionary.m */; };
+		A301CCC6212E9E0200FD3D57 /* Downloader.m in Sources */ = {isa = PBXBuildFile; fileRef = 933AA2762119836600CE94A0 /* Downloader.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -64,7 +64,7 @@
 		933AA2962119891800CE94A0 /* DownloaderModel.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DownloaderModel.h; sourceTree = "<group>"; };
 		933AA2972119891800CE94A0 /* DownloaderModel.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DownloaderModel.m; sourceTree = "<group>"; };
 		9386120B21269BB800E690A6 /* DownloadItemDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DownloadItemDelegate.h; sourceTree = "<group>"; };
-		9386120C2126B35200E690A6 /* DownloaderSingleton.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DownloaderSingleton.h; sourceTree = "<group>"; };
+		9386120C2126B35200E690A6 /* DownloaderSingleton.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DownloaderSingleton.h; sourceTree = "<group>"; usesTabs = 0; wrapsLines = 0; };
 		9386120D2126B35200E690A6 /* DownloaderSingleton.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DownloaderSingleton.m; sourceTree = "<group>"; };
 		A301CCC2212E4E1F00FD3D57 /* WrapperMutableDictionary.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WrapperMutableDictionary.h; sourceTree = "<group>"; };
 		A301CCC3212E4E1F00FD3D57 /* WrapperMutableDictionary.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WrapperMutableDictionary.m; sourceTree = "<group>"; };
@@ -277,7 +277,7 @@
 				933AA2842119836600CE94A0 /* DownloadCellObject.m in Sources */,
 				933AA2882119836600CE94A0 /* InformationTableViewCell.m in Sources */,
 				933AA2932119836600CE94A0 /* main.m in Sources */,
-				933AA28D2119836600CE94A0 /* Downloader.m in Sources */,
+				A301CCC6212E9E0200FD3D57 /* Downloader.m in Sources */,
 				933AA28B2119836600CE94A0 /* TableViewCellModel.m in Sources */,
 				933AA28F2119836600CE94A0 /* PriorityQueue.m in Sources */,
 				933AA2862119836600CE94A0 /* DownloadTableViewCell.m in Sources */,

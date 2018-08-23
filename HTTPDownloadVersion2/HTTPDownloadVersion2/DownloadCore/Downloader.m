@@ -131,7 +131,7 @@
         __weak typeof(self) weakSelf = self;
         dispatch_async(self.serialQueue, ^{
             if (downloadItem.state == DownloadStatePending || downloadItem.state == DownloadStatePause) {
-                downloadItem.state = DownloadStateDownloading;
+                downloadItem.state = DownloadStatePending;
                 [weakSelf.priorityQueue addObject:downloadItem withPriority:downloadItem.downloadPriority];
                 [weakSelf dequeueItem];
             }
@@ -160,14 +160,17 @@
 - (void)URLSession:(NSURLSession *)session downloadTask:(NSURLSessionDownloadTask *)downloadTask didWriteData:(int64_t)bytesWritten
  totalBytesWritten:(int64_t)totalBytesWritten
 totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
-    DownloadItem *item = [self.downloadItems objectForKey:downloadTask.originalRequest.URL.absoluteString];
-    if (item) {
-        if (item.downloadTask) {
-            [item updateProgressWithTotalBytesWritten:totalBytesWritten andTotalBytesExpectedToWrite:totalBytesExpectedToWrite];
-        } else {
-            item.downloadTask = downloadTask;
+    __weak typeof(self) weakSelf = self;
+    dispatch_async(_serialQueue, ^{
+        DownloadItem *item = [weakSelf.downloadItems objectForKey:downloadTask.originalRequest.URL.absoluteString];
+        if (item) {
+            if (item.downloadTask) {
+                [item updateProgressWithTotalBytesWritten:totalBytesWritten andTotalBytesExpectedToWrite:totalBytesExpectedToWrite];
+            } else {
+                item.downloadTask = downloadTask;
+            }
         }
-    }
+    });
 }
 
 - (void)URLSession:(nonnull NSURLSession *)session downloadTask:(nonnull NSURLSessionDownloadTask *)downloadTask didFinishDownloadingToURL:(nonnull NSURL *)location {
@@ -177,60 +180,66 @@ totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
     
     [NSFileManager.defaultManager moveItemAtURL:location toURL:documentsURL error:nil];
     
-    DownloadItem *item = [self.downloadItems objectForKey:downloadTask.originalRequest.URL.absoluteString];
-    if (item) {
-        item.filePath = documentsURL.absoluteString;
-    }
+    __weak typeof(self) weakSelf = self;
+    dispatch_async(_serialQueue, ^{
+        DownloadItem *item = [weakSelf.downloadItems objectForKey:downloadTask.originalRequest.URL.absoluteString];
+        if (item) {
+            item.filePath = documentsURL.absoluteString;
+        }
+    });
 }
 
 - (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didCompleteWithError:(NSError *)error {
-    DownloadItem *item = [self.downloadItems objectForKey:task.originalRequest.URL.absoluteString];
-    if (item.downloadTask == task) {
-        NSHTTPURLResponse *httpRespone = (NSHTTPURLResponse *)task.response;
-        if (error) {
-            switch (error.code) {
-                case NSURLErrorCancelled: {
-                    __weak typeof(self)weakSelf = self;
-                    dispatch_async(_serialQueue, ^{
-                        [weakSelf.downloadItems removeObjectForKey:item.url];
-                        if (item.state == DownloadStateDownloading && item.downloadTask.state == NSURLSessionTaskStateSuspended) {
-                            [weakSelf.priorityQueue removeObject:item withPriority:item.downloadPriority];
-                        } else if (item.state == DownloadStatePause) {
-                            return;
-                        }
-                    });
-                    break;
+    __weak typeof(self) weakSelf = self;
+    dispatch_async(_serialQueue, ^{
+        DownloadItem *item = [self.downloadItems objectForKey:task.originalRequest.URL.absoluteString];
+        if (item.downloadTask == task) {
+            NSHTTPURLResponse *httpRespone = (NSHTTPURLResponse *)task.response;
+            if (error) {
+                switch (error.code) {
+                    case NSURLErrorCancelled: {
+                        __weak typeof(self)weakSelf = self;
+                        dispatch_async(weakSelf.serialQueue, ^{
+                            [weakSelf.downloadItems removeObjectForKey:item.url];
+                            if (item.state == DownloadStateDownloading && item.downloadTask.state == NSURLSessionTaskStateSuspended) {
+                                [weakSelf.priorityQueue removeObject:item withPriority:item.downloadPriority];
+                            } else if (item.state == DownloadStatePause) {
+                                return;
+                            }
+                        });
+                        break;
+                    }
+                    case NSURLErrorTimedOut: {
+                        NSData* resumeData = [error.userInfo objectForKey:NSURLSessionDownloadTaskResumeData];
+                        item.downloadTask = [weakSelf.session downloadTaskWithResumeData:resumeData];
+                        return;
+                    }
+                    case NSURLErrorNetworkConnectionLost: {
+                        NSData* resumeData = [error.userInfo objectForKey:NSURLSessionDownloadTaskResumeData];
+                        item.downloadTask = [weakSelf.session downloadTaskWithResumeData:resumeData];
+                        [item.downloadTask resume];
+                        return;
+                    }
+                    default: {
+                        item.state = DownloadStateError;
+                        break;
+                    }
                 }
-                case NSURLErrorTimedOut: {
-                    NSData* resumeData = [error.userInfo objectForKey:NSURLSessionDownloadTaskResumeData];
-                    item.downloadTask = [_session downloadTaskWithResumeData:resumeData];
-                    return;
-                }
-                case NSURLErrorNetworkConnectionLost: {
-                    NSData* resumeData = [error.userInfo objectForKey:NSURLSessionDownloadTaskResumeData];
-                    item.downloadTask = [_session downloadTaskWithResumeData:resumeData];
-                    [item.downloadTask resume];
-                    return;
-                }
-                default: {
-                    item.state = DownloadStateError;
-                    break;
-                }
-            }
-        } else {
-            if (httpRespone.statusCode/100==2) {
-                item.state = DownloadStateComplete;
             } else {
-                item.state = DownloadStateError;
+                if (httpRespone.statusCode >= 200 && httpRespone.statusCode <= 299) {
+                    item.state = DownloadStateComplete;
+                } else {
+                    item.state = DownloadStateError;
+                }
+            }
+            [self decreaseDownloadingCount];
+            [self dequeueItem];
+        } else {
+            if (item.url == task.originalRequest.URL.absoluteString) {
+                item.downloadTask = (NSURLSessionDownloadTask *)task;
             }
         }
-        [self decreaseDownloadingCount];
-        [self dequeueItem];
-    } else {
-        if (item.url == task.originalRequest.URL.absoluteString) {
-            item.downloadTask = (NSURLSessionDownloadTask *)task;
-        }
-    }
+    });
 }
 
 - (void)saveData:(void(^)(void))completion {
