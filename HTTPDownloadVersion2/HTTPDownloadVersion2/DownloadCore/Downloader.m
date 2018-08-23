@@ -13,7 +13,6 @@
 #define kDownLoadDataFileName @"downloadData.dat"
 
 #import "Downloader.h"
-#import "WrapperMutableDictionary.h"
 
 @interface Downloader()
 
@@ -82,6 +81,7 @@
 }
 
 - (void)checkAndEnqueueDownloadItem:(DownloadItem *)downloadItem {
+    NSLog(@"%@", downloadItem.url);
     __weak typeof(self)weakSelf = self;
     [self checkURL:downloadItem.url completion:^(NSError *error) {
         if (error) {
@@ -97,6 +97,7 @@
                     downloadItem.downloadTask = [weakSelf.session downloadTaskWithResumeData:resumeData];
                 }
             } else {
+                NSLog(@"URL: %@", downloadItem.url);
                 NSURL *url = [NSURL URLWithString:downloadItem.url];
                 downloadItem.downloadTask = [weakSelf.session downloadTaskWithURL:url];
             }
@@ -137,6 +138,7 @@
         dispatch_async(self.serialQueue, ^{
             if (downloadItem.state == DownloadStatePending || downloadItem.state == DownloadStatePause) {
                 downloadItem.state = DownloadStatePending;
+                NSLog(@"Enqueue:%@", downloadItem.url);
                 [weakSelf.priorityQueue addObject:downloadItem withPriority:downloadItem.downloadPriority];
                 [weakSelf dequeueItem];
             }
@@ -148,9 +150,9 @@
     __weak typeof(self) weakSelf = self;
     dispatch_async(_serialQueue, ^{
         if (self.downloadingCount < self.limitDownloadTask && self.priorityQueue.count > 0) {
-            NSLog(@"In: %lu %ld",(unsigned long)self.downloadingCount, (long)[weakSelf.priorityQueue count]);
             DownloadItem *item = (DownloadItem *)[weakSelf.priorityQueue dequeue];
             if (item) {
+                NSLog(@"Dequeue:%@", item.url);
                 [weakSelf.priorityQueue removeObject:weakSelf.serialQueue];
                 [weakSelf increaseDownloadingCount];
                 [item resume];
@@ -333,6 +335,11 @@ totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
             [_downloadItems setObject:item forKey:item.url];
             if (item.state == DownloadStatePending) {
                 [self enqueueItem:item];
+            } else if (item.state == DownloadStatePause) {
+                NSData *resumeData = [_resumeDataDictionnary objectForKey:item.url];
+                if (resumeData) {
+                    item.downloadTask = [_session downloadTaskWithResumeData:resumeData];
+                }
             }
         }
     }
