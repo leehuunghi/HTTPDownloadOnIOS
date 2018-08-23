@@ -138,7 +138,6 @@
         dispatch_async(self.serialQueue, ^{
             if (downloadItem.state == DownloadStatePending || downloadItem.state == DownloadStatePause) {
                 downloadItem.state = DownloadStatePending;
-                NSLog(@"Enqueue:%@", downloadItem.url);
                 [weakSelf.priorityQueue addObject:downloadItem withPriority:downloadItem.downloadPriority];
                 [weakSelf dequeueItem];
             }
@@ -152,11 +151,9 @@
         if (self.downloadingCount < self.limitDownloadTask && self.priorityQueue.count > 0) {
             DownloadItem *item = (DownloadItem *)[weakSelf.priorityQueue dequeue];
             if (item) {
-                NSLog(@"Dequeue:%@", item.url);
                 [weakSelf.priorityQueue removeObject:weakSelf.serialQueue];
                 [weakSelf increaseDownloadingCount];
                 [item resume];
-                NSLog(@"Resume: %lu %ld",(unsigned long)weakSelf.downloadingCount, (long)[self.priorityQueue count]);
             }
         }
     });
@@ -334,7 +331,7 @@ totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
             DownloadItem *item = [[DownloadItem alloc] initWithData:data];
             [_downloadItems setObject:item forKey:item.url];
             if (item.state == DownloadStatePending) {
-                [self enqueueItem:item];
+                [self checkAndEnqueueDownloadItem:item];
             } else if (item.state == DownloadStatePause) {
                 NSData *resumeData = [_resumeDataDictionnary objectForKey:item.url];
                 if (resumeData) {
@@ -414,6 +411,7 @@ totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
             [downloadItem.downloadTask cancel];
             downloadItem.downloadTask = nil;
             downloadItem.state = DownloadStatePending;
+            
             [self checkAndEnqueueDownloadItem:downloadItem];
         }
     }
@@ -456,7 +454,6 @@ totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
 
 - (void)setDownloadingCount:(NSUInteger)downloadingCount {
     _downloadingCount = downloadingCount;
-    NSLog(@"Count Downloading: %lu", (unsigned long)downloadingCount);
 }
 
 @end
