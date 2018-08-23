@@ -28,6 +28,7 @@
     [super viewDidLoad];
     self.navigationItem.title = @"Download";
     
+    [_downloadTableView configDefault];
     [self loadCore];
     [self loadData];
 }
@@ -49,8 +50,9 @@
         DownloadCellObject *cellObject = [DownloadCellObject new];
         cellObject.identifier = identifier;
         cellObject.title = [_downloader getFileNameWithIdentifier:identifier];
-        [_downloader setDelegate:cellObject forIdentifier:identifier];
         [_downloadTableView addCell:cellObject];
+        [_downloader setDelegate:cellObject forIdentifier:identifier];
+        
     }
     
     self.staticArr = @[

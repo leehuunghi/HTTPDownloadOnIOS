@@ -64,6 +64,16 @@
     }
 }
 
+- (void)setPriority:(DownloadPriority)priority {
+    _priority = priority;
+    if (_cell) {
+        __weak __typeof(self) weakSelf = self;
+        dispatch_async(dispatch_get_main_queue(), ^{
+            weakSelf.cell.priorityLabel.text = weakSelf.progressString;
+        });
+    }
+}
+
 - (void)setState:(DownloadState)state {
     _state = state;
     switch (state) {
@@ -168,6 +178,10 @@
     } else {
         self.progressString = [NSString stringWithFormat:@"%lld B", totalBytesWritten];
     }
+}
+
+- (void)shouldUpdatePriority:(DownloadPriority)priority {
+    self.priority = priority;
 }
 
 #pragma mark - constant

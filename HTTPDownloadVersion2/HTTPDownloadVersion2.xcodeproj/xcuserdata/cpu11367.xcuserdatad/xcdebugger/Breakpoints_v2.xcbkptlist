@@ -10,11 +10,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "HTTPDownloadVersion2/UI/DownloadTableView.m"
-            timestampString = "556619452.0848269"
+            timestampString = "556692676.8056231"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "84"
-            endingLineNumber = "84"
+            startingLineNumber = "89"
+            endingLineNumber = "89"
             landmarkName = "-addCell:"
             landmarkType = "7">
          </BreakpointContent>

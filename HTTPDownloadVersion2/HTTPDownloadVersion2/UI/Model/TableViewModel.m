@@ -20,18 +20,6 @@
 }
 */
 
-- (void)reloadData {
-    if (!self.delegate) {
-        self.delegate = self;
-    }
-    
-    if (!self.dataSource) {
-        self.dataSource = self;
-    }
-    
-    [super reloadData];
-}
-
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     CellObjectModel *cellObject = _cellObjects[indexPath.row];
     Class cellClass = [cellObject cellClass];
