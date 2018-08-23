@@ -44,9 +44,7 @@
 }
 
 - (void)loadData {
-    NSArray *historyDownload = [NSArray new];
-
-//    NSArray *historyDownload = [_downloader loadData];
+    NSArray *historyDownload = [_downloader loadData];
     for (NSString *identifier in historyDownload) {
         DownloadCellObject *cellObject = [DownloadCellObject new];
         cellObject.identifier = identifier;
@@ -57,6 +55,11 @@
     }
     
     self.staticArr = @[
+                       @"https://speed.hetzner.de/100MB.bin",
+                       @"https://speed.hetzner.de/1GB.bin",
+                       @"http://ipv4.download.thinkbroadband.com/20MB.zip",
+                       @"http://ipv4.download.thinkbroadband.com/10MB.zip",
+                       @"https://speed.hetzner.de/10GB.bin",
                        @"http://www.vietnamvisaonentry.com/file/2014/06/coconut-tree.jpg",
                        @"http://www.vietnamvisaonentry.com/file/2014/06/coconut-tree.jpg",
                        @"http://grail.cba.csuohio.edu/~matos/notes/ist-211/2015-fall/classroster_IST_211_1.xlsx",
@@ -66,11 +69,6 @@
                        @"http://ipv4.download.thinkbroadband.com/200MB.zip",
                        @"http://ipv4.download.thinkbroadband.com/50MB.zip",
                        @"http://ipv4.download.thinkbroadband.com/512MB.zip",
-                       @"https://speed.hetzner.de/100MB.bin",
-                       @"https://speed.hetzner.de/1GB.bin",
-                       @"http://ipv4.download.thinkbroadband.com/20MB.zip",
-                       @"http://ipv4.download.thinkbroadband.com/10MB.zip",
-                       @"https://speed.hetzner.de/10GB.bin"
                        ];
     _count = 0;
     

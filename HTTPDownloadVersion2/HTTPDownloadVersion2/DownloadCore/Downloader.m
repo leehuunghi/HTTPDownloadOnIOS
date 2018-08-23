@@ -41,7 +41,6 @@
     self = [super init];
     if (self) {
         _downloadItems = [[NSMutableDictionary alloc] init];
-        [self readFromFile];
         _configuration = [NSURLSessionConfiguration backgroundSessionConfigurationWithIdentifier:@"download.background"];
         [_configuration setDiscretionary:YES];
         [_configuration setSessionSendsLaunchEvents:YES];
@@ -51,6 +50,7 @@
         _serialQueue = dispatch_queue_create("serial_queue_downloader", DISPATCH_QUEUE_SERIAL);
         _limitDownloadTask = 2;
         _downloadingCount = 0;
+        [self readFromFile];
     }
     return self;
 }
@@ -167,6 +167,7 @@ totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
             if (item.downloadTask) {
                 [item updateProgressWithTotalBytesWritten:totalBytesWritten andTotalBytesExpectedToWrite:totalBytesExpectedToWrite];
             } else {
+                [self increaseDownloadingCount];
                 item.downloadTask = downloadTask;
             }
         }
@@ -325,6 +326,9 @@ totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
         for (NSData *data in array) {
             DownloadItem *item = [[DownloadItem alloc] initWithData:data];
             [_downloadItems setObject:item forKey:item.url];
+            if (item.state == DownloadStatePending) {
+                [self enqueueItem:item];
+            }
         }
     }
 }
@@ -421,7 +425,6 @@ totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
     __weak typeof(self) weakSelf = self;
     dispatch_async(_serialQueue, ^{
         if (weakSelf.downloadingCount < weakSelf.limitDownloadTask) {
-            NSLog(@"t tang ne nha ahihi");
             weakSelf.downloadingCount++;
         }
     });
@@ -431,7 +434,6 @@ totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
     __weak typeof(self) weakSelf = self;
     dispatch_async(_serialQueue, ^{
         if (weakSelf.downloadingCount > 0) {
-            NSLog(@"t giam ne nha ahihi");
             weakSelf.downloadingCount--;
         }
     });
