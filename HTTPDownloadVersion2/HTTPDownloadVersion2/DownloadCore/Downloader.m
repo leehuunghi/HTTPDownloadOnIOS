@@ -264,6 +264,11 @@ totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
     __block NSUInteger count = 0;
     __weak __typeof(self) weakSelf = self;
     
+    if (!_downloadItems || _downloadItems.count == 0) {
+        [dict writeToFile:filePath atomically:YES];
+        completion();
+    }
+    
     for (DownloadItem* download in [_downloadItems allValues]) {
         if (download.downloadTask.state == NSURLSessionTaskStateSuspended) {
             [download.downloadTask cancelByProducingResumeData:^(NSData * _Nullable resumeData) {
@@ -340,6 +345,7 @@ totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
                 if (resumeData) {
                     item.downloadTask = [_session downloadTaskWithResumeData:resumeData];
                 }
+                
             }
         }
     }
