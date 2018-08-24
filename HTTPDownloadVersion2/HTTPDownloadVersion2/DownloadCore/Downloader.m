@@ -114,7 +114,9 @@
     NSURLSession *manager =[NSURLSession sessionWithConfiguration:config];
     NSURLSessionDataTask *dataTask = [manager dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
         if (error) {
-            completion(error);
+            if (completion) {
+                completion(error);
+            }
         } else {
             NSHTTPURLResponse *httpRespone = (NSHTTPURLResponse *)response;
             if (httpRespone.statusCode >= 200 && httpRespone.statusCode <= 299) {
@@ -153,6 +155,10 @@
             if (item) {
                 [weakSelf.priorityQueue removeObject:weakSelf.serialQueue];
                 [weakSelf increaseDownloadingCount];
+//                if (!item.downloadTask) {
+//                    NSURL *url = [NSURL URLWithString:item.url];
+//                    item.downloadTask = [weakSelf.session downloadTaskWithURL:url];
+//                }
                 [item resume];
             }
         }
@@ -278,7 +284,9 @@ totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
                 if (count == weakSelf.downloadItems.count) {
                     dispatch_async(sQueue, ^{
                         [dict writeToFile:filePath atomically:YES];
-                        completion();
+                        if (completion) {
+                            completion();
+                        }
                     });
                 }
             }];
@@ -287,7 +295,9 @@ totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
             if (count == weakSelf.downloadItems.count) {
                 dispatch_async(sQueue, ^{
                     [dict writeToFile:filePath atomically:YES];
-                    completion();
+                    if (completion) {
+                        completion();
+                    }
                 });
             }
         }
@@ -416,8 +426,10 @@ totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
         if (downloadItem) {
             [downloadItem.downloadTask cancel];
             downloadItem.downloadTask = nil;
+            if (downloadItem.downloadTask.state == NSURLSessionTaskStateRunning) {
+                [self decreaseDownloadingCount];
+            }
             downloadItem.state = DownloadStatePending;
-            
             [self checkAndEnqueueDownloadItem:downloadItem];
         }
     }
