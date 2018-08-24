@@ -39,7 +39,7 @@
 }
 
 - (void)loadCore {
-    _downloader = [Downloader new];
+    _downloader = [[Downloader alloc] init];
     [DownloaderSingleton shareIntance].downloader = _downloader;
 }
 

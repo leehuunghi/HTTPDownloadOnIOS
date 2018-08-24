@@ -32,6 +32,8 @@
 
 @property (nonatomic, strong) NSMutableDictionary *resumeDataDictionnary;
 
+@property (nonatomic, strong) NSLock *lock;
+
 @end
 
 @implementation Downloader
@@ -39,17 +41,21 @@
 - (instancetype)init {
     self = [super init];
     if (self) {
+        _lock = [NSLock new];
+        _limitDownloadTask = 2;
+        _downloadingCount = 0;
         _downloadItems = [[NSMutableDictionary alloc] init];
+        [self readFromFile];
+        
         _configuration = [NSURLSessionConfiguration backgroundSessionConfigurationWithIdentifier:@"download.background"];
         [_configuration setDiscretionary:YES];
         [_configuration setSessionSendsLaunchEvents:YES];
-        
         _session = [NSURLSession sessionWithConfiguration:self.configuration delegate:self delegateQueue:nil];
+        
+       
         _priorityQueue = [PriorityQueue new];
         _serialQueue = dispatch_queue_create("serial_queue_downloader", DISPATCH_QUEUE_SERIAL);
-        _limitDownloadTask = 2;
-        _downloadingCount = 0;
-        [self readFromFile];
+        [self preRun];
     }
     return self;
 }
@@ -154,13 +160,21 @@
             DownloadItem *item = (DownloadItem *)[weakSelf.priorityQueue dequeue];
             if (item) {
                 [weakSelf.priorityQueue removeObject:weakSelf.serialQueue];
-                [weakSelf increaseDownloadingCount];
-//                if (!item.downloadTask) {
-//                    NSURL *url = [NSURL URLWithString:item.url];
-//                    item.downloadTask = [weakSelf.session downloadTaskWithURL:url];
-//                }
-                [item resume];
+//                [weakSelf increaseDownloadingCount];
+////                if (!item.downloadTask) {
+////                    NSURL *url = [NSURL URLWithString:item.url];
+////                    item.downloadTask = [weakSelf.session downloadTaskWithURL:url];
+////                }
+//                [item resume];
+                if ([self validateTask:item]) {
+                    [weakSelf increaseDownloadingCount];
+                    [item resume];
+                } else {
+                    item.state = DownloadStateError;
+                }
+                NSLog(@"Resume: %lu %ld",(unsigned long)weakSelf.downloadingCount, (long)[self.priorityQueue count]);
             }
+            [self dequeueItem];
         }
     });
 }
@@ -177,7 +191,6 @@ totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
             if (item.downloadTask) {
                 [item updateProgressWithTotalBytesWritten:totalBytesWritten andTotalBytesExpectedToWrite:totalBytesExpectedToWrite];
             } else {
-                [self increaseDownloadingCount];
                 item.downloadTask = downloadTask;
             }
         }
@@ -258,7 +271,7 @@ totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
     NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory,
                                                          NSUserDomainMask, YES);
     if ([paths count] == 0) {
-        return completion();
+        return completion ? completion() : nil;
     }
     NSString *filePath = [[paths objectAtIndex:0]
                           stringByAppendingPathComponent:kDownLoadDataFileName];
@@ -272,6 +285,7 @@ totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
         completion();
     }
     
+    NSUInteger total = _downloadItems.count;
     for (DownloadItem* download in [_downloadItems allValues]) {
         if (download.downloadTask.state == NSURLSessionTaskStateSuspended) {
             [download.downloadTask cancelByProducingResumeData:^(NSData * _Nullable resumeData) {
@@ -281,7 +295,9 @@ totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
                     });
                 }
                 ++count;
-                if (count == weakSelf.downloadItems.count) {
+                NSLog(@"Loc test: %ld/%ld", count, weakSelf.downloadItems.count);
+                if (count == total) {
+                    NSLog(@"Loc test: exit");
                     dispatch_async(sQueue, ^{
                         [dict writeToFile:filePath atomically:YES];
                         if (completion) {
@@ -292,7 +308,9 @@ totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
             }];
         } else {
             ++count;
-            if (count == weakSelf.downloadItems.count) {
+            NSLog(@"Loc test: %ld/%ld", count, weakSelf.downloadItems.count);
+            if (count == total) {
+                NSLog(@"Loc test: exit");
                 dispatch_async(sQueue, ^{
                     [dict writeToFile:filePath atomically:YES];
                     if (completion) {
@@ -306,9 +324,8 @@ totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
 }
 
 - (NSArray *)loadData {
-    if (_downloadItems) {
-        [self readFromFile];
-    }
+    [_lock lock];
+    [_lock unlock];
     return _downloadItems.allKeys;
 }
 
@@ -327,13 +344,16 @@ totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
                      stringByAppendingPathComponent:kDownLoadListFileName];
         
         [downloadDataArray writeToFile:filePath atomically:YES];
+        NSLog(@"Loc test: save complete %ld", downloadDataArray.count);
     }
 }
 
 - (void)readFromFile {
+    [_lock lock];
     NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
     
     if ([paths count] > 0) {
+        
         NSString *filePath = [[paths objectAtIndex:0]
                               stringByAppendingPathComponent:kDownLoadDataFileName];
         _resumeDataDictionnary = [NSMutableDictionary dictionaryWithContentsOfFile:filePath];
@@ -341,21 +361,39 @@ totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
         filePath = [[paths objectAtIndex:0]
                     stringByAppendingPathComponent:kDownLoadListFileName];
         NSArray *array = [NSArray arrayWithContentsOfFile:filePath];
-        
+       
         for (NSData *data in array) {
             DownloadItem *item = [[DownloadItem alloc] initWithData:data];
             [_downloadItems setObject:item forKey:item.url];
-            if (item.state == DownloadStatePending) {
-                [self checkAndEnqueueDownloadItem:item];
-            } else if (item.state == DownloadStatePause) {
-                NSData *resumeData = [_resumeDataDictionnary objectForKey:item.url];
-                if (resumeData) {
-                    item.downloadTask = [_session downloadTaskWithResumeData:resumeData];
-                }
-                
+            if (item.state == DownloadStateDownloading) {
+                _downloadingCount++;
             }
         }
     }
+    [_lock unlock];
+}
+
+- (void)preRun {
+    for (DownloadItem *item in _downloadItems.allValues) {
+        if (item.state == DownloadStatePending) {
+            [_priorityQueue addObject:item withPriority:item.downloadPriority];
+        }
+    }
+    [self dequeueItem];
+}
+
+- (BOOL)validateTask:(DownloadItem *)item {
+    if (!item.downloadTask) {
+        NSData *resumeData = [_resumeDataDictionnary objectForKey:item.url];
+        if (resumeData) {
+            item.downloadTask = [_session downloadTaskWithResumeData:resumeData];
+        }
+        else if (item.url) {
+            NSURL *url = [NSURL URLWithString:item.url];
+            item.downloadTask = [_session downloadTaskWithURL:url];
+        }
+    }
+    return item.downloadTask != nil;
 }
 
 //- (void)saveDataToUserDefault {
