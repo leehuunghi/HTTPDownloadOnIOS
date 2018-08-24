@@ -462,11 +462,11 @@ totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
     if (URLString && [URLString isKindOfClass:[NSString class]]) {
         DownloadItem* downloadItem = [self.downloadItems objectForKey:URLString];
         if (downloadItem) {
-            [downloadItem.downloadTask cancel];
-            downloadItem.downloadTask = nil;
-            if (downloadItem.downloadTask.state == NSURLSessionTaskStateRunning) {
+            if (downloadItem.state == DownloadStateDownloading) {
                 [self decreaseDownloadingCount];
             }
+            [downloadItem.downloadTask cancel];
+            downloadItem.downloadTask = nil;
             downloadItem.state = DownloadStatePending;
             [self checkAndEnqueueDownloadItem:downloadItem];
         }
