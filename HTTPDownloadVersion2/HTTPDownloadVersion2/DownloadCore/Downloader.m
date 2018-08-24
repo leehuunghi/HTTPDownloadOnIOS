@@ -144,7 +144,6 @@
         dispatch_async(self.serialQueue, ^{
             if (downloadItem.state == DownloadStatePending || downloadItem.state == DownloadStatePause) {
                 downloadItem.state = DownloadStatePending;
-                NSLog(@"Enqueue:%@", downloadItem.url);
                 [weakSelf.priorityQueue addObject:downloadItem withPriority:downloadItem.downloadPriority];
                 [weakSelf dequeueItem];
             }
@@ -158,7 +157,6 @@
         if (self.downloadingCount < self.limitDownloadTask && self.priorityQueue.count > 0) {
             DownloadItem *item = (DownloadItem *)[weakSelf.priorityQueue dequeue];
             if (item) {
-                NSLog(@"Dequeue:%@", item.url);
                 [weakSelf.priorityQueue removeObject:weakSelf.serialQueue];
                 if ([self validateTask:item]) {
                     [weakSelf increaseDownloadingCount];
@@ -455,6 +453,7 @@ totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
             [downloadItem.downloadTask cancel];
             downloadItem.downloadTask = nil;
             downloadItem.state = DownloadStatePending;
+            
             [self checkAndEnqueueDownloadItem:downloadItem];
         }
     }
@@ -497,7 +496,6 @@ totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
 
 - (void)setDownloadingCount:(NSUInteger)downloadingCount {
     _downloadingCount = downloadingCount;
-    NSLog(@"Count Downloading: %lu", (unsigned long)downloadingCount);
 }
 
 @end
